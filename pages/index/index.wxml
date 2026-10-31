@@ -17,6 +17,7 @@
     <view class="verify-bar" wx:if="{{nickName}}">
       <text class="verify-dot"></text>
       <text class="verify-info">{{nickName}}</text>
+      <text class="verify-src" wx:if="{{identityLabel}}">{{identityLabel}}</text>
       <text class="verify-switch" bindtap="switchRole">切换身份 ›</text>
     </view>
 

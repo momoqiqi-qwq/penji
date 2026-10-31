@@ -49,6 +49,8 @@
       { "type": "file", "value": "assets/images/crop-wheat.svg" },
       { "type": "folder", "value": "scripts/" },
       { "type": "folder", "value": "docs/" },
+      { "type": "folder", "value": ".temp/" },
+      { "type": "folder", "value": ".dsh-vision-router/" },
       { "type": "file", "value": "package.json" },
       { "type": "file", "value": "package-lock.json" },
       { "type": "file", "value": ".gitignore" },

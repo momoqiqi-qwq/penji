@@ -494,8 +494,13 @@ function addReview(payload) {
   return review
 }
 
-/** 注册新农户（身份选择页使用） */
-function registerFarmer(name, village) {
+/**
+ * 注册新农户（身份选择页使用）
+ * @param {string} name 姓名
+ * @param {string} village 所在村
+ * @param {string} openid 注册人的微信 openid（云函数 login 换回）；没有就留空，不伪造
+ */
+function registerFarmer(name, village, openid) {
   const data = _db()
   const n = data.farmers.length + 1
   const farmer = {
@@ -505,7 +510,9 @@ function registerFarmer(name, village) {
     avatarColor: '#2E8A5C',
     joinedAt: util.formatDate(),
     bio: '新入驻农户。',
-    violations: 0, farmingCompleteRate: 0
+    violations: 0, farmingCompleteRate: 0,
+    // 谁建的这份档案：同一台微信以后能据此找回自己的农户
+    openid: openid || ''
   }
   data.farmers.push(farmer)
   _recalcFarmer(data, farmer.farmerId)

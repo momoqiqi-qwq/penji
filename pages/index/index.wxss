@@ -105,6 +105,17 @@
   font-size: 22rpx;
   color: rgba(226, 240, 222, 0.6);
 }
+/* 身份来源（已核验 / 本机身份）：比昵称更淡一档，长文本截断，别挤掉右边的「切换身份」 */
+.verify-src {
+  margin-left: 12rpx;
+  font-size: 20rpx;
+  color: rgba(226, 240, 222, 0.36);
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .verify-switch {
   margin-left: auto;
   font-size: 21rpx;

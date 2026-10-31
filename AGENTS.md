@@ -53,12 +53,16 @@
 
 页面入口处用 `getApp().refreshAuth()` 拿当前身份，越权时弹一句人话再退回首页，**不要**静默失败。身份存 `pengji_role_v3`。
 
+登录态（`openid` / `unionid` / 昵称头像）和身份存在**同一个** `pengji_role_v3` 对象里，但两件事互不代表：`auth.clearRole()` 只清业务身份，不动登录态——换身份不是换人。
+
 ## 云函数
 
 - 统一返回 `{ ok: true, data }` / `{ ok: false, msg }`。
 - 时间戳一律用服务器时间，不接受客户端传的 `ts`。
 - 幂等：`readings_daily` 用 `_id = plotId_day`，`initdb` 重复执行返回 `exists`。
 - 密钥从环境变量读，代码里的字面量只能用于本地演示。
+- 登录只走云函数 `login` 的 `cloud.getWXContext()`，**客户端不存 AppSecret**，也不需要自建服务器换 `code2session`。云开发没就绪时降级成本机身份，界面必须如实标注（`auth.identityLabel()`），不许假装核验过微信身份。
+- 用户资料只认用户自己填的（`chooseAvatar` / `type="nickname"`）。`wx.getUserProfile` 现在只返回「微信用户」+ 灰头像，禁止再用。
 
 ## 提交
 

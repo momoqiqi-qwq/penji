@@ -1,4 +1,4 @@
-// 云函数 initdb —— 一次性建好 4 个集合，省得在控制台点 4 遍
+// 云函数 initdb —— 一次性建好 5 个集合，省得在控制台点 5 遍
 //
 // 用法：上传后在「云开发控制台 → 云函数 → initdb → 测试」里点一下运行即可（参数留空）。
 // 或者在开发者工具的云函数列表里右键 initdb → 「云端测试」。
@@ -13,7 +13,8 @@ const COLLECTIONS = [
   'readings',       // 原始读数（每条上报一行）
   'devices',        // 设备状态（每台设备一行，记录 lastSeen 判断在线）
   'alerts',         // 越限告警
-  'readings_daily'  // 按天聚合（90 天档案曲线用）
+  'readings_daily', // 按天聚合（90 天档案曲线用）
+  'users'           // 微信登录账户（_id = openid，由云函数 login 写入）
 ]
 
 exports.main = async () => {

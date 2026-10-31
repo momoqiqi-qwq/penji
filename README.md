@@ -75,7 +75,7 @@ npm run check
 ├── utils/                            全部能力层，页面只调这里
 │   ├── store.js                      唯一的读写入库口（替换成 wx.cloud 即接真后端）
 │   ├── mock.js                       演示数据种子 + 本地持久化
-│   ├── auth.js                       三身份与权限判定
+│   ├── auth.js                       微信登录（openid）+ 三身份与权限判定
 │   ├── sensors.js                    四参数读数：自动/实况/云端/演示 四种来源
 │   ├── ai.js                         作物适宜区间、环境分析、OPI 指数
 │   ├── credit.js                     农户信用分（六档 AAA→D）
@@ -83,7 +83,7 @@ npm run check
 │   ├── diagnose.js + diag-kb.js      农技诊断引擎 + 知识库
 │   ├── tabbar.js 底栏唯一配置 · qrcode.js 二维码 · mqtt.js MQTT 客户端
 │   └── cloud.js 云函数调用封装 · chart.js 折线 · util.js 格式化
-├── cloudfunctions/                   6 个云函数（见下表）
+├── cloudfunctions/                   7 个云函数（见下表）
 ├── assets/                           图标与插图（未引用的已在 packOptions 里排除）
 └── scripts/check.js                  静态自检
 ```
@@ -122,14 +122,32 @@ store.getBatchOPI(batchId)          // 派生计算（不落库）
 
 | 函数 | 触发 | 职责 |
 | --- | --- | --- |
-| `initdb` | 手动执行一次 | 建 `readings` / `devices` / `alerts` / `readings_daily` 四个集合，幂等 |
+| `initdb` | 手动执行一次 | 建 `readings` / `devices` / `alerts` / `readings_daily` / `users` 五个集合，幂等 |
+| `login` | 前端调用 | 微信登录：`getWXContext()` 取 `OPENID`/`UNIONID`，顺手 upsert `users`（`_id = openid`）。**不需要 AppSecret** |
 | `ingest` | HTTP 访问服务 / callFunction | 设备上报入口。设备密钥 `pengji-01` 或环境变量 `PENGJI_DEVICE_KEYS`（≥16 位，`CHANGE_ME` 开头视为未配置）；阈值告警、900 ms 防重放、30 min 在线窗口；时间戳以服务器为准 |
 | `latest` | 手动 / 前端调用 | 取某地块最新一条读数 + 在线状态 |
 | `history` | 前端调用 | ≤300 条原始数据，或 `daily=true` 按天聚合 |
 | `stats` | 定时器 `0 10 1 * * * *`（每天 01:10） | 把昨天 rollup 进 `readings_daily`（`_id = plotId_day`，幂等）；直接调用则返回区间统计 |
 | `mqttPull` | 定时器 `0 * * * * * *`（每分钟） | 云函数侧主动拉 MQTT，多帧取平均写 1 条读数 |
 
-部署顺序：`initdb` → 其余 5 个 → 在控制台给 `readings` 设「所有用户可读」→ 部署 `stats` / `mqttPull` 的定时触发器。所有云函数统一返回 `{ ok: true, data }` 或 `{ ok: false, msg }`，前端由 `utils/cloud.js` 解包。
+部署顺序：`initdb` → `login` → 其余 5 个 → 在控制台给 `readings` 设「所有用户可读」→ 部署 `stats` / `mqttPull` 的定时触发器。所有云函数统一返回 `{ ok: true, data }` 或 `{ ok: false, msg }`，前端由 `utils/cloud.js` 解包。
+
+## 登录链路
+
+```
+wx.login() ──code──▶ （不发给任何人）
+       └─▶ 云函数 login ──getWXContext()──▶ openid / unionid
+                                   └─▶ users 集合（_id = openid，幂等 upsert）
+```
+
+- **不碰 AppSecret。** 云开发里云函数天然带调用方身份，`cloud.getWXContext()` 直接给 `OPENID`；省掉 AppSecret 保管、`access_token` 刷新和请求域名白名单。以后要接自建后端，才把 `wx.login` 的 code 拿去 `code2session`（5 分钟过期、一次性）。
+- `utils/auth.js` 的 `ensureLogin()` 是幂等的：已有 openid 直接复用，不重复调云函数；`chooseRole()` 内部会先确保登录。
+- **身份与登录分开存。** `clearRole()` 只清 `chosen/role/farmerId/buyerId`，openid 与昵称头像保留——换身份不是换人。
+- **云开发没就绪时降级为本机身份**：`openid` 留空、`identitySource = 'local'`，`identityLabel()` 返回「本机身份 · 未连云端」，首页在昵称旁如实标出来。不阻断进小程序，但不假装核验过微信身份（和传感器来源标签同一条纪律）。
+- **头像昵称只能用户自己填**（`open-type="chooseAvatar"` + `<input type="nickname">`）。`wx.getUserProfile` 从 2022-10 起只返回「微信用户」+ 灰头像，等于假数据，已不再使用。头像走 `wx.cloud.uploadFile` 换 `fileID`（`avatar/<openid>.png`，同一人覆盖同一份），因为 `chooseAvatar` 给的是重启即失效的临时路径。
+- 注册农户时把注册人 openid 记在 `farmers.openid` 上（`store.registerFarmer(name, village, openid)`）。
+
+> 需要在微信侧自己动手的：① 小程序后台「隐私保护指引」里声明收集头像昵称；② 云开发控制台把 `login` 云函数上传部署；③ 真机预览（模拟器里 openid 与云存储都能通，但 `chooseAvatar` 只在真机/近版本开发者工具里正常）。
 
 ## 两套评价模型
 

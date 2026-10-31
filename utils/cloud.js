@@ -96,9 +96,39 @@ function call(name, data, timeoutMs) {
   })
 }
 
+/**
+ * 上传本地文件到云存储
+ * @param {string} cloudPath 云端路径（同名会覆盖，所以用 openid 命名天然幂等）
+ * @param {string} filePath 本地临时路径（wxfile:// 那种）
+ * @returns {Promise<string>} fileID（cloud://…，image 组件可直接渲染）
+ */
+function uploadFile(cloudPath, filePath) {
+  return new Promise((resolve, reject) => {
+    if (!available() || !init()) {
+      reject(new Error('CLOUD_NOT_READY'))
+      return
+    }
+    wx.cloud.uploadFile({
+      cloudPath: cloudPath,
+      filePath: filePath,
+      success: (res) => {
+        if (!res || !res.fileID) {
+          reject(new Error('CLOUD_UPLOAD_EMPTY'))
+          return
+        }
+        resolve(res.fileID)
+      },
+      fail: (err) => {
+        console.warn('[cloud] uploadFile 失败', cloudPath, err)
+        reject(new Error('CLOUD_UPLOAD_FAIL'))
+      }
+    })
+  })
+}
+
 module.exports = {
   ENV_ID,
   available, init, ready, envDesc,
-  call,
+  call, uploadFile,
   get inited() { return inited }
 }

@@ -16,6 +16,7 @@ Page({
     roleLabel: '',
     nickName: '',
     avatarUrl: '',
+    identityLabel: '',
     flowSteps: ['传感器采集', 'AI 分析', '自动建档', '二维码绑定', '扫码溯源', '消费者反馈'],
     entries: [],
     stats: { plots: 0, farmers: 0, batches: 0, reviews: 0 },
@@ -59,6 +60,8 @@ Page({
       roleLabel,
       nickName: cur.nickName || '微信用户',
       avatarUrl: cur.avatarUrl,
+      // 身份来源如实标注：云端核验过 / 只存在本机。和传感器来源标签同一条纪律
+      identityLabel: auth.identityLabel(),
       entries: this._entriesFor(cur)
     })
     this.refresh()
