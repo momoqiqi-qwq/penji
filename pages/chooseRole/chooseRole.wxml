@@ -41,7 +41,7 @@
       <view class="panel-title">今天，你从哪一端走进这片地？</view>
       <view class="panel-desc">选择身份后，只显示与你相关的内容</view>
 
-      <view class="role-card" hover-class="role-hover" bindtap="pickFarmer">
+      <view class="role-card role-farmer" hover-class="role-hover" bindtap="pickFarmer">
         <view class="role-ic-wrap"><image class="role-ic" src="/assets/icons/farmer.png" mode="aspectFit" /></view>
         <view class="role-info">
           <view class="role-name">我是农户</view>
@@ -50,7 +50,7 @@
         <view class="role-arrow">›</view>
       </view>
 
-      <view class="role-card" hover-class="role-hover" bindtap="pickBuyer">
+      <view class="role-card role-buyer" hover-class="role-hover" bindtap="pickBuyer">
         <view class="role-ic-wrap"><image class="role-ic" src="/assets/icons/buyer.png" mode="aspectFit" /></view>
         <view class="role-info">
           <view class="role-name">我是采购商</view>
@@ -59,7 +59,7 @@
         <view class="role-arrow">›</view>
       </view>
 
-      <view class="role-card" hover-class="role-hover" bindtap="pickConsumer">
+      <view class="role-card role-consumer" hover-class="role-hover" bindtap="pickConsumer">
         <view class="role-ic-wrap"><image class="role-ic" src="/assets/icons/consumer.png" mode="aspectFit" /></view>
         <view class="role-info">
           <view class="role-name">我是消费者</view>
@@ -109,7 +109,7 @@
       </view>
 
       <view class="farmer-item" wx:for="{{buyers}}" wx:key="buyerId" hover-class="role-hover" bindtap="pickBuyerId" data-id="{{item.buyerId}}">
-        <view class="avatar" style="background:#2D5DA8">{{item.name[0]}}</view>
+        <view class="avatar" style="background:#B4802F">{{item.name[0]}}</view>
         <view class="f-info">
           <view class="f-name">{{item.name}}</view>
           <view class="muted">{{item.org}} · 联系人 {{item.contact}}</view>
