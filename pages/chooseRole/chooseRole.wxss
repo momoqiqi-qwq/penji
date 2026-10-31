@@ -149,6 +149,7 @@
    只在身份选择语境里使用，其他页面不要借用这三个色。 */
 .role-card {
   --role: var(--green);
+  --role-ink: var(--role);      /* 文字用的加深色：金色在白底上对比度不够，单独压一档 */
   --role-soft: var(--green-mist);
   --role-line: rgba(23, 96, 58, 0.08);
   display: flex;
@@ -166,20 +167,23 @@
 /* 农户 · 绿（田间） */
 .role-farmer {
   --role: #17603A;
+  --role-ink: #17603A;
   --role-soft: #E9F2EB;
   --role-line: rgba(23, 96, 58, 0.10);
 }
 /* 消费者 · 蓝（餐桌） */
 .role-consumer {
   --role: #2D5DA8;
+  --role-ink: #2D5DA8;
   --role-soft: #EAEFF8;
   --role-line: rgba(45, 93, 168, 0.10);
 }
-/* 采购商 · 金（市场） */
+/* 采购商 · 金（市场）：色条用 #B4802F，文字压到 #8F5F12 才够对比度 */
 .role-buyer {
   --role: #B4802F;
+  --role-ink: #8F5F12;
   --role-soft: #FAF1DF;
-  --role-line: rgba(180, 128, 47, 0.14);
+  --role-line: rgba(180, 128, 47, 0.16);
 }
 .role-hover {
   transform: scale(0.982);
@@ -205,7 +209,7 @@
 .role-name {
   font-size: 31rpx;
   font-weight: 600;
-  color: var(--role);
+  color: var(--role-ink);
   letter-spacing: 0.02em;
 }
 .role-desc {
