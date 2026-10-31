@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "选择身份"
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "profile-sheet": "/components/profileSheet/profileSheet"
+  }
 }

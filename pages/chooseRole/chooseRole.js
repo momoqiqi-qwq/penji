@@ -12,6 +12,12 @@ Page({
     nickName: '',
     avatarUrl: '',
     identityLabel: '',
+    // 自定义导航栏要自己让开状态栏和胶囊，这两项在 onLoad 里按机型算
+    statusBarHeight: 20,
+    navBarHeight: 44,
+    avatarText: '我',
+    loggedIn: false,
+    profileOpen: false,
     farmers: [],
     buyers: [],
     showRegister: false,
@@ -20,6 +26,7 @@ Page({
   },
 
   onLoad() {
+    this._initNav()
     const cur = auth.current()
     this.setData({
       farmers: store.listFarmers(),
@@ -29,9 +36,53 @@ Page({
       avatarUrl: cur.avatarUrl,
       identityLabel: auth.identityLabel()
     })
+    this._syncIdentity()
     if (cur.chosen) {
       wx.reLaunch({ url: '/pages/index/index' })
     }
+  },
+
+  // 从别处回来时头像/昵称可能已经变了（比如刚才跳过、回来补填）
+  onShow() {
+    this._syncIdentity()
+  },
+
+  /** 自定义导航栏的高度：标题要和微信胶囊垂直居中对齐，只能靠胶囊的实际位置反推 */
+  _initNav() {
+    const win = (wx.getWindowInfo && wx.getWindowInfo()) || wx.getSystemInfoSync() || {}
+    const statusBarHeight = win.statusBarHeight || 20
+    let navBarHeight = 44
+    try {
+      const box = wx.getMenuButtonBoundingClientRect()
+      if (box && box.height && box.top) navBarHeight = (box.top - statusBarHeight) * 2 + box.height
+    } catch (e) {}
+    this.setData({ statusBarHeight, navBarHeight })
+  },
+
+  /** 导航栏右上那个小头像的状态：有图用图，没图用昵称首字，没昵称就是「我」 */
+  _syncIdentity() {
+    const cur = auth.current()
+    this.setData({
+      avatarUrl: cur.avatarUrl,
+      avatarText: (cur.nickName || '我').slice(0, 1),
+      loggedIn: cur.loggedIn
+    })
+  },
+
+  goHome() {
+    // 还没选身份时首页会把人再踢回来，与其来回弹一次不如说一句
+    if (!auth.current().chosen) {
+      wx.showToast({ title: '先选一个身份，再进首页', icon: 'none' })
+      return
+    }
+    wx.reLaunch({ url: '/pages/index/index' })
+  },
+
+  showProfile() {
+    this.setData({ profileOpen: true })
+  },
+  hideProfile() {
+    this.setData({ profileOpen: false })
   },
 
   // 第一步：微信登录（wx.login 取 code → 云函数 login 换 openid）
@@ -58,6 +109,8 @@ Page({
       avatarUrl: cur.avatarUrl,
       identityLabel: auth.identityLabel()
     })
+    // 刚拿到（或没拿到）openid：导航栏头像上的状态点要跟着变
+    this._syncIdentity()
   },
 
   // 第二步：头像与昵称只能由用户自己填（open-type=chooseAvatar / type=nickname）
@@ -77,6 +130,7 @@ Page({
     // 昵称可以空着，展示层兜底成「微信用户」，不往库里写假名字
     auth.saveWxUserInfo({ nickName: this.data.nickName, avatarUrl: avatarUrl })
     this.setData({ logging: false, step: 'pick', avatarUrl: avatarUrl })
+    this._syncIdentity()
   },
   skipProfile() {
     this.setData({ step: 'pick' })

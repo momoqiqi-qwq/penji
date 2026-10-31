@@ -10,7 +10,8 @@
 .auth-hero {
   position: relative;
   overflow: hidden;
-  padding: 96rpx 44rpx 148rpx;
+  /* 竖向 padding 交给导航栏和 logo 自己撑，顶上空出来的就是状态栏 + 导航栏 */
+  padding: 0 44rpx 148rpx;
   text-align: center;
   background:
     radial-gradient(120% 80% at 82% -18%, rgba(53, 160, 106, 0.5) 0%, rgba(53, 160, 106, 0) 62%),
@@ -34,12 +35,112 @@
   transform: rotate(-5deg);
   pointer-events: none;
 }
+/* ---------------- 自定义导航栏 ----------------
+   这一页要一条原生栏里放不下的东西（房子 + 头像），所以整条自己画。
+   底部与头图同底：渐变从导航栏后面就已经开始，接缝看不出来 */
+.nav {
+  position: relative;
+  z-index: 3;
+}
+
+.nav-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+}
+
+/* 回首页：半透明圆底 + 白色房子线框，和微信原生那颗保持同一个手感 */
+.nav-home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(244, 248, 239, 0.12);
+}
+
+.nav-home-ic {
+  width: 34rpx;
+  height: 34rpx;
+}
+
+/* 头像紧挨着房子：它就是「这是谁」的入口，点开看个人信息 */
+.nav-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  margin-left: 24rpx;
+  border-radius: 50%;
+}
+
+.nav-avatar-img {
+  display: block;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(244, 248, 239, 0.5);
+}
+
+.nav-avatar-tx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: var(--green-light);
+  font-size: 24rpx;
+  color: var(--green);
+}
+
+/* 青柠小点 = 微信身份已核验；没核验就不亮 */
+.nav-avatar-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  border: 2rpx solid #0A2318;
+  background: var(--lime);
+}
+
+/* 标题压正中，不吃点击（左右两簇才是可点的） */
+.nav-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #F4F8EF;
+  pointer-events: none;
+}
+
+.nav-press {
+  opacity: 0.65;
+}
+
 /* 徽标：整块头图里唯一的图形锚点，居中，尺寸取「棚迹」两字宽度的六成 */
 .auth-logo {
   display: block;
   width: 128rpx;
   height: 128rpx;
-  margin: 0 auto 24rpx;
+  margin: 72rpx auto 24rpx;
 }
 /* 下面三行的 padding-left 与各自的 letter-spacing 等值：
    居中排版时字距会在末字右侧多留一格，不补就整体偏左半格 */

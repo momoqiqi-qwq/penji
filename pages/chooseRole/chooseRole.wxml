@@ -2,6 +2,25 @@
 <view class="auth">
   <!-- 深色头图：品牌时刻 -->
   <view class="auth-hero">
+    <!-- 自定义导航栏：原生栏里塞不进自己的节点，所以这一页自己画一条。
+         左边房子回首页，紧挨着头像（点开个人信息），标题压在正中，与微信胶囊同一水平线 -->
+    <view class="nav" style="padding-top:{{statusBarHeight}}px">
+      <view class="nav-bar" style="height:{{navBarHeight}}px">
+        <view class="nav-left">
+          <view class="nav-home" bindtap="goHome" hover-class="nav-press" hover-stay-time="60">
+            <image class="nav-home-ic" src="/assets/icons/home-white.svg" mode="aspectFit" />
+          </view>
+          <view class="nav-avatar" bindtap="showProfile" hover-class="nav-press" hover-stay-time="60">
+            <image class="nav-avatar-img" src="{{avatarUrl}}" mode="aspectFill" wx:if="{{avatarUrl}}" />
+            <text class="nav-avatar-tx" wx:else>{{avatarText}}</text>
+            <!-- 小圆点 = 微信身份已核验；本机身份不亮，不假装 -->
+            <view class="nav-avatar-dot" wx:if="{{loggedIn}}"></view>
+          </view>
+        </view>
+        <view class="nav-title">选择身份</view>
+      </view>
+    </view>
+
     <image class="auth-logo" src="/assets/images/logo-penji.svg" mode="aspectFit" />
     <view class="auth-kicker">PENG JI</view>
     <view class="auth-brand">棚迹</view>
@@ -150,4 +169,7 @@
       </view>
     </block>
   </view>
+
+  <!-- 个人信息卡：头像、昵称、身份与登录来源都在这里说清楚 -->
+  <profile-sheet open="{{profileOpen}}" bind:close="hideProfile" />
 </view>

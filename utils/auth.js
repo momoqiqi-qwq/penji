@@ -155,7 +155,7 @@ function saveWxUserInfo(userInfo) {
 /**
  * 当前身份
  * @returns {{chosen, role, farmerId, buyerId, isConsumer, isFarmer, isBuyer,
- *            nickName, avatarUrl, openid, unionid, identitySource, loggedIn}}
+ *            nickName, avatarUrl, openid, unionid, identitySource, loginAt, loggedIn}}
  */
 function current() {
   const s = _read()
@@ -173,6 +173,7 @@ function current() {
     openid: s.openid || '',
     unionid: s.unionid || '',
     identitySource: s.identitySource || '',
+    loginAt: s.loginAt || 0,
     // 只有云端核验过 openid 才算真登录；本机身份也能用，但要标出来
     loggedIn: !!s.openid
   }

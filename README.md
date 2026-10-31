@@ -63,6 +63,7 @@ npm run check
 ├── app.js / app.json / app.wxss      入口、路由表、设计系统（token 全在 app.wxss 顶部）
 ├── config.js                         云环境 ID（唯一一处）
 ├── custom-tab-bar/                   自定义底栏：只渲染，列表来自 utils/tabbar.js
+├── components/                       公共组件：profileSheet 个人信息卡（chooseRole 用，首页也会用）
 ├── pages/                            16 个页面
 │   ├── index / plot / scan / simulate      4 个 tabBar 页
 │   ├── chooseRole                           身份选择
@@ -185,6 +186,7 @@ npm run check:strict   # 警告也算失败，发版前跑
 
 | 日期 | 更新 |
 | --- | --- |
+| 2026-11-01 | 身份选择页顶部自绘导航栏：左边房子按钮回首页，旁边是你的微信头像，点开是个人信息卡（昵称、身份、登录状态与时间）；只有真核验过的微信身份才亮青柠小点 |
 | 2026-11-01 | 固化与远端同步的约定：开工先 `git fetch`，有新提交就 `--ff-only` 拉取，并在本表补一行日志 |
 | 2026-11-01 | 云端登录上线：登录改走云函数 `login` 的 `getWXContext()`，身份与登录态拆开，首页按登录态分流；身份选择页头图居中并加棚迹图标，角色卡改成整块渐变底 |
 | 2026-10-31 | 采购商端：主推农地块按成熟倒计时排序，支持预订购 |

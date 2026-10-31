@@ -1,0 +1,26 @@
+<!-- components/profileSheet/profileSheet.wxml —— 点遮罩或「知道了」都关 -->
+<view class="ps-mask" wx:if="{{open}}" bindtap="onMask" catchtouchmove="noop"></view>
+
+<view class="ps-sheet" wx:if="{{open}}">
+  <view class="ps-head">
+    <view class="ps-avatar">
+      <image class="ps-avatar-img" src="{{avatarUrl}}" mode="aspectFill" wx:if="{{avatarUrl}}" />
+      <text class="ps-avatar-tx" wx:else>{{avatarText}}</text>
+    </view>
+    <view class="ps-id">
+      <view class="ps-name">{{nickName}}</view>
+      <view class="ps-role" style="color:{{roleColor}}">{{roleName}}</view>
+    </view>
+  </view>
+
+  <view class="ps-rows">
+    <view class="ps-row" wx:for="{{rows}}" wx:key="k">
+      <view class="ps-k">{{item.k}}</view>
+      <view class="ps-v">{{item.v}}</view>
+    </view>
+  </view>
+
+  <view class="ps-hint" wx:if="{{!rows.length}}">还没登录，回上一页点「微信一键登录」</view>
+
+  <button class="ps-close" bindtap="onClose">知道了</button>
+</view>
