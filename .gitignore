@@ -19,3 +19,5 @@ desktop.ini
 # ---- 其他 ----
 coverage/
 *.local.json
+# 视觉工具产物（截图/裁剪），不入库
+.dsh-vision-router/
