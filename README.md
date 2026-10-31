@@ -53,7 +53,7 @@ npm run check
 | --- | --- | --- |
 | 农户 farmer | 地块、批次、农事记录、AI 诊断、环境实况 | 张老汉 F-001 / 王秀英 F-002 / 李建国 F-003 / 赵桂花 F-004 |
 | 消费者 consumer | 扫码头溯源、看档案、评价 | 任意 |
-| 采购商 buyer | 批次核验、录入食品检测、信用查看 | 演示采购商 |
+| 采购商 buyer | 主推农地块（按成熟倒计时排序）、预订购、批次核验、录入食品检测 | 演示采购商 |
 
 重置演示数据：`utils/store.resetAll()`，或清掉小程序缓存（存储键 `pengji_mock_v6`，结构版本 `version: 8`，版本不符会自动重建）。
 
@@ -69,7 +69,7 @@ npm run check
 │   ├── plotDetail / plotEdit                地块详情 / 新建地块
 │   ├── product / productEdit / qr           批次档案 / 建档 / 二维码
 │   ├── addRecord                            农事记录录入
-│   ├── farmer / farmerDetail / buyer        农户主页 / 农户档案 / 采购商工作台
+│   ├── farmer / farmerDetail / buyer        农户主页 / 农户档案 / 采购商工作台（主推地块 + 预订购）
 │   ├── diagnose                             农技诊断（本地规则库）
 │   └── inspect                              采购商批次核验 + 检测录入
 ├── utils/                            全部能力层，页面只调这里
@@ -79,6 +79,7 @@ npm run check
 │   ├── sensors.js                    四参数读数：自动/实况/云端/演示 四种来源
 │   ├── ai.js                         作物适宜区间、环境分析、OPI 指数
 │   ├── credit.js                     农户信用分（六档 AAA→D）
+│   ├── maturity.js                   生长周期与成熟倒计时（主推地块排序依据）
 │   ├── diagnose.js + diag-kb.js      农技诊断引擎 + 知识库
 │   ├── tabbar.js 底栏唯一配置 · qrcode.js 二维码 · mqtt.js MQTT 客户端
 │   └── cloud.js 云函数调用封装 · chart.js 折线 · util.js 格式化
@@ -168,7 +169,7 @@ npm run check:strict   # 警告也算失败，发版前跑
 | P0 | 数据层仍是本地 mock | 多设备看到的是各自的本地数据，需要按 `store.js` 的接口逐个替换为云开发实现 |
 | P1 | 设备密钥是字面量 | `ingest` 里 `pengji-01` 仅作演示，生产必须走环境变量 `PENGJI_DEVICE_KEYS` |
 | P1 | 无字号无障碍开关 | 曾有一版 `largeFont` 机制（WXML 已留位）但从未接线，已移除；真要做需要一个新的设置入口 |
-| P2 | 无分包 | 主包 0.99 MB 尚安全，插图继续增长时把 `assets/` 拆进分包 |
+| P2 | 无分包 | 主包 1.04 MB 尚安全，插图继续增长时把 `assets/` 拆进分包 |
 | P2 | 无自动化测试 | 目前只有静态自检；核心计算（`credit` / `ai.calcOPI` / `diagnose`）值得补纯函数单测 |
 
 ## 提交前

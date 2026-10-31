@@ -313,3 +313,238 @@
   margin-top: 16rpx;
   display: inline-block;
 }
+
+/* ---------------- 主推农地块 ---------------- */
+.mp-head {
+  padding: 8rpx 12rpx 0;
+}
+.mp-head-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.mp-head-sub {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  line-height: 1.65;
+  color: var(--text-light);
+}
+.mp-summary {
+  display: flex;
+  margin: 20rpx 0 24rpx;
+}
+.mp-sum-item {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  padding: 20rpx 24rpx;
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  margin-right: 16rpx;
+}
+.mp-sum-item:last-child { margin-right: 0; }
+.mp-sum-num {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  margin-right: 10rpx;
+}
+.mp-sum-num.near { color: #B26A12; }
+.mp-sum-label {
+  font-size: 21rpx;
+  color: var(--text-light);
+}
+.mp-empty {
+  padding: 60rpx 0;
+  text-align: center;
+  font-size: 23rpx;
+  color: var(--text-light);
+}
+.mp-card {
+  position: relative;
+  overflow: hidden;
+  padding: 28rpx;
+  margin-bottom: 22rpx;
+  background: #FFFFFF;
+  border: 1rpx solid rgba(23, 33, 27, 0.04);
+  border-radius: var(--r-lg);
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 18rpx 36rpx -28rpx rgba(23, 33, 27, 0.3);
+}
+/* 临近成熟：暖黄高亮 + 左侧金色标识条 */
+.mp-card.near {
+  background: linear-gradient(180deg, #FFF5D8 0%, #FFFDF4 100%);
+  border-color: rgba(198, 148, 42, 0.5);
+  box-shadow: 0 0 0 2rpx rgba(214, 168, 58, 0.08), 0 22rpx 42rpx -30rpx rgba(120, 90, 20, 0.4);
+}
+.mp-card.near::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8rpx;
+  background: linear-gradient(180deg, #D9A62E, #E9C86A);
+}
+.mp-card.idle {
+  background: #FAFAF7;
+  opacity: 0.8;
+}
+.mp-badge {
+  display: inline-block;
+  padding: 8rpx 18rpx;
+  margin-bottom: 16rpx;
+  border-radius: 999rpx;
+  background: #F6D77A;
+  color: #5A4210;
+  font-size: 21rpx;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.mp-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.mp-plot {
+  flex: 1;
+  min-width: 0;
+  padding-right: 18rpx;
+}
+.mp-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.mp-loc {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  color: var(--text-light);
+  line-height: 1.55;
+}
+.mp-days {
+  flex: 0 0 auto;
+  text-align: right;
+}
+.mp-days-num {
+  display: block;
+  font-size: 23rpx;
+  font-weight: 700;
+  color: var(--green-dark);
+  font-variant-numeric: tabular-nums;
+}
+.mp-days.hot .mp-days-num { color: #B26A12; }
+.mp-days-sub {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 19rpx;
+  color: var(--text-light);
+}
+.mp-crop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 18rpx;
+}
+.mp-crop-name {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: var(--ink);
+  margin-right: 12rpx;
+}
+.mp-stage {
+  padding: 4rpx 12rpx;
+  margin-right: 12rpx;
+  border-radius: 8rpx;
+  background: #EEF3E9;
+  color: #3E6B4F;
+  font-size: 20rpx;
+}
+.mp-cycle {
+  font-size: 20rpx;
+  color: var(--text-light);
+}
+.mp-progress { margin-top: 20rpx; }
+.mp-progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 21rpx;
+  color: var(--text-2);
+}
+.mp-track {
+  height: 14rpx;
+  margin-top: 10rpx;
+  border-radius: 999rpx;
+  background: #EEF0E9;
+  overflow: hidden;
+}
+.mp-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #5C8A6A, #86A86F);
+  transition: width 0.3s ease;
+}
+.mp-fill.hot { background: linear-gradient(90deg, #D9A62E, #E9C86A); }
+.mp-date-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10rpx;
+  font-size: 19rpx;
+  color: var(--text-light);
+}
+.mp-idle {
+  margin-top: 18rpx;
+  padding: 16rpx 18rpx;
+  border-radius: 12rpx;
+  background: #F4F4EE;
+  color: var(--text-light);
+  font-size: 22rpx;
+}
+.mp-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx dashed var(--line);
+}
+.mp-farmer {
+  flex: 1;
+  min-width: 0;
+  padding-right: 16rpx;
+  font-size: 21rpx;
+  color: var(--text-2);
+}
+.mp-btn {
+  flex: 0 0 auto;
+  padding: 12rpx 26rpx;
+  border-radius: 14rpx;
+  background: var(--ink);
+  color: #F1F6EE;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+.mp-btn:active { opacity: 0.82; }
+.mp-tag-mine {
+  flex: 0 0 auto;
+  padding: 10rpx 18rpx;
+  border: 1rpx solid rgba(46, 107, 70, 0.18);
+  border-radius: 12rpx;
+  background: #E9F3E7;
+  color: #2E6B46;
+  font-size: 21rpx;
+}
+.mp-tag-locked {
+  flex: 0 0 auto;
+  padding: 10rpx 18rpx;
+  border: 1rpx solid rgba(180, 128, 47, 0.2);
+  border-radius: 12rpx;
+  background: #FBF3DE;
+  color: #8A6412;
+  font-size: 20rpx;
+}
+

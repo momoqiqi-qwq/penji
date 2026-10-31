@@ -3,7 +3,7 @@
   <view class="buyer-head">
     <image class="bh-bg" src="/assets/images/buyer-workbench.jpg" mode="aspectFill" />
     <view class="bh-mask"></view>
-    <view class="bh-kicker">REVIEW · 检测与审核</view>
+    <view class="bh-kicker">SOURCE · 采购与核验</view>
     <view class="bh-row">
       <view class="bh-avatar">采</view>
       <view class="bh-info">
@@ -17,9 +17,77 @@
   <view class="container">
     <!-- tab 切换 -->
     <view class="tabs">
+      <view class="tab {{tab==='plots' ? 'on' : ''}}" data-tab="plots" bindtap="switchTab">主推地块</view>
       <view class="tab {{tab==='batches' ? 'on' : ''}}" data-tab="batches" bindtap="switchTab">批次核验</view>
       <view class="tab {{tab==='standards' ? 'on' : ''}}" data-tab="standards" bindtap="switchTab">食品标准库</view>
     </view>
+
+    <!-- ============ 主推农地块（临近成熟自动上浮） ============ -->
+    <block wx:if="{{tab==='plots'}}">
+      <view class="mp-head">
+        <view class="mp-head-title">主推农地块</view>
+        <view class="mp-head-sub">按距成熟天数实时排序，越临近成熟越靠前；标黄地块建议优先跟进采购。</view>
+      </view>
+      <view class="mp-summary">
+        <view class="mp-sum-item">
+          <text class="mp-sum-num">{{mainPlots.length}}</text>
+          <text class="mp-sum-label">在册地块</text>
+        </view>
+        <view class="mp-sum-item">
+          <text class="mp-sum-num near">{{nearCount}}</text>
+          <text class="mp-sum-label">即将成熟</text>
+        </view>
+      </view>
+
+      <view class="mp-empty" wx:if="{{!mainPlots.length}}">暂无地块数据</view>
+
+      <view class="mp-card {{item.nearMature ? 'near' : ''}} {{!item.active ? 'idle' : ''}}"
+            wx:for="{{mainPlots}}" wx:key="plotId">
+        <view class="mp-badge" wx:if="{{item.nearMature}}">● 即将成熟 · 建议跟进</view>
+
+        <view class="mp-top">
+          <view class="mp-plot">
+            <view class="mp-name">{{item.name}}</view>
+            <view class="mp-loc">{{item.village}} · {{item.area}}亩 · {{item.soilType}}</view>
+          </view>
+          <view class="mp-days {{item.nearMature ? 'hot' : ''}}">
+            <text class="mp-days-num">{{item.daysText}}</text>
+            <text class="mp-days-sub" wx:if="{{item.active}}">成熟倒计时</text>
+          </view>
+        </view>
+
+        <block wx:if="{{item.active}}">
+          <view class="mp-crop">
+            <text class="mp-crop-name">{{item.cropName}}</text>
+            <text class="mp-stage">{{item.stage}}</text>
+            <text class="mp-cycle">全周期 {{item.cycleDays}} 天</text>
+          </view>
+          <view class="mp-progress">
+            <view class="mp-progress-top">
+              <text>生长进度</text>
+              <text>{{item.progress}}%</text>
+            </view>
+            <view class="mp-track">
+              <view class="mp-fill {{item.nearMature ? 'hot' : ''}}" style="width:{{item.progress}}%"></view>
+            </view>
+            <view class="mp-date-row">
+              <text>播种 {{item.plantDate}}</text>
+              <text>预计成熟 {{item.expectedHarvest}}</text>
+            </view>
+          </view>
+        </block>
+        <view class="mp-idle" wx:else>当前休耕，暂无在种作物</view>
+
+        <view class="mp-foot">
+          <view class="mp-farmer">农户 {{item.farmerName}}<text wx:if="{{item.farmerStar}}"> · ★{{item.farmerStar}}</text></view>
+          <block wx:if="{{item.active}}">
+            <view class="mp-btn" wx:if="{{!item.preorder}}" data-batch="{{item.batchId}}" catchtap="onPreorder">预订购</view>
+            <view class="mp-tag-mine" wx:elif="{{item.preorderMine}}" data-preorder="{{item.preorder.preorderId}}" catchtap="onCancelPreorder">已预订 · 取消</view>
+            <view class="mp-tag-locked" wx:else>已被 {{item.preorder.buyerName}} 预订</view>
+          </block>
+        </view>
+      </view>
+    </block>
 
     <!-- ============ 批次核验 ============ -->
     <block wx:if="{{tab==='batches'}}">

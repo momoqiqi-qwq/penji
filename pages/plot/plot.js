@@ -10,7 +10,7 @@ Page({
     role: 'consumer',
     farmerId: '',
     farmerName: '',
-    roleLabel: '消费者'
+    roleLabel: ''
   },
 
   onShow() {
@@ -23,11 +23,18 @@ Page({
       const f = store.listFarmers().find(x => x.farmerId === cur.farmerId)
       farmerName = f ? f.name : '未知'
     }
+    let buyerName = ''
+    if (cur.isBuyer) {
+      const b = store.listBuyers().find(x => x.buyerId === cur.buyerId)
+      buyerName = b ? b.name : '检测审核'
+    }
     this.setData({
       role: cur.role,
       farmerId: cur.farmerId,
       farmerName,
-      roleLabel: cur.isFarmer ? ('农户 · ' + farmerName) : '消费者'
+      roleLabel: cur.isFarmer
+        ? ('农户 · ' + farmerName)
+        : (cur.isBuyer ? ('采购商 · ' + buyerName) : '消费者')
     })
     this.refresh()
   },

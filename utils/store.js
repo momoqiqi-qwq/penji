@@ -9,6 +9,7 @@ const mock = require('./mock.js')
 const util = require('./util.js')
 const ai = require('./ai.js')
 const credit = require('./credit.js')
+const maturity = require('./maturity.js')
 
 function _db() {
   return mock.load() || mock.initMockData()
@@ -175,6 +176,121 @@ function canEditPlot(farmerId, plotId) {
   return !!p && p.farmerId === farmerId
 }
 
+// ========== 采购商：主推农地块 / 预订购 ==========
+
+function _ensurePreorders(data) {
+  if (!Array.isArray(data.preorders)) data.preorders = []
+  return data.preorders
+}
+
+/**
+ * 采购商「主推农地块」列表
+ * 每块地取当前在种批次，计算距成熟天数、生长进度与是否临近成熟；
+ * 按成熟倒计时自动排序（临近成熟自动上浮），并带出该批次的有效预订购。
+ */
+function listMainPlots() {
+  const data = _db()
+  const preorders = _ensurePreorders(data)
+  const list = (data.plots || []).map(p => {
+    const farmer = (data.farmers || []).find(f => f.farmerId === p.farmerId)
+    const growing = (data.batches || [])
+      .filter(b => b.plotId === p.plotId && b.status === '种植中')
+      .sort((a, b) => util.parseDate(b.plantDate) - util.parseDate(a.plantDate))
+    const active = growing[0] || null
+    const info = active ? maturity.assessBatch(active) : null
+    const preorder = active
+      ? preorders.find(x => x.batchId === active.batchId && x.status === 'active') || null
+      : null
+
+    return {
+      plotId: p.plotId,
+      name: p.name,
+      village: p.village,
+      area: p.area,
+      soilType: p.soilType,
+      farmerId: p.farmerId,
+      farmerName: farmer ? farmer.name : '未知',
+      farmerStar: farmer ? farmer.star : 0,
+      active: !!active,
+      batchId: active ? active.batchId : '',
+      cropName: active ? active.productName : '',
+      stage: active ? active.stage : '',
+      plantDate: active ? active.plantDate : '',
+      expectedHarvest: info ? info.expectedHarvest : '',
+      cycleDays: info ? info.cycleDays : 0,
+      progress: info ? info.progress : 0,
+      daysLeft: info ? info.daysLeft : null,
+      daysText: info ? info.daysText : '休耕中',
+      maturityText: info ? info.maturityText : '',
+      nearMature: !!(info && info.nearMature),
+      preorder: preorder ? Object.assign({}, preorder) : null
+    }
+  })
+  return maturity.sortMainPlots(list)
+}
+
+/**
+ * 创建预订购
+ * 同一批次只允许一个有效预订；被其他采购商预订时返回 locked，取消后自动释放。
+ * @param {Object} payload { plotId, batchId, buyerId, buyerName }
+ */
+function createPlotPreorder(payload) {
+  const data = _db()
+  const preorders = _ensurePreorders(data)
+  const buyerId = payload.buyerId || ''
+  if (!buyerId) return { ok: false, reason: 'no_buyer' }
+
+  const batch = (data.batches || []).find(b =>
+    b.batchId === payload.batchId && b.plotId === payload.plotId && b.status === '种植中'
+  )
+  if (!batch) return { ok: false, reason: 'batch_unavailable' }
+
+  const existing = preorders.find(x => x.batchId === batch.batchId && x.status === 'active')
+  if (existing) {
+    if (existing.buyerId === buyerId) return { ok: true, already: true, preorder: existing }
+    return { ok: false, reason: 'locked', preorder: existing }
+  }
+
+  const buyer = (data.buyers || []).find(b => b.buyerId === buyerId)
+  const info = maturity.assessBatch(batch)
+  const preorder = {
+    preorderId: 'PO-' + String(preorders.length + 1).padStart(3, '0'),
+    plotId: batch.plotId,
+    batchId: batch.batchId,
+    cropName: batch.productName,
+    expectedHarvest: info ? info.expectedHarvest : '',
+    buyerId: buyerId,
+    buyerName: payload.buyerName || (buyer ? buyer.name : '采购商'),
+    status: 'active',
+    createdAt: Date.now(),
+    cancelledAt: null,
+    cancelledBy: ''
+  }
+  preorders.push(preorder)
+  _persist(data)
+  return { ok: true, preorder }
+}
+
+/**
+ * 取消预订购（仅预订人本人），取消后其他采购商可再次预订。
+ * @param {string} preorderId
+ * @param {string} buyerId 当前采购商
+ */
+function cancelPlotPreorder(preorderId, buyerId) {
+  const data = _db()
+  const preorders = _ensurePreorders(data)
+  const preorder = preorders.find(x => x.preorderId === preorderId)
+  if (!preorder) return { ok: false, reason: 'not_found' }
+  if (preorder.buyerId !== buyerId) return { ok: false, reason: 'forbidden' }
+  if (preorder.status !== 'active') return { ok: false, reason: 'inactive' }
+
+  preorder.status = 'cancelled'
+  preorder.cancelledAt = Date.now()
+  preorder.cancelledBy = buyerId
+  _persist(data)
+  return { ok: true, preorder }
+}
+
 // ========== 写操作 ==========
 
 /** 新增地块（农户身份） */
@@ -268,6 +384,7 @@ function addProductBatch(payload, farmerId) {
     farmerId,
     plantDate: payload.plantDate || util.formatDate(),
     harvestDate: null,
+    expectedHarvest: payload.expectedHarvest || '',
     status: '种植中',
     stage: payload.stage || '播种期',
     growthCycle: Array.isArray(payload.growthCycle) ? payload.growthCycle : [],
@@ -743,6 +860,9 @@ module.exports = {
   listBatches,
   listPlotsByFarmer,
   canEditPlot,
+  listMainPlots,
+  createPlotPreorder,
+  cancelPlotPreorder,
   addPlot,
   updatePlot,
   appendPlotPhotos,

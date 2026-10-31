@@ -324,7 +324,7 @@ function buildSeed() {
   // 农户信用评价（统一调用 credit.js：GB/T 23794-2023 三维度 + 农安信用分级实践）
   farmers.forEach(f => credit.evaluateFarmer({ farmers, plots, batches, records, reviews, inspections }, f))
 
-  return { version: 8, generatedAt: now, today, farmers, buyers, plots, batches, records, reviews, standards, inspections }
+  return { version: 8, generatedAt: now, today, farmers, buyers, plots, batches, records, reviews, standards, inspections, preorders: [] }
 }
 
 // ---------- 持久化 ----------

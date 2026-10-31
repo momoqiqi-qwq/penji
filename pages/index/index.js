@@ -76,7 +76,7 @@ Page({
     }
     if (cur.isBuyer) {
       return [
-        { key: 'buyer', name: '采购商工作台', desc: '批次核验 · 检测录入 · OPI 评价', icon: '🧑‍💼', color: '#2d5da8', url: '/pages/buyer/buyer' },
+        { key: 'buyer', name: '采购商工作台', desc: '主推地块 · 批次核验 · 预订购', icon: '🧑‍💼', color: '#2d5da8', url: '/pages/buyer/buyer' },
         { key: 'scan', name: '扫码核验', desc: '扫码直达批次核验页', icon: '🔍', color: '#2d7dd2', url: '/pages/scan/scan' },
         { key: 'plot', name: '地块档案', desc: '查看地块与传感器历史', icon: '🗺', color: '#1f7a3a', url: '/pages/plot/plot' },
         { key: 'live', name: '农田实况', desc: '传感器真实环境数据', icon: '🌡', color: '#8a6212', url: '/pages/simulate/simulate' }
