@@ -2,6 +2,7 @@
 <view class="auth">
   <!-- 深色头图：品牌时刻 -->
   <view class="auth-hero">
+    <image class="auth-logo" src="/assets/images/logo-penji.svg" mode="aspectFit" />
     <view class="auth-kicker">PENG JI</view>
     <view class="auth-brand">棚迹</view>
     <view class="auth-slogan">从地块到餐桌 · 看见每一寸土地的故事</view>
@@ -34,6 +35,37 @@
           <view class="why-tx"><text class="why-b">一物一码</text>扫码即见生产全过程与农户口碑</view>
         </view>
       </view>
+    </block>
+
+    <!-- 第零点五步：头像与昵称
+         微信从 2022-10 起让 wx.getUserProfile 只返回「微信用户」+ 灰头像，
+         所以这两个字段只能由用户自己填：头像用 open-type=chooseAvatar，昵称用 type=nickname -->
+    <block wx:if="{{step === 'profile'}}">
+      <view class="panel-title">怎么称呼你</view>
+      <view class="panel-desc">头像和昵称由你自己填，我们不去读你的微信资料</view>
+
+      <view class="card">
+        <view class="profile-row">
+          <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+            <image class="avatar-img" src="{{avatarUrl}}" mode="aspectFill" wx:if="{{avatarUrl}}" />
+            <view class="avatar-empty" wx:else>＋</view>
+          </button>
+          <view class="profile-hint">
+            <view class="profile-hint-t">点头像从相册里选</view>
+            <view class="muted">不选也行，先用默认头像</view>
+          </view>
+        </view>
+
+        <view class="field">
+          <view class="field-label">昵称</view>
+          <input class="input" type="nickname" placeholder="微信里用的名字" value="{{nickName}}" bindinput="onNickName" />
+        </view>
+
+        <button class="btn btn-block" bindtap="saveProfile" loading="{{logging}}">继续选身份</button>
+        <view class="skip-link" bindtap="skipProfile">先跳过</view>
+      </view>
+
+      <view class="legal" wx:if="{{identityLabel}}">{{identityLabel}}</view>
     </block>
 
     <!-- 第一步：选身份 -->

@@ -10,7 +10,8 @@
 .auth-hero {
   position: relative;
   overflow: hidden;
-  padding: 88rpx 44rpx 148rpx;
+  padding: 96rpx 44rpx 148rpx;
+  text-align: center;
   background:
     radial-gradient(120% 80% at 82% -18%, rgba(53, 160, 106, 0.5) 0%, rgba(53, 160, 106, 0) 62%),
     linear-gradient(168deg, #0A2318 0%, #0E3524 58%, #0A2819 100%);
@@ -33,13 +34,24 @@
   transform: rotate(-5deg);
   pointer-events: none;
 }
+/* 徽标：整块头图里唯一的图形锚点，居中，尺寸取「棚迹」两字宽度的六成 */
+.auth-logo {
+  display: block;
+  width: 128rpx;
+  height: 128rpx;
+  margin: 0 auto 24rpx;
+}
+/* 下面三行的 padding-left 与各自的 letter-spacing 等值：
+   居中排版时字距会在末字右侧多留一格，不补就整体偏左半格 */
 .auth-kicker {
+  padding-left: 0.36em;
   font-size: 20rpx;
   letter-spacing: 0.36em;
   color: rgba(226, 240, 222, 0.45);
 }
 .auth-brand {
-  margin-top: 26rpx;
+  margin-top: 30rpx;
+  padding-left: 0.16em;
   font-size: 84rpx;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -48,7 +60,8 @@
   text-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.25);
 }
 .auth-slogan {
-  margin-top: 22rpx;
+  margin-top: 32rpx;
+  padding-left: 0.08em;
   font-size: 24rpx;
   letter-spacing: 0.08em;
   color: rgba(226, 240, 222, 0.62);
@@ -114,6 +127,57 @@
   letter-spacing: 0.02em;
 }
 
+/* ---------------- 头像与昵称 ----------------
+   头像只能用 open-type="chooseAvatar" 的 button 选，所以这里要把它拆成「圆形壳」：
+   button 自带的边框、内边距、居中全都要清掉，否则会顶出一个方角套圆角 */
+.profile-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 28rpx;
+}
+.avatar-btn {
+  width: 120rpx;
+  height: 120rpx;
+  flex: 0 0 120rpx;
+  margin: 0;
+  padding: 0;
+  border: 1rpx solid var(--border);
+  border-radius: 50%;
+  background: var(--green-mist);
+  box-shadow: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar-btn::after { border: none; }
+.avatar-img {
+  width: 120rpx;
+  height: 120rpx;
+}
+.avatar-empty {
+  font-size: 40rpx;
+  line-height: 1;
+  color: var(--green);
+  opacity: 0.5;
+}
+.profile-hint {
+  flex: 1;
+  min-width: 0;
+  margin-left: 26rpx;
+}
+.profile-hint-t {
+  font-size: 26rpx;
+  color: var(--ink);
+  margin-bottom: 6rpx;
+}
+.skip-link {
+  margin-top: 24rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--text-light);
+}
+
 /* 登录页下半部分：说明产品在做什么，同时把版面填满 */
 .auth-why {
   margin-top: auto;
@@ -144,46 +208,53 @@
 }
 
 /* ---------------- 身份卡 ----------------
-   三种身份各占一个色相：左侧色条 + 图标底色 + 名称颜色。
+   三种身份各占一个色相：整块底色从左到右渐变 + 图标底色 + 名称颜色。
+   渐变取角色色压到低透明度、终点化进白底，所以整张卡都是这个色相，
+   但白底不会被染色 —— 右侧要留给「›」和大段说明文字，压色会读不清。
    这是设计系统「绿色只有四级」的唯一显式例外（角色色，见 AGENTS.md），
    只在身份选择语境里使用，其他页面不要借用这三个色。 */
 .role-card {
   --role: var(--green);
-  --role-ink: var(--role);      /* 文字用的加深色：金色在白底上对比度不够，单独压一档 */
+  --role-ink: var(--role);      /* 文字用的加深色：底色压深后，标题要用比色相更深一档的墨色才压得住 */
   --role-soft: var(--green-mist);
   --role-line: rgba(23, 96, 58, 0.08);
+  --role-wash: rgba(23, 96, 58, 0.34);   /* 渐变起点：左端最浓的一档角色色 */
   display: flex;
   align-items: center;
-  background: #FFFFFF;
+  background:
+    linear-gradient(90deg, var(--role-wash) 0%, transparent 100%),
+    #FFFFFF;
   border-radius: 30rpx;
   padding: 30rpx 28rpx;
   margin-top: 20rpx;
   border: 1rpx solid var(--role-line);
   box-shadow:
-    inset 6rpx 0 0 var(--role),
     0 2rpx 6rpx rgba(23, 33, 27, 0.03),
     0 16rpx 34rpx -22rpx rgba(23, 33, 27, 0.2);
 }
 /* 农户 · 绿（田间） */
 .role-farmer {
   --role: #17603A;
-  --role-ink: #17603A;
+  --role-ink: #0F4A2C;
   --role-soft: #E9F2EB;
   --role-line: rgba(23, 96, 58, 0.10);
+  --role-wash: rgba(23, 96, 58, 0.34);
 }
 /* 消费者 · 蓝（餐桌） */
 .role-consumer {
   --role: #2D5DA8;
-  --role-ink: #2D5DA8;
+  --role-ink: #1F4A8C;
   --role-soft: #EAEFF8;
   --role-line: rgba(45, 93, 168, 0.10);
+  --role-wash: rgba(45, 93, 168, 0.32);
 }
-/* 采购商 · 金（市场）：色条用 #B4802F，文字压到 #8F5F12 才够对比度 */
+/* 采购商 · 金（市场）：色条用 #B4802F，文字压到深金才够对比度 */
 .role-buyer {
   --role: #B4802F;
-  --role-ink: #8F5F12;
+  --role-ink: #6F4A0F;
   --role-soft: #FAF1DF;
   --role-line: rgba(180, 128, 47, 0.16);
+  --role-wash: rgba(180, 128, 47, 0.38);
 }
 .role-hover {
   transform: scale(0.982);
@@ -216,13 +287,14 @@
   margin-top: 8rpx;
   font-size: 22rpx;
   line-height: 1.55;
-  color: var(--text-light);
+  /* 底色压深后 --text-light 会被吃掉，说明字跟着提一档 */
+  color: var(--text);
 }
 .role-arrow {
   font-size: 40rpx;
   line-height: 1;
-  color: var(--role);
-  opacity: 0.45;
+  color: var(--role-ink);
+  opacity: 0.55;
   margin-left: 12rpx;
 }
 .pick-tip {
@@ -258,3 +330,4 @@
   color: var(--green);
   letter-spacing: 0.04em;
 }
+

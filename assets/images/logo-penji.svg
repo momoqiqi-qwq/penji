@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="badge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C8E96B" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="#35A06A" stop-opacity=".06"/>
+    </linearGradient>
+  </defs>
+  <!-- 徽标底盘：深底上给图形一个边界，否则细线会被背景吞掉 -->
+  <rect x=".8" y=".8" width="62.4" height="62.4" rx="20" fill="url(#badge)" stroke="#E2F0DE" stroke-opacity=".22" stroke-width="1.4"/>
+  <!-- 拱棚：立柱直接切进弧线，弧与柱在切点同向，接缝就不显「拼」 -->
+  <path d="M17 45V38a15 15 0 0 1 30 0v7" fill="none" stroke="#F2F8EC" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- 地面：比拱宽约 1.3 倍，读作「土地大于棚」，再长就变成下划线 -->
+  <path d="M12.5 45h39" stroke="#F2F8EC" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- 苗：茎止于分枝点，两片叶从同一点长出，右叶略高一点，避免徽标那种左右镜像的僵感 -->
+  <path d="M32 45V38" stroke="#C8E96B" stroke-width="3.4" stroke-linecap="round"/>
+  <path d="M32 38Q25.4 37.6 24 30Q30.4 30.6 32 38Z" fill="#C8E96B"/>
+  <path d="M32 38Q38.6 37.2 39.5 29Q33.6 29.4 32 38Z" fill="#C8E96B"/>
+</svg>
