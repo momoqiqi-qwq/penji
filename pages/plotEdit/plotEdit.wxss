@@ -1,0 +1,212 @@
+/* pages/plotEdit/plotEdit.wxss —— 地块建档：档案式表单 + 留白
+   规则：白卡 + 双层阴影（来自 app.wxss 的 .card），行间 26rpx，输入框统一 88rpx */
+
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* ---------------------------- 身份 ---------------------------- */
+/* 身份条改成「细线分隔 + 浅绿徽标」，🌾 落在圆角徽标里居中 */
+.role-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 0 0 24rpx;
+  margin-bottom: 24rpx;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.role-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60rpx;
+  padding: 0 22rpx;
+  border-radius: var(--r-sm);
+  background: var(--green-mist);
+  color: var(--green);
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------- 表单 ---------------------------- */
+.field { margin-bottom: 26rpx; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  display: block;
+  margin-bottom: 10rpx;
+  color: var(--text-2);
+  font-size: 24rpx;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.input,
+.picker {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.picker {
+  display: flex;
+  align-items: center;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: 22rpx 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* 聚焦态：边框转绿、底色转白 */
+.input:focus,
+.textarea:focus {
+  background: #FFFFFF;
+  border-color: rgba(23, 96, 58, 0.35);
+}
+
+.input-placeholder { color: var(--text-light); }
+
+/* 开关行：与输入框同高，文字暖灰 */
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 88rpx;
+  padding: 14rpx 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-2);
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+/* 开关下方展开的说明框，用留白隔开 */
+.switch-row + .textarea { margin-top: 16rpx; }
+
+/* 输入框下方的说明 / 错误文字：21rpx 暖灰 */
+.field-hint {
+  margin-top: 10rpx;
+  color: var(--text-light);
+  font-size: 21rpx;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+.tip {
+  margin-top: 12rpx;
+  color: var(--text-light);
+  font-size: 21rpx;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+/* ---------------------------- 照片墙 ---------------------------- */
+.photo-wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+  margin-top: 16rpx;
+}
+
+.photo-item,
+.photo-add {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: var(--r-md);
+}
+
+.photo-item {
+  overflow: hidden;
+  background: var(--green-mist);
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.photo-del {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(8, 20, 14, 0.68);
+  color: #F4F8EF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+/* 加号做成浅绿圆角徽标：底浅绿、内容居中 */
+.photo-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green-mist);
+  border: 1rpx dashed rgba(23, 96, 58, 0.22);
+  color: var(--green);
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+/* 「📍已定位」做成照片内的小贴纸：浅绿圆角底 + 居中，不压暗画面 */
+.photo-loc {
+  position: absolute;
+  left: 8rpx;
+  right: 8rpx;
+  bottom: 8rpx;
+  padding: 4rpx 8rpx;
+  background: var(--green-mist);
+  border-radius: var(--r-sm);
+  color: var(--green);
+  font-size: 20rpx;
+  line-height: 1.5;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ---------------------------- 定位 ---------------------------- */
+/* 定位块当作一个「类输入框」，与上面的输入保持同一语汇 */
+.loc-box {
+  display: block;
+  padding: 22rpx 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.loc-addr {
+  color: var(--ink);
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}

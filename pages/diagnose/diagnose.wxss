@@ -1,0 +1,338 @@
+/* pages/diagnose/diagnose.wxss —— 农技诊断：深墨绿头图 + 白卡表单 + 有机/化学对照方案 */
+.page {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+  background: var(--bg);
+}
+
+/* ================= 头图 ================= */
+.diag-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 52rpx 36rpx 44rpx;
+  color: #F1F6EE;
+  text-align: center;
+  border-radius: 0 0 40rpx 40rpx;
+  background:
+    radial-gradient(110% 70% at 82% -18%, rgba(53, 160, 106, 0.5) 0%, rgba(53, 160, 106, 0) 60%),
+    linear-gradient(168deg, #0A2318 0%, #103526 56%, #0A2819 100%);
+}
+/* 田垄斜线：只做质感，不抢内容 */
+.diag-hero::after {
+  content: "";
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  bottom: -30%;
+  height: 72%;
+  background: repeating-linear-gradient(
+    102deg,
+    rgba(207, 235, 200, 0.09) 0,
+    rgba(207, 235, 200, 0.09) 1rpx,
+    transparent 1rpx,
+    transparent 32rpx
+  );
+  transform: rotate(-4deg);
+  pointer-events: none;
+}
+/* 🩺 徽标：浅绿圆角底 + 居中，当作有意设计的图章，而不是裸 emoji */
+.diag-icon {
+  position: relative;
+  z-index: 2;
+  width: 96rpx;
+  height: 96rpx;
+  margin: 0 auto;
+  border-radius: var(--r-md);
+  background: rgba(200, 233, 107, 0.14);
+  border: 1rpx solid rgba(200, 233, 107, 0.24);
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 46rpx;
+  line-height: 1;
+}
+.diag-title {
+  position: relative;
+  z-index: 2;
+  font-size: 46rpx;
+  font-weight: 700;
+  margin-top: 22rpx;
+  color: #F6FAF1;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+}
+.diag-desc {
+  position: relative;
+  z-index: 2;
+  font-size: 23rpx;
+  color: rgba(226, 240, 222, 0.6);
+  margin-top: 14rpx;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+/* ================= 问题输入 ================= */
+.field {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.field:first-child {
+  padding-top: 0;
+}
+.field:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+/* 卡片里最后一个字段后面紧跟按钮，去掉分隔线更干净 */
+.field:last-of-type {
+  border-bottom: none;
+}
+.field-label {
+  font-size: 24rpx;
+  color: var(--text-2);
+  margin-bottom: 12rpx;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+.input {
+  width: 100%;
+  min-height: 88rpx;
+  padding: 22rpx 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 28rpx;
+  color: var(--text);
+  line-height: 1.5;
+}
+.textarea {
+  width: 100%;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  padding: 24rpx;
+  font-size: 26rpx;
+  min-height: 200rpx;
+  box-sizing: border-box;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* ================= 诊断结果 ================= */
+.result-card {
+  border-left: 8rpx solid var(--warn);
+}
+.result-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+.result-block {
+  margin-top: 28rpx;
+}
+.result-label {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--green-dark);
+  margin-bottom: 10rpx;
+  letter-spacing: 0.04em;
+}
+.result-line {
+  display: flex;
+  align-items: flex-start;
+  font-size: 25rpx;
+  color: var(--text-2);
+  line-height: 1.7;
+  margin: 8rpx 0;
+}
+/* 圆点/对勾徽标：几何由 .dot 统一给，色相由各状态类给 */
+.result-line .dot {
+  width: 32rpx;
+  height: 32rpx;
+  flex: 0 0 32rpx;
+  margin-right: 12rpx;
+  margin-top: 4rpx;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 32rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+.result-line text:last-child {
+  flex: 1;
+  min-width: 0;
+}
+.dot-cause {
+  color: var(--green);
+  background: var(--green-light);
+}
+/* ================= 方案分区标题（emoji 落在胶囊里） ================= */
+.plan-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 20rpx 8rpx 16rpx;
+  margin-bottom: 14rpx;
+  border-radius: var(--r-sm);
+  background: #F1F2EE;
+  color: var(--text-2);
+  font-size: 25rpx;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+.label-urgent {
+  color: var(--warn);
+  background: #FBEBE9;
+}
+.label-organic {
+  color: #145634;
+  background: var(--green-light);
+}
+.label-chem {
+  color: #855517;
+  background: #FAF1E2;
+}
+.label-prevent {
+  color: var(--text-2);
+  background: #F1F2EE;
+}
+.dot-urgent {
+  color: var(--warn);
+  background: #FBEBE9;
+}
+.dot-organic {
+  color: var(--green);
+  background: var(--green-light);
+}
+.dot-chem {
+  color: #855517;
+  background: #FAF1E2;
+}
+.dot-prevent {
+  color: var(--text-light);
+  background: #F1F2EE;
+}
+/* 方案卡片：有机=绿底，化学=金底，都只做极浅底纹 + 左侧色线 */
+.plan-box {
+  border-radius: var(--r-md);
+  padding: 22rpx 24rpx;
+}
+.plan-organic {
+  background: rgba(23, 96, 58, 0.05);
+  border-left: 4rpx solid rgba(23, 96, 58, 0.22);
+}
+.plan-chem {
+  background: #FBF6EC;
+  border-left: 4rpx solid rgba(180, 128, 47, 0.3);
+}
+.plan-box .result-line:last-child {
+  margin-bottom: 0;
+}
+/* ================= 有机合规提示 ================= */
+.organic-note {
+  margin-top: 24rpx;
+  padding: 16rpx 20rpx;
+  background: var(--green-mist);
+  border-left: 6rpx solid rgba(23, 96, 58, 0.35);
+  border-radius: var(--r-sm);
+  font-size: 22rpx;
+  color: #4C6B58;
+  line-height: 1.7;
+}
+
+/* ================= 本次诊断记录 ================= */
+.hist-item {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.hist-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.hist-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+.footer-tip {
+  text-align: center;
+  padding: 44rpx 28rpx calc(16rpx + env(safe-area-inset-bottom));
+  font-size: 20rpx;
+  line-height: 1.7;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+}
+
+/* ================= 输入补充：必填星号 / 字数 ================= */
+.req { color: var(--warn); margin-left: 4rpx; }
+.counter {
+  margin-top: 8rpx;
+  text-align: right;
+  font-size: 20rpx;
+  color: var(--text-light);
+  font-variant-numeric: tabular-nums;
+}
+
+.result-summary {
+  margin-top: 18rpx;
+  padding: 18rpx 20rpx;
+  border-radius: var(--r-sm);
+  background: var(--green-mist);
+  font-size: 24rpx;
+  color: var(--text-2);
+  line-height: 1.75;
+}
+
+/* ================= 追问 chips ================= */
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.chip {
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  font-size: 22rpx;
+  color: var(--green-dark);
+  line-height: 1.5;
+}
+.chip:active { background: var(--green-light); }
+
+/* ================= 历史 ================= */
+.link { font-size: 22rpx; color: var(--text-light); font-weight: 400; letter-spacing: 0.02em; }
+.hist-line { font-size: 21rpx; }
+.hist-text {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--text-2);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 相近结论 */
+.alt-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 16rpx;
+}
+.alt-label {
+  font-size: 24rpx;
+  color: #7a8b7f;
+}
+.alt-item {
+  font-size: 24rpx;
+  color: #2f6b45;
+  background: #eef7f0;
+  border: 1rpx solid #cfe6d6;
+  border-radius: 8rpx;
+  padding: 4rpx 14rpx;
+}

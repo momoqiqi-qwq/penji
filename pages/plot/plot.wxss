@@ -1,0 +1,212 @@
+/* pages/plot/plot.wxss —— 地块档案列表 */
+.page {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+/* ---------------- 头图 ---------------- */
+.plot-hero { position: relative; }
+.plot-hero-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+.plot-hero-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(10, 35, 24, 0.52) 0%, rgba(10, 35, 24, 0.26) 40%, rgba(10, 35, 24, 0.78) 100%);
+}
+.plot-hero .hero-kicker,
+.plot-hero .hero-title,
+.plot-hero .hero-desc {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------------- 身份条 ---------------- */
+.head-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+.role-chip {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 16rpx 20rpx;
+  border-radius: var(--r-md);
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+}
+.role-chip.is-farmer   { background: #F2F7F0; border-color: #17603A22; }
+.role-chip.is-buyer    { background: #EAF0F8; border-color: #2D5DA822; }
+.role-chip.is-consumer { background: #FAFAFA; border-color: #98A69C22; }
+.role-chip-ic {
+  width: 40rpx;
+  height: 40rpx;
+  flex: 0 0 40rpx;
+  margin-right: 16rpx;
+}
+.role-chip-tx { flex: 1; min-width: 0; }
+.role-chip-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.role-chip-tip {
+  font-size: 20rpx;
+  color: var(--text-light);
+  margin-top: 4rpx;
+}
+.head-add {
+  margin-left: 16rpx;
+  padding: 0 26rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(180deg, #1E7048, #13512F);
+  color: #F3F8EF;
+  font-size: 25rpx;
+  font-weight: 600;
+  box-shadow: 0 10rpx 20rpx -12rpx rgba(14, 59, 38, 0.6);
+}
+.head-add-hover { transform: scale(0.96); opacity: 0.92; }
+
+/* ---------------- 搜索 ---------------- */
+.search { margin-bottom: 20rpx; }
+.search-input {
+  height: 84rpx;
+  padding: 0 28rpx;
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 26rpx;
+  color: var(--text);
+}
+.search-input::placeholder,
+.search-input .input-placeholder { color: #A9B3AA; }
+
+/* ---------------- 说明 ---------------- */
+.intro {
+  padding: 24rpx 26rpx;
+  border-radius: var(--r-md);
+  background: var(--green-mist);
+  border: 1rpx solid rgba(23, 96, 58, 0.06);
+  margin-bottom: 26rpx;
+}
+.intro-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #24553C;
+  letter-spacing: 0.02em;
+}
+.intro-desc {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  line-height: 1.7;
+  color: #5D7466;
+}
+
+/* ---------------- 地块卡 ---------------- */
+.plot-list { display: block; }
+.plot-card {
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  padding: 28rpx;
+  margin-bottom: 22rpx;
+  border: 1rpx solid rgba(23, 33, 27, 0.04);
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 18rpx 36rpx -28rpx rgba(23, 33, 27, 0.3);
+}
+.plot-hover {
+  transform: scale(0.985);
+  opacity: 0.94;
+}
+.plot-top {
+  display: flex;
+  align-items: flex-start;
+}
+/* 作物缩略：按当前作物类型给不同底色 + 内嵌 SVG 图标 */
+.plot-thumb {
+  width: 108rpx;
+  height: 108rpx;
+  flex: 0 0 108rpx;
+  border-radius: 20rpx;
+  margin-right: 22rpx;
+  background: linear-gradient(135deg, #E9F2EB 0%, #D4E6DA 100%);
+  border: 1rpx solid rgba(23, 96, 58, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.plot-crop-ic {
+  width: 76rpx;
+  height: 76rpx;
+}
+.plot-main { flex: 1; min-width: 0; }
+.plot-code {
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  color: #A2ACA3;
+  font-variant-numeric: tabular-nums;
+}
+.plot-name {
+  margin-top: 8rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+}
+.plot-meta {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--text-light);
+}
+
+.plot-rotation {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 20rpx;
+  padding: 8rpx 16rpx 8rpx 12rpx;
+  border-radius: 12rpx;
+  background: var(--green-mist);
+  font-size: 21rpx;
+  color: #4C6B58;
+}
+.rot-ic {
+  width: 26rpx;
+  height: 26rpx;
+  margin-right: 8rpx;
+}
+
+.plot-key {
+  font-size: 22rpx;
+  color: var(--text-light);
+}
+.plot-farmer {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: var(--text);
+  margin-left: 12rpx;
+}
+.plot-star {
+  font-size: 22rpx;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}

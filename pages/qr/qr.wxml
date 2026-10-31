@@ -1,0 +1,18 @@
+<!-- pages/qr/qr.wxml -->
+<view class="page" wx:if="{{batch}}">
+  <view class="container">
+    <view class="qr-card">
+      <view class="qr-title">{{batch.productName}}</view>
+      <view class="muted">{{plotName}} · {{farmerName}}</view>
+      <view class="qr-canvas-wrap">
+        <canvas id="qrcanvas" canvas-id="qrcanvas" type="2d" class="qr-canvas"></canvas>
+      </view>
+      <view class="qr-code">溯源码：{{batch.batchId}}</view>
+      <view class="muted">二维码内容：{{qrContent}}</view>
+      <view class="qr-tip">将二维码打印后绑定在农产品包装上，消费者扫码即可查看真实生长过程</view>
+    </view>
+
+    <button class="btn btn-block" bindtap="save">保存二维码（打印张贴）</button>
+    <button class="btn btn-outline btn-block mt-16" bindtap="goTrace">预览溯源页 ›</button>
+  </view>
+</view>

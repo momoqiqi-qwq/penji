@@ -1,0 +1,46 @@
+<!-- pages/farmer/farmer.wxml -->
+<view class="page">
+  <view class="hero-ink farmer-hero">
+    <image class="farmer-hero-bg" src="/assets/images/farmer-hero.jpg" mode="aspectFill" />
+    <view class="farmer-hero-mask"></view>
+    <view class="hero-kicker">CREDIT · 信用档案</view>
+    <view class="farmer-hero-title">农户信用溯源</view>
+  </view>
+
+  <view class="container">
+    <view class="search">
+      <input class="search-input" placeholder="搜索农户名 / 村 / 编号" value="{{keyword}}" bindinput="onInput" />
+    </view>
+
+    <view class="rank-head between">
+      <view class="rank-title">信用排名</view>
+      <view class="muted">{{farmers.length}} 位农户</view>
+    </view>
+
+    <view wx:if="{{farmers.length}}" class="farmer-list">
+      <view wx:for="{{farmers}}" wx:key="farmerId" class="card card-press farmer-card" bindtap="goDetail" data-id="{{item.farmerId}}">
+        <view class="between">
+          <view class="row">
+            <view class="rank-badge {{item.rankCls}}">{{item.rank}}</view>
+            <view class="avatar" style="background:{{item.avatarColor}}">{{item.name[0]}}</view>
+            <view class="farmer-main">
+              <view class="farmer-name">{{item.name}}</view>
+              <view class="muted mt-8">{{item.village}} · {{item.totalBatches}} 批次</view>
+            </view>
+          </view>
+          <view class="credit-box">
+            <view class="credit-num">{{item.creditScore}}</view>
+            <view class="credit-cap">信用分</view>
+          </view>
+        </view>
+        <view class="row mt-16">
+          <text class="tag {{item.level.cls}}">{{item.level.text}}</text>
+          <text class="muted ml">{{item.starText}}</text>
+          <text class="muted ml" wx:if="{{item.avgRating}}">· 买家评 {{item.avgRating}}</text>
+          <text class="tag tag-warn ml" wx:if="{{item.violations}}">{{item.violations}} 违规</text>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="empty">未找到农户</view>
+  </view>
+</view>

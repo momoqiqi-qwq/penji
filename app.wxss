@@ -1,0 +1,420 @@
+/* ============================================================
+   app.wxss — 棚迹设计系统
+   风格：土地 / 档案感。深墨绿 + 暖纸白 + 一点青柠做高光。
+   规则：1) 绿色只有四级（ink / green / lime / mist），不要再引入第五种绿
+        2) 字号阶梯只有 6 级（20 22 24 26 32 40），不要随手写 27rpx
+        3) 阴影永远两层（近实 + 远散），单层阴影一定显廉价
+        4) 圆角只用 --r-sm / --r-md / --r-lg / --r-xl
+   ============================================================ */
+
+page {
+  /* ---- 色板 ---- */
+  --ink: #0B1F16;          /* 最深：标题 / 深底 */
+  --ink-2: #123528;
+  --ink-3: #1B4A33;
+  --green: #17603A;        /* 品牌主绿 */
+  --green-dark: #0E3B26;
+  --green-light: #E9F2EB;
+  --green-mist: #F3F7F2;
+  --lime: #C8E96B;         /* 唯一高光色，用量 < 5% */
+  --gold: #B4802F;
+  --warn: #B23B34;
+  --text: #17211B;
+  --text-2: #55665A;
+  --text-light: #8B988C;
+  --bg: #F6F5F1;           /* 暖纸白，替代原来的冷调 #f5f7f4 */
+  --card: #FFFFFF;
+  --border: #EAEBE5;
+  --line: rgba(23, 33, 27, 0.07);
+
+  /* ---- 圆角 ---- */
+  --r-sm: 16rpx;
+  --r-md: 24rpx;
+  --r-lg: 32rpx;
+  --r-xl: 44rpx;
+
+  /* ---- 阴影 ---- */
+  --sh-1: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 14rpx 30rpx -18rpx rgba(23, 33, 27, 0.16);
+  --sh-2: 0 20rpx 48rpx -22rpx rgba(11, 31, 22, 0.4);
+  --sh-btn: 0 12rpx 24rpx -10rpx rgba(14, 59, 38, 0.45), inset 0 1rpx 0 rgba(255, 255, 255, 0.16);
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "PingFang SC", "HarmonyOS Sans SC", "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+view, text, scroll-view, swiper, swiper-item, button, input, textarea, image {
+  box-sizing: border-box;
+}
+
+/* ============================ 布局 ============================ */
+.container { padding: 28rpx; }
+.row { display: flex; align-items: center; }
+.between { display: flex; justify-content: space-between; align-items: center; }
+.center { display: flex; align-items: center; justify-content: center; }
+.col { display: flex; flex-direction: column; }
+.flex-1 { flex: 1; min-width: 0; }
+.wrap { flex-wrap: wrap; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+.mt-8 { margin-top: 8rpx; }
+.mt-16 { margin-top: 16rpx; }
+.mt-24 { margin-top: 24rpx; }
+.mt-32 { margin-top: 32rpx; }
+.mb-8 { margin-bottom: 8rpx; }
+.mb-16 { margin-bottom: 16rpx; }
+.ml { margin-left: 12rpx; }
+.ml-8 { margin-left: 8rpx; }
+.ml-16 { margin-left: 16rpx; }
+.mr-8 { margin-right: 8rpx; }
+.mr-16 { margin-right: 16rpx; }
+.safe-bottom { padding-bottom: calc(24rpx + env(safe-area-inset-bottom)); }
+
+/* ============================ 文字 ============================ */
+.muted { color: var(--text-light); font-size: 24rpx; line-height: 1.6; }
+.text-2 { color: var(--text-2); }
+.strong { font-weight: 600; }
+.num { font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* 小标签：字号 20rpx + 大字距，用于分区上方的小字 */
+.kicker {
+  font-size: 20rpx;
+  letter-spacing: 0.16em;
+  color: var(--text-light);
+  text-transform: uppercase;
+}
+
+/* ============================ 卡片 ============================ */
+.card {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--sh-1);
+  border: 1rpx solid rgba(23, 33, 27, 0.03);
+}
+.card-flat { box-shadow: none; border: 1rpx solid var(--border); }
+.card-ink {
+  background: linear-gradient(160deg, #12321F 0%, #0B1F16 100%);
+  color: #F1F6EE;
+  box-shadow: var(--sh-2);
+}
+.card-ink .muted { color: rgba(226, 240, 222, 0.55); }
+.card-press { transition: transform 0.12s ease; }
+.card-press:active { transform: scale(0.985); }
+
+/* 点击态（wx hover-class 用） */
+.press { transform: scale(0.976); opacity: 0.92; }
+
+/* ============================ 分区标题 ============================ */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  margin: 36rpx 0 18rpx;
+  display: flex;
+  align-items: center;
+}
+.section-title::before {
+  content: "";
+  display: inline-block;
+  width: 6rpx;
+  height: 26rpx;
+  border-radius: 3rpx;
+  background: linear-gradient(180deg, #35A06A 0%, var(--green) 100%);
+  margin-right: 14rpx;
+  flex: 0 0 6rpx;
+}
+.section-title.between { justify-content: space-between; }
+.section-title.between::after { content: none; }
+.section-sub {
+  font-size: 24rpx;
+  color: var(--text-light);
+  margin: -8rpx 0 18rpx;
+  line-height: 1.6;
+}
+
+/* ============================ 标签 ============================ */
+.tag {
+  display: inline-block;
+  padding: 5rpx 14rpx;
+  font-size: 21rpx;
+  line-height: 1.5;
+  border-radius: 10rpx;
+  margin-right: 10rpx;
+  border: 1rpx solid transparent;
+  vertical-align: middle;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tag-green { background: var(--green-light); color: #145634; border-color: rgba(23, 96, 58, 0.1); }
+.tag-gold  { background: #FAF1E2; color: #855517; border-color: rgba(180, 128, 47, 0.14); }
+.tag-warn  { background: #FBEBE9; color: #9C2B24; border-color: rgba(178, 59, 52, 0.14); }
+.tag-gray  { background: #F1F2EE; color: #63736A; border-color: rgba(23, 33, 27, 0.06); }
+.tag-ink   { background: var(--ink); color: #F1F6EE; border-color: var(--ink); }
+.tag-lime  { background: #F3F8E4; color: #55701A; border-color: rgba(120, 150, 40, 0.16); }
+
+/* 可点的胶囊筛选 */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 56rpx;
+  padding: 0 24rpx;
+  margin-right: 12rpx;
+  border-radius: 28rpx;
+  font-size: 25rpx;
+  color: var(--text-2);
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+}
+.chip.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #F1F6EE;
+  font-weight: 500;
+}
+
+/* ============================ 按钮 ============================ */
+.btn,
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 92rpx;
+  padding: 0 36rpx;
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, #1E7048 0%, #13512F 100%);
+  color: #F3F8EF;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  border: none;
+  box-shadow: var(--sh-btn);
+  transition: transform 0.12s ease;
+}
+.btn::after { border: none; }
+.btn:active { transform: scale(0.985); }
+.btn-block { display: flex; width: 100%; }
+
+.btn-ghost {
+  background: rgba(23, 33, 27, 0.05);
+  color: var(--ink);
+  border: 1rpx solid rgba(23, 33, 27, 0.08);
+  box-shadow: none;
+  font-weight: 500;
+}
+.btn-outline {
+  background: transparent;
+  color: var(--green);
+  border: 1rpx solid rgba(23, 96, 58, 0.3);
+  box-shadow: none;
+  font-weight: 500;
+}
+.btn-sm { height: 64rpx; font-size: 25rpx; padding: 0 26rpx; border-radius: var(--r-sm); }
+.btn[disabled], .btn.disabled {
+  background: #DDE3DC !important;
+  color: #A7B0A8 !important;
+  box-shadow: none !important;
+}
+
+/* ============================ 表单 ============================ */
+.field { margin-bottom: 26rpx; }
+.field-label {
+  font-size: 24rpx;
+  color: var(--text-2);
+  margin-bottom: 10rpx;
+  letter-spacing: 0.02em;
+}
+.field-label .req { color: var(--warn); margin-left: 4rpx; }
+.input, .textarea, .picker-field {
+  width: 100%;
+  min-height: 88rpx;
+  padding: 22rpx 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 28rpx;
+  color: var(--text);
+  line-height: 1.5;
+}
+.input-focus, .input:focus { border-color: rgba(23, 96, 58, 0.35); background: #FFFFFF; }
+.textarea { min-height: 180rpx; padding: 24rpx; }
+.placeholder, .input-ph { color: #A9B3AA; }
+
+/* ============================ 头像 / 分隔 / 空态 ============================ */
+.avatar {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-right: 20rpx;
+  flex: 0 0 76rpx;
+  background: linear-gradient(150deg, #2E8A5C, #17603A);
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.18);
+}
+
+.divider {
+  height: 1rpx;
+  background: var(--line);
+  margin: 24rpx 0;
+}
+
+.empty {
+  text-align: center;
+  padding: 88rpx 32rpx;
+  color: var(--text-light);
+  font-size: 26rpx;
+  line-height: 1.7;
+}
+
+/* ============================ 深色头图区 ============================ */
+/* 用法：<view class="hero-ink"> ... </view>，内部文字用 .hero-* 类 */
+.hero-ink {
+  position: relative;
+  overflow: hidden;
+  color: #F1F6EE;
+  background:
+    radial-gradient(120% 70% at 84% -18%, rgba(53, 160, 106, 0.55) 0%, rgba(53, 160, 106, 0) 62%),
+    linear-gradient(172deg, #0A2318 0%, #0E3524 52%, #0B2A1C 100%);
+  padding: 40rpx 32rpx 36rpx;
+  border-radius: 0 0 40rpx 40rpx;
+}
+/* 田垄纹理：斜向细线，透明度极低，只提供质感不抢内容 */
+.hero-ink::after {
+  content: "";
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -30%;
+  height: 90%;
+  background: repeating-linear-gradient(
+    172deg,
+    rgba(207, 235, 200, 0.10) 0,
+    rgba(207, 235, 200, 0.10) 1rpx,
+    transparent 1rpx,
+    transparent 30rpx
+  );
+  transform: rotate(-4deg);
+  pointer-events: none;
+}
+.hero-kicker {
+  font-size: 20rpx;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(226, 240, 222, 0.5);
+}
+.hero-title {
+  font-size: 52rpx;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  margin-top: 14rpx;
+}
+.hero-desc {
+  font-size: 24rpx;
+  color: rgba(226, 240, 222, 0.62);
+  line-height: 1.7;
+  margin-top: 12rpx;
+}
+
+/* 深色区的数据条 */
+.hero-stats {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  margin-top: 30rpx;
+  padding-top: 26rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+.hero-stat {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero-stat + .hero-stat::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8rpx;
+  bottom: 8rpx;
+  width: 1rpx;
+  background: rgba(255, 255, 255, 0.1);
+}
+.hero-stat .n {
+  font-size: 42rpx;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  display: block;
+}
+.hero-stat .l {
+  font-size: 21rpx;
+  color: rgba(226, 240, 222, 0.55);
+  margin-top: 6rpx;
+  letter-spacing: 0.06em;
+  display: block;
+}
+
+/* ============================ 列表行 ============================ */
+.list-row {
+  display: flex;
+  align-items: center;
+  padding: 26rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.list-row:last-child { border-bottom: none; padding-bottom: 0; }
+.list-row:first-child { padding-top: 0; }
+.list-main { flex: 1; min-width: 0; }
+.list-title { font-size: 29rpx; font-weight: 600; color: var(--ink); }
+.list-desc { font-size: 24rpx; color: var(--text-light); margin-top: 6rpx; line-height: 1.55; }
+
+/* 右箭头 */
+.arrow {
+  font-size: 34rpx;
+  color: #C3CCC4;
+  margin-left: 12rpx;
+  line-height: 1;
+}
+
+/* ============================ 底部弹层 ============================ */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(8, 20, 14, 0.45);
+  z-index: 90;
+}
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 91;
+  background: var(--card);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 32rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -20rpx 60rpx -20rpx rgba(11, 31, 22, 0.45);
+  transform: translateY(102%);
+  transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sheet-up { transform: translateY(0); }
+/* section-title 带右侧操作时（.between），标题占满剩余宽度，不再被挤到中间 */
+.section-title.between > text:first-child,
+.section-title.between > view:first-child {
+  flex: 1;
+  min-width: 0;
+}

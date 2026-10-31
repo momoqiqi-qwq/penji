@@ -1,0 +1,176 @@
+<!-- pages/plotDetail/plotDetail.wxml -->
+<view class="page" wx:if="{{plot}}">
+  <!-- 地块头部 -->
+  <view class="plot-hero">
+    <view class="row between">
+      <view>
+        <view class="plot-id">{{plot.plotId}}</view>
+        <view class="plot-name">{{plot.name}}</view>
+        <view class="plot-meta">{{plot.village}} · {{plot.soilType}} · {{plot.area}} 亩 · 建档 {{plot.establishedAt}}</view>
+      </view>
+      <view class="hero-edit" wx:if="{{canEdit}}" bindtap="goEdit">✎ 编辑</view>
+    </view>
+    <view class="plot-meta mt-8" wx:if="{{plot.rotation}}">🌱 轮换制：{{plot.rotation}}</view>
+    <view class="plot-meta mt-8" wx:if="{{plot.organicSince}}">🕒 有机转换期起始：{{plot.organicSince}}（一年生蔬菜满24个月）</view>
+    <view class="plot-meta mt-8" wx:if="{{plot.bufferZone && plot.bufferZone.has}}">🛡 隔离缓冲带：{{plot.bufferZone.desc || '已设置'}}</view>
+    <view class="plot-meta mt-8" wx:if="{{!plot.bufferZone || !plot.bufferZone.has}}">🛡 隔离缓冲带：未设置</view>
+    <view class="hero-tags">
+      <text class="tag tag-green">{{batches.length}} 茬记录</text>
+      <text class="tag tag-gold">{{recordCount}} 条农事</text>
+      <text class="tag tag-gray" wx:if="{{plot.photos && plot.photos.length}}">{{plot.photos.length}} 张照片</text>
+    </view>
+  </view>
+
+  <view class="container">
+    <!-- 主理农户 -->
+    <view class="section-title">主理农户</view>
+    <view class="card farmer-card" bindtap="goFarmer" wx:if="{{farmer}}">
+      <view class="row between">
+        <view class="row">
+          <view class="avatar" style="background:{{farmer.avatarColor}}">{{farmer.name[0]}}</view>
+          <view>
+            <view class="farmer-name">{{farmer.name}}</view>
+            <view class="muted mt-8">{{farmer.village}} · {{farmer.totalBatches}} 批次</view>
+          </view>
+        </view>
+        <view class="credit-box">
+          <view class="credit-num">{{farmer.creditScore}}</view>
+          <view class="muted">信用分</view>
+        </view>
+      </view>
+      <view class="row mt-16">
+        <text class="tag {{farmer.level.cls}}">{{farmer.level.text}}</text>
+        <text class="muted ml">{{farmer.starText}}</text>
+      </view>
+    </view>
+
+    <!-- 地块照片墙 -->
+    <view class="section-title">地块照片墙（照片附带定位）</view>
+    <view class="card">
+      <view class="photo-wall">
+        <view class="photo-item" wx:for="{{plot.photos}}" wx:key="path" bindtap="previewPhoto" data-url="{{item.path}}">
+          <image class="photo-img" src="{{item.path}}" mode="aspectFill" />
+          <view class="photo-loc" wx:if="{{item.location}}">📍已定位</view>
+        </view>
+        <view class="photo-add" wx:if="{{canEdit && (!plot.photos || plot.photos.length < 6)}}" bindtap="uploadPhoto">＋</view>
+      </view>
+      <view class="empty" wx:if="{{!plot.photos || !plot.photos.length}}">{{canEdit ? '点 ＋ 拍照上传（自动附带定位）' : '暂无地块照片'}}</view>
+    </view>
+
+    <!-- 环境历史曲线（空气温度 / 空气湿度 / 光照 / 土壤湿度） -->
+    <view class="section-title">环境历史曲线（最近 90 天） <text class="tag {{envHistoryTag.cls}}">{{envHistoryTag.text}}</text></view>
+    <view class="card">
+      <view class="env-tip muted" wx:if="{{envHistoryDays}}">已接入田间传感器持久化数据（sensor_data.db，按天聚合，覆盖 {{envHistoryDays}} 天）</view>
+      <view class="env-tip muted" wx:else>空气温度、空气湿度、光照、土壤湿度 四类传感器采集 · 一块土地的环境历史，是这块地长期档案的一部分</view>
+
+      <!-- 最新读数 + 数据来源 -->
+      <view class="env-latest" wx:if="{{latestEnv}}">
+        <view class="el-cell el-temp">
+          <image class="el-ic" src="/assets/icons/temp.png" mode="aspectFit" />
+          <view class="el-num">{{latestEnv.airTemp}}<text class="el-unit">℃</text></view>
+          <view class="el-label">空气温度</view>
+        </view>
+        <view class="el-cell el-humid">
+          <image class="el-ic" src="/assets/icons/humidity.png" mode="aspectFit" />
+          <view class="el-num">{{latestEnv.airHumidity}}<text class="el-unit">%</text></view>
+          <view class="el-label">空气湿度</view>
+        </view>
+        <view class="el-cell el-light">
+          <image class="el-ic" src="/assets/icons/sun.png" mode="aspectFit" />
+          <view class="el-num">{{latestEnv.light}}<text class="el-unit">%</text></view>
+          <view class="el-label">光照</view>
+        </view>
+        <view class="el-cell el-soil">
+          <image class="el-ic" src="/assets/icons/soil.png" mode="aspectFit" />
+          <view class="el-num">{{latestEnv.soilMoisture}}<text class="el-unit">%</text></view>
+          <view class="el-label">土壤湿度</view>
+        </view>
+      </view>
+      <view class="env-src" wx:if="{{latestEnv}}">
+        <text class="tag {{latestEnvTag.cls}}">{{latestEnv.sourceLabel}}</text>
+      </view>
+
+      <view class="env-block" wx:if="{{envLine.airTemp.points.length}}">
+        <view class="between">
+          <view class="env-name">空气温度</view>
+          <view class="env-val v-temp">{{envLine.airTemp.latest}}℃ <text class="muted">/ 均 {{envLine.airTemp.avg}}℃</text></view>
+        </view>
+        <canvas type="2d" id="canvas-airTemp" class="spark-canvas spark-temp"></canvas>
+        <view class="between muted env-range"><text>{{envLine.airTemp.dates[0]}}</text><text>{{envLine.airTemp.dates[1]}}</text></view>
+      </view>
+
+      <view class="env-block" wx:if="{{envLine.airHumidity.points.length}}">
+        <view class="between">
+          <view class="env-name">空气湿度</view>
+          <view class="env-val v-humid">{{envLine.airHumidity.latest}}% <text class="muted">/ 均 {{envLine.airHumidity.avg}}%</text></view>
+        </view>
+        <canvas type="2d" id="canvas-airHumidity" class="spark-canvas spark-humid"></canvas>
+        <view class="between muted env-range"><text>{{envLine.airHumidity.dates[0]}}</text><text>{{envLine.airHumidity.dates[1]}}</text></view>
+      </view>
+
+      <view class="env-block" wx:if="{{envLine.light.points.length}}">
+        <view class="between">
+          <view class="env-name">光照</view>
+          <view class="env-val v-light">{{envLine.light.latest}}% <text class="muted">/ 均 {{envLine.light.avg}}%</text></view>
+        </view>
+        <canvas type="2d" id="canvas-light" class="spark-canvas spark-light"></canvas>
+        <view class="between muted env-range"><text>{{envLine.light.dates[0]}}</text><text>{{envLine.light.dates[1]}}</text></view>
+      </view>
+
+      <view class="env-block" wx:if="{{envLine.soilMoisture.points.length}}">
+        <view class="between">
+          <view class="env-name">土壤湿度</view>
+          <view class="env-val v-soil">{{envLine.soilMoisture.latest}}% <text class="muted">/ 均 {{envLine.soilMoisture.avg}}%</text></view>
+        </view>
+        <canvas type="2d" id="canvas-soilMoisture" class="spark-canvas spark-soil"></canvas>
+        <view class="between muted env-range"><text>{{envLine.soilMoisture.dates[0]}}</text><text>{{envLine.soilMoisture.dates[1]}}</text></view>
+      </view>
+    </view>
+
+    <!-- 全生命周期茬次（核心创新：历年多茬串联） -->
+    <view class="section-title between" bindtap="toggleBatches">
+      <text>全生命周期茬次（历年多茬串联）</text>
+      <view class="fold-arrow {{batchesExpanded ? 'up' : ''}}">›</view>
+    </view>
+    <block wx:if="{{batchesExpanded}}">
+    <view class="card" wx:for="{{yearGroups}}" wx:for-item="g" wx:key="year">
+      <view class="year-head">{{g.year}} 年</view>
+      <view class="batch-item" wx:for="{{g.list}}" wx:for-item="b" wx:key="batchId" bindtap="goBatch" data-id="{{b.batchId}}">
+        <view class="between">
+          <view class="batch-prod">{{b.productName}}</view>
+          <text class="tag {{b.statusTag}}">{{b.status}}</text>
+        </view>
+        <view class="muted mt-8">{{b.plantDate}} → {{b.harvestDate || '种植中'}} · {{b.recordCount}} 条农事 · {{b.estYield}}</view>
+        <view class="muted mt-8" wx:if="{{b.flag}}">⚠ {{b.flag === '违规' ? '本批次被标记违规' : b.flag}}</view>
+      </view>
+    </view>
+    </block>
+
+    <!-- 全部农事记录 -->
+    <view class="section-title between" bindtap="toggleRecords">
+      <text>地块全部农事记录</text>
+      <view class="fold-arrow {{recordsExpanded ? 'up' : ''}}">›</view>
+    </view>
+    <view class="card" wx:if="{{recordsExpanded && records.length}}">
+      <view class="record-item" wx:for="{{records}}" wx:key="recordId">
+        <view class="between">
+          <view class="row">
+            <text class="tag {{item.typeTag}}">{{item.type}}</text>
+            <view class="rec-prod">{{item.productName}}</view>
+          </view>
+          <view class="muted">{{item.date}}</view>
+        </view>
+        <view class="rec-content mt-8">{{item.content}}</view>
+        <view class="muted mt-8" wx:if="{{item.cost}}">投入 ¥{{item.cost}}</view>
+        <!-- 该农事操作发生时的真实田间环境快照 -->
+        <view class="rec-env" wx:if="{{item.envSnapshot}}">
+          <text class="tag {{item.envTag}}">{{item.envLabel}}</text>
+          <text class="rec-env-num">温度 {{item.envSnapshot.airTemp}}℃ · 湿度 {{item.envSnapshot.airHumidity}}% · 光照 {{item.envSnapshot.light}}% · 土壤湿度 {{item.envSnapshot.soilMoisture}}%</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty" wx:elif="{{recordsExpanded}}">暂无农事记录</view>
+
+    <button class="btn btn-block mt-24" bindtap="goAddRecord">＋ 为本地块新增农事记录</button>
+  </view>
+</view>

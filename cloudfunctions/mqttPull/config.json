@@ -1,0 +1,9 @@
+{
+  "triggers": [
+    {
+      "name": "pullMqtt",
+      "type": "timer",
+      "config": "0 * * * * * *"
+    }
+  ]
+}

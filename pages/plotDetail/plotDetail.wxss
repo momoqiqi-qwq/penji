@@ -1,0 +1,529 @@
+/* pages/plotDetail/plotDetail.wxss —— 地块档案详情（信息密集，产品核心页）
+   视觉基准：app.wxss 的 token / .card / .tag / .hero-*
+             pages/product/product.wxss（深墨绿头图 + 档案式时间轴 + 指标网格）
+             pages/plot/plot.wxss（头图圆角与缩略块写法）
+   本文件只做视觉层重写：不改任何 wxml / js，不引入图片资源。
+   ============================================================ */
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 48rpx;
+}
+
+/* 先声明 .mt-8，让后面的 .plot-meta 用统一的 12rpx 行距（同权重、后写者胜） */
+.mt-8 { margin-top: 8rpx; }
+
+/* ---------------- 顶部：地块身份头图 ---------------- */
+/* 与 product / scan / plot 一致：深墨绿底 + 径向高光 + 40rpx 底角圆角 */
+.plot-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 40rpx 32rpx 40rpx;
+  color: #F2F7EF;
+  border-radius: 0 0 40rpx 40rpx;
+  background:
+    radial-gradient(120% 70% at 86% -20%, rgba(53, 160, 106, 0.5) 0%, rgba(53, 160, 106, 0) 60%),
+    linear-gradient(172deg, #0A2318 0%, #103526 56%, #0A2819 100%);
+}
+/* 田垄细纹：172° 斜向细线，透明度极低，只给质感不抢内容 */
+.plot-hero::after {
+  content: "";
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  bottom: -34%;
+  height: 78%;
+  background: repeating-linear-gradient(
+    172deg,
+    rgba(207, 235, 200, 0.10) 0,
+    rgba(207, 235, 200, 0.10) 1rpx,
+    transparent 1rpx,
+    transparent 30rpx
+  );
+  transform: rotate(-4deg);
+  pointer-events: none;
+}
+/* 头图内容统一上浮到纹理之上 */
+.plot-hero > view {
+  position: relative;
+  z-index: 2;
+}
+
+/* 地块编号：档案钢印感的小牌 */
+.plot-id {
+  display: inline-block;
+  padding: 5rpx 14rpx;
+  border-radius: 10rpx;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  font-size: 20rpx;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+  color: rgba(226, 240, 222, 0.72);
+  font-variant-numeric: tabular-nums;
+}
+
+.plot-name {
+  margin-top: 16rpx;
+  font-size: 46rpx;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  color: #F6FAF1;
+}
+
+/* 元信息行（村/土/面积/建档/轮换/有机期/缓冲带）
+   行首 emoji 由 wxml 直接写在文本里，用 ::first-letter 做成「浅绿圆角底」徽标，
+   这样无需改动 wxml 结构也能让 emoji 成为一个居中的小方块。 */
+.plot-meta {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: rgba(226, 240, 222, 0.68);
+  font-variant-numeric: tabular-nums;
+}
+.plot-meta.mt-8::first-letter {
+  padding: 2rpx 6rpx;
+  margin-right: 6rpx;
+  border-radius: 8rpx;
+  background: rgba(233, 242, 235, 0.16);
+  color: #EAF3E6;
+}
+
+/* 编辑入口：深底上的幽灵胶囊（不用实心白，避免抢标题） */
+.hero-edit {
+  flex: 0 0 auto;
+  margin-left: 20rpx;
+  padding: 10rpx 22rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1rpx solid rgba(255, 255, 255, 0.16);
+  color: #EAF3E6;
+  font-size: 22rpx;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* 深底上的标签：半透明白底白字；绿 / 金只留一点点色相区分 */
+.hero-tags {
+  margin-top: 24rpx;
+}
+.hero-tags .tag {
+  margin-right: 10rpx;
+  margin-bottom: 10rpx;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #F2F7EF;
+  font-size: 21rpx;
+  font-variant-numeric: tabular-nums;
+}
+.hero-tags .tag.tag-green {
+  background: rgba(200, 233, 107, 0.16);
+  border-color: rgba(200, 233, 107, 0.26);
+  color: #E7F6C6;
+}
+.hero-tags .tag.tag-gold {
+  background: rgba(180, 128, 47, 0.26);
+  border-color: rgba(216, 178, 106, 0.3);
+  color: #F6E7C9;
+}
+.hero-tags .tag.tag-gray {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #E4EDE2;
+}
+
+/* ---------------- 地块照片墙 ---------------- */
+.photo-wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.photo-item,
+.photo-add {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.photo-item { background: var(--green-mist); }
+.photo-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* 定位徽标：📍 压在照片上，浅绿圆角底 + 深绿字，居中 */
+.photo-loc {
+  position: absolute;
+  left: 10rpx;
+  bottom: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rpx 12rpx;
+  border-radius: 999rpx;
+  background: rgba(243, 247, 242, 0.94);
+  color: var(--green-dark);
+  font-size: 20rpx;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+/* 上传块：浅绿虚位，不用灰底灰框 */
+.photo-add {
+  background: var(--green-mist);
+  border: 2rpx dashed rgba(23, 96, 58, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 46rpx;
+  font-weight: 300;
+  line-height: 1;
+  color: rgba(23, 96, 58, 0.5);
+}
+
+/* ---------------- 主理农户 ---------------- */
+/* 原来的 8rpx 硬左边框改成卡内金色竖条，圆角跟随 .card */
+.farmer-card {
+  position: relative;
+  overflow: hidden;
+  padding-left: 42rpx;
+}
+.farmer-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8rpx;
+  background: linear-gradient(180deg, var(--gold) 0%, rgba(180, 128, 47, 0.45) 100%);
+}
+
+.avatar {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 50%;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-right: 20rpx;
+  flex: 0 0 76rpx;
+  box-shadow: inset 0 0 0 2rpx rgba(255, 255, 255, 0.22), 0 8rpx 18rpx -10rpx rgba(11, 31, 22, 0.45);
+}
+.farmer-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.credit-box {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 0 0 auto;
+  margin-left: 20rpx;
+}
+/* 分值：tabular-nums + 700 + ink，跟面积/批次同一套数字语言 */
+.credit-num {
+  font-size: 46rpx;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.credit-box .muted {
+  margin-top: 4rpx;
+  font-size: 21rpx;
+  letter-spacing: 0.06em;
+}
+.ml { margin-left: 12rpx; }
+
+/* ---------------- 田间环境：最新读数 + 90 天曲线 ---------------- */
+.env-tip {
+  font-size: 22rpx;
+  line-height: 1.7;
+  margin-bottom: 16rpx;
+  color: var(--text-light);
+}
+
+/* 四参数主题色：统一走农业自然色板，不再用 generic 图表色 */
+/* 温度 = 晒过的麦金 · 湿度 = 露水青绿 · 光照 = 阳光橄榄黄 · 土壤 = 湿润主绿 */
+.el-temp   { --c:#B4802F; --cl:#E8D4A8; }
+.el-humid  { --c:#3A8A7A; --cl:#B8DED4; }
+.el-light  { --c:#A8B835; --cl:#E0E8B0; }
+.el-soil   { --c:#17603A; --cl:#A8CDB4; }
+
+.v-temp   { color:#B4802F; }
+.v-humid  { color:#3A8A7A; }
+.v-light  { color:#A8B835; }
+.v-soil   { color:#17603A; }
+
+/* 折线图主题色：与上方数值颜色一致 */
+.spark-temp   { --c-line:#B4802F; --c-fill:rgba(180,128,47,0.18); --c-fill-top:rgba(180,128,47,0.04); }
+.spark-humid  { --c-line:#3A8A7A; --c-fill:rgba(58,138,122,0.18);  --c-fill-top:rgba(58,138,122,0.04); }
+.spark-light  { --c-line:#A8B835; --c-fill:rgba(168,184,53,0.18);  --c-fill-top:rgba(168,184,53,0.04); }
+.spark-soil   { --c-line:#17603A; --c-fill:rgba(23,96,58,0.20);    --c-fill-top:rgba(23,96,58,0.05); }
+
+/* 2×2 最新读数网格：每格有主题色左边条 + 淡底 + 图标 + 大数字 */
+.env-latest {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 4rpx 0 8rpx;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1rpx solid var(--border);
+}
+.el-cell {
+  flex: 0 0 50%;
+  width: 50%;
+  padding: 24rpx 20rpx 22rpx;
+  background: var(--green-mist);
+  border-left: 6rpx solid var(--c);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.el-cell:nth-child(odd) { border-right: 1rpx solid var(--border); }
+.el-cell:nth-child(n + 3) { border-top: 1rpx solid var(--border); }
+.el-temp  { background: #FBF4E6; }
+.el-humid { background: #E8F4F0; }
+.el-light { background: #F4F6E4; }
+.el-soil  { background: #E9F2EB; }
+/* 传感器图标：28rpx，放在数字左上角 */
+.el-ic {
+  position: absolute;
+  right: 16rpx;
+  top: 18rpx;
+  width: 36rpx;
+  height: 36rpx;
+  opacity: 0.5;
+}
+.el-num {
+  font-size: 52rpx;
+  font-weight: 800;
+  color: var(--c);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.el-unit {
+  font-size: 24rpx;
+  font-weight: 500;
+  margin-left: 4rpx;
+  opacity: 0.75;
+}
+.el-label {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--text-2);
+  letter-spacing: 0.06em;
+}
+
+.env-src {
+  text-align: center;
+  margin: 16rpx 0 4rpx;
+}
+
+.env-block { margin-bottom: 32rpx; }
+.env-block:last-child { margin-bottom: 0; }
+.env-name {
+  font-size: 27rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.env-val {
+  font-size: 25rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+/* Canvas 折线图容器：160rpx 高，宽度撑满父容器 */
+.spark-canvas {
+  width: 100%;
+  height: 160rpx;
+  margin-top: 14rpx;
+  display: block;
+}
+.env-range {
+  font-size: 20rpx;
+  margin-top: 6rpx;
+  color: var(--text-light);
+}
+
+/* ---------------- 全生命周期茬次：档案式时间轴 ---------------- */
+.year-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 1rpx solid var(--line);
+  font-size: 26rpx;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--green-dark);
+  font-variant-numeric: tabular-nums;
+}
+.year-head::before {
+  content: "";
+  flex: 0 0 6rpx;
+  width: 6rpx;
+  height: 22rpx;
+  margin-right: 12rpx;
+  border-radius: 3rpx;
+  background: linear-gradient(180deg, var(--gold) 0%, rgba(180, 128, 47, 0.4) 100%);
+}
+
+/* 每一茬 = 一个时间轴节点：2rpx 轨道 + 16rpx 圆点 + 6rpx 白描边 */
+.batch-item {
+  position: relative;
+  padding: 4rpx 0 26rpx 40rpx;
+}
+.batch-item::before {
+  content: "";
+  position: absolute;
+  left: 13rpx;
+  top: 34rpx;
+  bottom: 2rpx;
+  width: 2rpx;
+  background: var(--border);
+}
+.batch-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10rpx;
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: var(--green);
+  border: 6rpx solid #FFFFFF;
+  box-shadow: 0 0 0 1rpx rgba(23, 96, 58, 0.14);
+}
+.batch-item:last-child { padding-bottom: 0; }
+.batch-item:last-child::before { display: none; }
+/* 进行中的那一茬（状态标签是绿的）：节点转金色 + 一圈极淡光晕。
+   用 :has() 由数据决定高亮对象，比按顺序写死更可靠；引擎不支持时整条规则被丢弃，
+   节点回落到默认绿色，不会出错。 */
+.batch-item:has(.tag-green)::after {
+  background: var(--gold);
+  box-shadow: 0 0 0 1rpx rgba(180, 128, 47, 0.18), 0 0 0 8rpx rgba(180, 128, 47, 0.1);
+}
+.batch-prod {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+.batch-item .muted {
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- 地块全部农事记录 ---------------- */
+.record-item {
+  position: relative;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.record-item:first-child { padding-top: 0; }
+.record-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.rec-prod {
+  margin-left: 12rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.rec-content {
+  font-size: 25rpx;
+  line-height: 1.7;
+  color: var(--text-2);
+}
+/* 农事发生时的田间环境快照：贴在记录下方的一条浅绿数据带 */
+.rec-env {
+  margin-top: 14rpx;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  padding: 12rpx 16rpx;
+  border-radius: var(--r-sm);
+  background: var(--green-mist);
+}
+.rec-env-num {
+  font-size: 21rpx;
+  line-height: 1.6;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- 进度 / 评分条基元 ---------------- */
+/* 规范与 product 的 .opi-bar 一致：轨道 #EDF1EA，填充绿色渐变，12rpx 高圆角 6rpx */
+.meter {
+  height: 12rpx;
+  border-radius: 6rpx;
+  background: #EDF1EA;
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  border-radius: 6rpx;
+  background: linear-gradient(90deg, #2E9A62 0%, var(--green) 100%);
+}
+
+/* ---------------- 正文卡片内的分区标签 / 空态 ---------------- */
+/* 分区标题里的小标签（例如环境曲线的数据来源）
+   标题过长时让标签整体换到第二行，而不是把标题挤成「…最近 90 / 天）」两行 */
+.section-title {
+  flex-wrap: wrap;
+}
+.section-title .tag {
+  margin-left: 20rpx;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+}
+
+/* 卡内空态不要撑出 app.wxss 里 88rpx 的空白 */
+.empty {
+  padding: 40rpx 0 8rpx;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+/* ---------------- 折叠展开标题 ---------------- */
+.section-title.between {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+.section-title.between:active {
+  opacity: 0.6;
+}
+.fold-arrow {
+  font-size: 30rpx;
+  color: var(--text-light);
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 0.24s ease;
+  margin-left: 12rpx;
+}
+.fold-arrow.up {
+  transform: rotate(-90deg);
+}

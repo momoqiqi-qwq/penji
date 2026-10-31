@@ -1,0 +1,385 @@
+/* pages/farmerDetail/farmerDetail.wxss —— 农户档案：深墨绿身份头图 + 白卡双阴影 + 可查依据 */
+.page {
+  min-height: 100vh;
+  padding-bottom: 48rpx;
+  background: var(--bg);
+}
+
+/* ================= 身份头图 ================= */
+.farmer-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 44rpx 36rpx 40rpx;
+  color: #F1F6EE;
+  border-radius: 0 0 40rpx 40rpx;
+  background: #0A2318;
+}
+/* 麦穗装饰：右下角，丰收意象 */
+.farmer-hero-bg {
+  position: absolute;
+  right: -10rpx;
+  bottom: -30rpx;
+  width: 300rpx;
+  height: 300rpx;
+  opacity: 0.20;
+  z-index: 0;
+  filter: brightness(1.1) saturate(0.9);
+}
+.farmer-hero-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(168deg,
+    rgba(10, 35, 24, 0.97) 0%,
+    rgba(16, 53, 38, 0.74) 46%,
+    rgba(10, 40, 25, 0.94) 100%);
+  pointer-events: none;
+}
+.farmer-hero .row {
+  position: relative;
+  z-index: 2;
+}
+/* 头图上的次要文字：暖白 + 半透明，不用冷灰 */
+.white {
+  color: rgba(226, 240, 222, 0.62) !important;
+}
+
+/* 头像：方形档案徽标，尺寸由 wxml 的内联底色决定色相 */
+.avatar-lg {
+  width: 112rpx;
+  height: 112rpx;
+  flex: 0 0 112rpx;
+  border-radius: var(--r-lg);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-right: 24rpx;
+  box-shadow:
+    0 2rpx 6rpx rgba(11, 31, 22, 0.18),
+    0 16rpx 32rpx -18rpx rgba(11, 31, 22, 0.55),
+    inset 0 0 0 1rpx rgba(255, 255, 255, 0.2);
+}
+.hero-info {
+  flex: 1;
+  min-width: 0;
+}
+.farmer-name {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #F6FAF1;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+.hero-meta {
+  font-size: 22rpx;
+  color: rgba(226, 240, 222, 0.6);
+  margin-top: 8rpx;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.hero-bio {
+  font-size: 23rpx;
+  color: rgba(226, 240, 222, 0.55);
+  margin-top: 10rpx;
+  line-height: 1.65;
+}
+
+/* 信用分区 */
+.credit-box {
+  text-align: left;
+}
+.credit-side {
+  text-align: right;
+}
+.credit-num {
+  font-size: 46rpx;
+  font-weight: 700;
+  color: #F6FAF1;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+/* 深底上的标签：半透明白，避免浅色标签在墨绿上发脏 */
+.farmer-hero .tag {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #EAF3E6;
+}
+/* 信用进度：轨道压到半透明暖白，填充用系统绿渐变 + 微光让它在深底上读得出来 */
+.credit-bar-wrap {
+  position: relative;
+  z-index: 2;
+  height: 12rpx;
+  background: rgba(237, 241, 234, 0.24);
+  border-radius: 6rpx;
+  margin-top: 28rpx;
+  overflow: hidden;
+}
+.credit-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #2E9A62 0%, #17603A 100%);
+  border-radius: 6rpx;
+  box-shadow: 0 0 16rpx rgba(53, 160, 106, 0.55);
+  transition: width 0.6s ease;
+}
+
+/* ================= 信用评价构成 ================= */
+.credit-tip {
+  font-size: 22rpx;
+  color: var(--text-light);
+  margin-bottom: 24rpx;
+  line-height: 1.65;
+}
+.credit-dim {
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.credit-dim:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.credit-dim > .between {
+  align-items: baseline;
+  margin-bottom: 12rpx;
+}
+/* 维度得分：数字统一 tabular + 墨绿，一眼可比 */
+.credit-dim .between .muted {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+/* 进度条：轨道 #EDF1EA，填充系统绿渐变，高 12rpx / 圆角 6rpx */
+.bar-track {
+  height: 12rpx;
+  background: #EDF1EA;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2E9A62 0%, #17603A 100%);
+  border-radius: 6rpx;
+  transition: width 0.6s ease;
+}
+.bar-fill.green {
+  background: linear-gradient(90deg, #2E9A62 0%, var(--green) 100%);
+}
+.bar-fill.gold {
+  background: linear-gradient(90deg, #C89A4A 0%, var(--gold) 100%);
+}
+.bar-fill.warn {
+  background: linear-gradient(90deg, #C4554C 0%, var(--warn) 100%);
+}
+/* 维度下的评分小项：左侧细引线，做成档案条目 */
+.credit-item {
+  margin-top: 16rpx;
+  padding-left: 18rpx;
+  border-left: 4rpx solid rgba(23, 96, 58, 0.14);
+}
+.credit-item .between {
+  align-items: baseline;
+}
+.credit-item .between text {
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+.credit-note {
+  font-size: 22rpx;
+  margin-top: 6rpx;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+.credit-src {
+  font-size: 20rpx;
+  margin-top: 12rpx;
+  color: var(--text-light);
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+.warn-text {
+  color: var(--warn) !important;
+}
+/* 指标数字：权重与等宽数字，颜色统一 ink */
+.strong {
+  font-weight: 700;
+  font-size: 30rpx;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.metric {
+  margin-bottom: 26rpx;
+}
+.metric:last-child {
+  margin-bottom: 0;
+}
+.metric .between {
+  align-items: baseline;
+  margin-bottom: 10rpx;
+}
+
+/* ================= 历史批次 ================= */
+.batch-item {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.batch-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.batch-prod {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+.plot-link {
+  color: var(--green);
+  font-size: 22rpx;
+  letter-spacing: 0.02em;
+}
+
+/* ================= 消费者反馈 ================= */
+.review-item {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.review-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.review-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+.review-content {
+  font-size: 26rpx;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+/* 自评提示：浅绿底 + 左侧引线，属于说明而非告警 */
+.self-tip {
+  background: var(--green-light);
+  color: #145634;
+  border-left: 6rpx solid rgba(23, 96, 58, 0.35);
+  border-radius: var(--r-sm);
+  padding: 16rpx 20rpx;
+  margin: 0 0 20rpx;
+  font-size: 22rpx;
+  line-height: 1.65;
+}
+
+/* ================= 农事记录 ================= */
+.record-item {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.record-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.rec-prod {
+  font-size: 26rpx;
+  margin-left: 12rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+.rec-content {
+  font-size: 26rpx;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+
+/* ================= 反馈弹层 ================= */
+.add-btn {
+  font-size: 24rpx;
+  color: var(--green);
+  padding: 8rpx 22rpx;
+  border: 1rpx solid rgba(23, 96, 58, 0.24);
+  border-radius: 999rpx;
+  background: var(--green-mist);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(8, 20, 14, 0.45);
+  z-index: 90;
+}
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 91;
+  background: var(--card);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 32rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -20rpx 60rpx -20rpx rgba(11, 31, 22, 0.45);
+  transform: translateY(102%);
+  transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sheet-up {
+  transform: translateY(0);
+}
+.sheet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8rpx;
+}
+.sheet-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.sheet-submit {
+  color: var(--green);
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.stars {
+  text-align: center;
+  margin: 30rpx 0 26rpx;
+}
+.star {
+  font-size: 46rpx;
+  color: #DDE3DC;
+  margin: 0 12rpx;
+  line-height: 1;
+}
+.star.on {
+  color: var(--gold);
+}
+.review-input {
+  width: 100%;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  padding: 24rpx;
+  font-size: 26rpx;
+  min-height: 200rpx;
+  box-sizing: border-box;
+  line-height: 1.7;
+  color: var(--text);
+}
+.count-tip {
+  text-align: right;
+  margin-top: 12rpx;
+  font-size: 20rpx;
+  letter-spacing: 0.04em;
+}

@@ -1,0 +1,455 @@
+/* pages/index/index.wxss —— 首页：深色头图 + 入口网格 + 推荐档案 */
+.page {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+/* ---------------- 头图 ---------------- */
+.hero-ink {
+  padding-bottom: 34rpx;
+  background: #0A2318;
+}
+/* 头图背景照片：铺满整个 hero 区域 */
+.hero-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+/* 渐变遮罩：保证浅色文字在照片上清晰可读，底部加深与内容区衔接 */
+.hero-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 35, 24, 0.48) 0%, rgba(10, 35, 24, 0.28) 36%, rgba(10, 35, 24, 0.52) 70%, rgba(10, 35, 24, 0.85) 100%);
+}
+.hero-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 10rpx;
+}
+.hero-name {
+  font-size: 62rpx;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.1;
+  color: #F5F9F0;
+}
+
+/* 身份徽标 */
+.role-badge {
+  display: flex;
+  align-items: center;
+  max-width: 300rpx;
+  padding: 12rpx 20rpx 12rpx 14rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.14);
+}
+.role-badge-hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(0.97);
+}
+.role-badge-ic {
+  width: 34rpx;
+  height: 34rpx;
+  flex: 0 0 34rpx;
+  margin-right: 10rpx;
+  opacity: 0.94;
+}
+.role-badge-txt {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #EEF5EA;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 头图内容层级（确保在农田装饰图上方） */
+.hero-kicker,
+.verify-bar,
+.hero-stats {
+  position: relative;
+  z-index: 2;
+}
+
+/* 微信身份行 */
+.verify-bar {
+  display: flex;
+  align-items: center;
+  margin-top: 26rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+.verify-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: var(--lime);
+  margin-right: 12rpx;
+  box-shadow: 0 0 12rpx rgba(200, 233, 107, 0.8);
+}
+.verify-info {
+  font-size: 22rpx;
+  color: rgba(226, 240, 222, 0.6);
+}
+.verify-switch {
+  margin-left: auto;
+  font-size: 21rpx;
+  color: rgba(200, 233, 107, 0.85);
+}
+
+/* 数据条 */
+.hero-stats {
+  margin-top: 26rpx;
+}
+.hero-stat {
+  border-radius: 16rpx;
+  transition: background 0.15s ease;
+}
+.stat-hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.hero-stat .n {
+  color: #F5F9F0;
+}
+
+/* ---------------- 入口网格 ---------------- */
+.entry-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding-top: 4rpx;
+}
+.entry {
+  width: 48.6%;
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  padding: 30rpx 26rpx 28rpx;
+  margin-bottom: 18rpx;
+  border: 1rpx solid rgba(23, 33, 27, 0.04);
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 16rpx 34rpx -26rpx rgba(23, 33, 27, 0.28);
+  transition: transform 0.12s ease;
+}
+.entry-hover {
+  transform: scale(0.972);
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.05);
+}
+.entry-icon {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 22rpx;
+  background: var(--green-mist);
+  border: 1rpx solid rgba(23, 96, 58, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+.entry-ic {
+  width: 42rpx;
+  height: 42rpx;
+}
+.entry-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+}
+.entry-desc {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  line-height: 1.5;
+  color: var(--text-light);
+}
+
+/* 带照片的入口卡（采购商）：顶部照片 + 白色信息区 */
+.entry-photo-card {
+  padding: 0;
+  overflow: hidden;
+}
+.entry-photo-card .entry-body {
+  padding: 22rpx 24rpx 26rpx;
+}
+.entry-media {
+  position: relative;
+  width: 100%;
+  height: 188rpx;
+  background: var(--green-mist);
+}
+.entry-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* 照片上轻压暗，让悬浮图标更清晰、与白卡衔接自然 */
+.entry-media-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(10, 35, 24, 0.16) 0%, rgba(10, 35, 24, 0) 42%, rgba(10, 35, 24, 0.14) 100%);
+  pointer-events: none;
+}
+.entry-icon-float {
+  position: absolute;
+  left: 18rpx;
+  bottom: 16rpx;
+  margin-bottom: 0;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1rpx solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 6rpx 18rpx -8rpx rgba(10, 35, 24, 0.45);
+}
+
+/* ---------------- 常用功能：照片缩略图 ---------------- */
+.action-photo {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 24rpx;
+  overflow: hidden;
+  flex: 0 0 104rpx;
+  margin-right: 22rpx;
+  background: var(--green-mist);
+  box-shadow: inset 0 0 0 1rpx rgba(23, 33, 27, 0.05), 0 8rpx 18rpx -12rpx rgba(10, 35, 24, 0.45);
+}
+.action-photo-ic {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------------- 反馈 ---------------- */
+.fb-item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.fb-item:first-child { padding-top: 0; }
+.fb-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.fb-name {
+  font-weight: 600;
+  font-size: 26rpx;
+  color: var(--ink);
+}
+.fb-star {
+  color: var(--gold);
+  font-size: 22rpx;
+  letter-spacing: 0.08em;
+}
+.fb-content {
+  margin-top: 6rpx;
+}
+/* 反馈空态插图 */
+.fb-empty {
+  padding: 60rpx 32rpx 52rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fb-empty-ic {
+  width: 140rpx;
+  height: 140rpx;
+  opacity: 0.85;
+  margin-bottom: 16rpx;
+}
+.fb-empty-tx {
+  font-size: 25rpx;
+  color: var(--text-light);
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* ---------------- 推荐卡 ---------------- */
+.hl-card {
+  position: relative;
+  overflow: hidden;
+}
+.hl-main { flex: 1; min-width: 0; }
+.hl-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.hl-meta { margin-top: 8rpx; }
+.hl-key {
+  font-size: 22rpx;
+  color: var(--text-light);
+}
+.hl-val {
+  font-size: 25rpx;
+  color: var(--text);
+  font-weight: 500;
+  margin-left: 12rpx;
+}
+.hl-star {
+  margin-left: auto;
+  font-size: 23rpx;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+
+.credit-box { text-align: right; }
+.credit-num {
+  font-size: 46rpx;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.credit-cap {
+  font-size: 20rpx;
+  color: var(--text-light);
+  margin-top: 6rpx;
+  letter-spacing: 0.06em;
+}
+
+/* ---------------- 农户：信用概览卡 ---------------- */
+.credit-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #12321F 0%, #0B1F16 100%);
+  border-radius: var(--r-lg);
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 20rpx 48rpx -22rpx rgba(11, 31, 22, 0.4);
+}
+.cc-left { display: flex; flex-direction: column; }
+.cc-score {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #F1F6EE;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.cc-unit {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: rgba(226, 240, 222, 0.6);
+  margin-left: 4rpx;
+}
+.cc-level {
+  display: flex;
+  align-items: center;
+  margin-top: 14rpx;
+}
+.cc-star {
+  color: var(--lime);
+  font-size: 22rpx;
+  letter-spacing: 0.06em;
+  margin-left: 12rpx;
+}
+.cc-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.cc-harvest {
+  width: 96rpx;
+  height: 96rpx;
+  margin-bottom: 8rpx;
+  opacity: 0.92;
+}
+.cc-tip {
+  font-size: 24rpx;
+  color: rgba(226, 240, 222, 0.7);
+}
+.cc-arrow {
+  font-size: 36rpx;
+  color: rgba(226, 240, 222, 0.5);
+  line-height: 1;
+  margin-top: 6rpx;
+}
+
+/* ---------------- 农户：操作入口列表 ---------------- */
+.action-list {
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 16rpx 34rpx -26rpx rgba(23, 33, 27, 0.28);
+  border: 1rpx solid rgba(23, 33, 27, 0.04);
+}
+.action-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 28rpx;
+  border-bottom: 1rpx solid var(--line);
+  transition: background 0.12s ease;
+}
+.action-item:last-child { border-bottom: none; }
+.action-hover { background: var(--green-mist); }
+.action-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 80rpx;
+  margin-right: 22rpx;
+}
+.action-ic {
+  width: 44rpx;
+  height: 44rpx;
+}
+.action-main { flex: 1; min-width: 0; }
+.action-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.action-desc {
+  margin-top: 6rpx;
+  font-size: 23rpx;
+  line-height: 1.5;
+  color: var(--text-light);
+}
+.action-arrow {
+  font-size: 34rpx;
+  color: #C3CCC4;
+  font-weight: 300;
+  line-height: 1;
+  margin-left: 12rpx;
+}
+
+/* ---------------- 折叠展开标题 ---------------- */
+.section-title.between {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+.section-title.between:active {
+  opacity: 0.6;
+}
+.fold-arrow {
+  font-size: 30rpx;
+  color: var(--text-light);
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 0.24s ease;
+  margin-left: 12rpx;
+}
+.fold-arrow.up {
+  transform: rotate(-90deg);
+}

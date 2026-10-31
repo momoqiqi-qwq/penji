@@ -1,0 +1,121 @@
+<!-- pages/chooseRole/chooseRole.wxml -->
+<view class="auth">
+  <!-- 深色头图：品牌时刻 -->
+  <view class="auth-hero">
+    <view class="auth-kicker">PENG JI</view>
+    <view class="auth-brand">棚迹</view>
+    <view class="auth-slogan">从地块到餐桌 · 看见每一寸土地的故事</view>
+  </view>
+
+  <view class="auth-panel">
+    <!-- 第零步：微信登录 -->
+    <block wx:if="{{step === 'login'}}">
+      <view class="panel-title">欢迎回来</view>
+      <view class="panel-desc">用微信身份进入，地块、批次与农事记录都在这里</view>
+
+      <button class="btn btn-block btn-wx" bindtap="doWxLogin" loading="{{logging}}">
+        <image class="btn-wx-ic" src="/assets/icons/wechat-white.png" mode="aspectFit" />
+        <text>微信一键登录</text>
+      </button>
+
+      <view class="legal">登录即代表同意《用户协议》与《隐私政策》</view>
+
+      <view class="auth-why">
+        <view class="why-item">
+          <image class="why-ic" src="/assets/icons/live.png" mode="aspectFit" />
+          <view class="why-tx"><text class="why-b">真实数据</text>田间传感器直接采集，不是事后手填</view>
+        </view>
+        <view class="why-item">
+          <image class="why-ic" src="/assets/icons/plot.png" mode="aspectFit" />
+          <view class="why-tx"><text class="why-b">地块档案</text>一块地多年多茬连着看，不只看这一批</view>
+        </view>
+        <view class="why-item">
+          <image class="why-ic" src="/assets/icons/scan.png" mode="aspectFit" />
+          <view class="why-tx"><text class="why-b">一物一码</text>扫码即见生产全过程与农户口碑</view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 第一步：选身份 -->
+    <block wx:if="{{step === 'pick'}}">
+      <view class="panel-title">今天，你从哪一端走进这片地？</view>
+      <view class="panel-desc">选择身份后，只显示与你相关的内容</view>
+
+      <view class="role-card" hover-class="role-hover" bindtap="pickFarmer">
+        <view class="role-ic-wrap"><image class="role-ic" src="/assets/icons/farmer.png" mode="aspectFit" /></view>
+        <view class="role-info">
+          <view class="role-name">我是农户</view>
+          <view class="role-desc">地块建档 · 档案上传 · 传感器实况 · AI 诊断</view>
+        </view>
+        <view class="role-arrow">›</view>
+      </view>
+
+      <view class="role-card" hover-class="role-hover" bindtap="pickBuyer">
+        <view class="role-ic-wrap"><image class="role-ic" src="/assets/icons/buyer.png" mode="aspectFit" /></view>
+        <view class="role-info">
+          <view class="role-name">我是采购商</view>
+          <view class="role-desc">批次核验 · 检测录入 · 有机评价 · 风险预警</view>
+        </view>
+        <view class="role-arrow">›</view>
+      </view>
+
+      <view class="role-card" hover-class="role-hover" bindtap="pickConsumer">
+        <view class="role-ic-wrap"><image class="role-ic" src="/assets/icons/consumer.png" mode="aspectFit" /></view>
+        <view class="role-info">
+          <view class="role-name">我是消费者</view>
+          <view class="role-desc">扫码溯源 · 看生产全过程 · 评价反馈</view>
+        </view>
+        <view class="role-arrow">›</view>
+      </view>
+
+      <view class="pick-tip">身份可随时在首页切换</view>
+    </block>
+
+    <!-- 第二步：选农户 -->
+    <block wx:if="{{step === 'farmer'}}">
+      <view class="panel-head">
+        <view class="panel-title sm">选择农户账号</view>
+        <view class="back-link" bindtap="backPick">‹ 返回</view>
+      </view>
+
+      <view class="farmer-item" wx:for="{{farmers}}" wx:key="farmerId" hover-class="role-hover" bindtap="pickFarmerId" data-id="{{item.farmerId}}">
+        <view class="avatar" style="background:{{item.avatarColor}}">{{item.name[0]}}</view>
+        <view class="f-info">
+          <view class="f-name">{{item.name}}</view>
+          <view class="muted">{{item.village}} · {{item.totalBatches || 0}} 批次</view>
+        </view>
+        <view class="role-arrow">›</view>
+      </view>
+
+      <view class="reg-toggle" bindtap="toggleRegister">{{showRegister ? '收起注册' : '＋ 注册新农户'}}</view>
+      <view class="card" wx:if="{{showRegister}}">
+        <view class="field">
+          <view class="field-label">姓名<text class="req">*</text></view>
+          <input class="input" placeholder="如：刘大壮" value="{{regName}}" bindinput="onRegName" />
+        </view>
+        <view class="field">
+          <view class="field-label">所在村</view>
+          <input class="input" placeholder="如：刘家村" value="{{regVillage}}" bindinput="onRegVillage" />
+        </view>
+        <button class="btn btn-block" bindtap="register">注册并以农户身份进入</button>
+      </view>
+    </block>
+
+    <!-- 第三步：选采购商 -->
+    <block wx:if="{{step === 'buyer'}}">
+      <view class="panel-head">
+        <view class="panel-title sm">选择采购商账号</view>
+        <view class="back-link" bindtap="backPick">‹ 返回</view>
+      </view>
+
+      <view class="farmer-item" wx:for="{{buyers}}" wx:key="buyerId" hover-class="role-hover" bindtap="pickBuyerId" data-id="{{item.buyerId}}">
+        <view class="avatar" style="background:#2D5DA8">{{item.name[0]}}</view>
+        <view class="f-info">
+          <view class="f-name">{{item.name}}</view>
+          <view class="muted">{{item.org}} · 联系人 {{item.contact}}</view>
+        </view>
+        <view class="role-arrow">›</view>
+      </view>
+    </block>
+  </view>
+</view>

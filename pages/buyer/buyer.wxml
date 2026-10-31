@@ -1,0 +1,85 @@
+<!-- pages/buyer/buyer.wxml 采购商工作台 -->
+<view class="page">
+  <view class="buyer-head">
+    <image class="bh-bg" src="/assets/images/buyer-workbench.jpg" mode="aspectFill" />
+    <view class="bh-mask"></view>
+    <view class="bh-kicker">REVIEW · 检测与审核</view>
+    <view class="bh-row">
+      <view class="bh-avatar">采</view>
+      <view class="bh-info">
+        <view class="bh-name">{{buyer.name}}</view>
+        <view class="bh-sub">{{buyer.org}}</view>
+      </view>
+      <view class="bh-switch" bindtap="switchRole">切换身份</view>
+    </view>
+  </view>
+
+  <view class="container">
+    <!-- tab 切换 -->
+    <view class="tabs">
+      <view class="tab {{tab==='batches' ? 'on' : ''}}" data-tab="batches" bindtap="switchTab">批次核验</view>
+      <view class="tab {{tab==='standards' ? 'on' : ''}}" data-tab="standards" bindtap="switchTab">食品标准库</view>
+    </view>
+
+    <!-- ============ 批次核验 ============ -->
+    <block wx:if="{{tab==='batches'}}">
+      <!-- 风险预警（可折叠，默认收起，有风险时标题带红点） -->
+      <view class="section-title between" catchtap="toggleRisk" wx:if="{{riskCount}}">
+        <text>生产风险预警 · {{riskCount}}</text>
+        <view class="fold-arrow {{riskExpanded ? 'up' : ''}}">›</view>
+      </view>
+      <view class="risk-box" wx:if="{{riskExpanded && riskCount}}">
+        <view class="risk-item" wx:for="{{risks}}" wx:key="batchId">
+          <view class="risk-name">{{item.productName}}（{{item.batchId}}）· 风险{{item.riskLevel}}</view>
+          <view class="risk-detail" wx:for="{{item.risks}}" wx:for-item="rr" wx:key="*this">{{rr}}</view>
+          <view class="risk-go" data-id="{{item.batchId}}" bindtap="goInspect">去核验 ›</view>
+        </view>
+      </view>
+
+      <!-- 产品批次（可折叠） -->
+      <view class="section-title between" catchtap="toggleBatches">
+        <text>产品批次（{{batches.length}}）</text>
+        <view class="fold-arrow {{batchesExpanded ? 'up' : ''}}">›</view>
+      </view>
+      <block wx:if="{{batchesExpanded}}">
+        <view class="batch-card" wx:for="{{batches}}" wx:key="batchId" data-id="{{item.batchId}}" bindtap="goInspect" hover-class="card-hover">
+          <view class="bc-top">
+            <view class="bc-name">{{item.productName}}</view>
+            <text class="tag {{item.opiCls}}" wx:if="{{item.opiScore !== null}}">OPI {{item.opiScore}}·{{item.opiLevel}}</text>
+          </view>
+          <view class="bc-code">{{item.batchId}}</view>
+          <view class="bc-line">{{item.farmerName}}{{item.village ? ' · ' + item.village : ''}} · {{item.status}}{{item.harvestDate ? '（采收 ' + item.harvestDate + '）' : ''}}</view>
+          <view class="bc-tags">
+            <text class="tag {{item.orgCls}}">有机·{{item.orgStatus}}</text>
+            <text class="tag {{item.testDone ? 'tag-green' : 'tag-gray'}}">{{item.testStatus}}</text>
+            <text class="tag {{item.compRate >= 80 ? 'tag-green' : (item.compRate >= 60 ? 'tag-gold' : 'tag-warn')}}">档案 {{item.compRate}}%</text>
+            <text class="tag {{item.riskLevel === '低' ? 'tag-green' : (item.riskLevel === '中' ? 'tag-gold' : 'tag-warn')}}">风险{{item.riskLevel}}</text>
+          </view>
+        </view>
+      </block>
+    </block>
+
+    <!-- ============ 食品标准库（可折叠） ============ -->
+    <block wx:if="{{tab==='standards'}}">
+      <view class="section-title between" catchtap="toggleStandards">
+        <text>食品标准库（{{standards.length}}）</text>
+        <view class="fold-arrow {{standardsExpanded ? 'up' : ''}}">›</view>
+      </view>
+      <view wx:if="{{standardsExpanded}}">
+        <view class="demo-banner">【演示标准参考数据】以下为本地演示标准样例，非官方实时标准数据库，正式检测请以最新发布的国家标准文本为准。</view>
+        <view class="std-card" wx:for="{{standards}}" wx:key="stdId">
+          <view class="std-code">{{item.code}}</view>
+          <view class="std-name">{{item.name}}</view>
+          <view class="std-scope">{{item.scope}}</view>
+          <view class="std-items">
+            <view class="std-item" wx:for="{{item.items}}" wx:for-item="it" wx:key="name">
+              <text>{{it.name}}</text>
+              <text class="std-limit">限量 {{it.limit}} {{it.unit === '-' ? '' : it.unit}}</text>
+            </view>
+          </view>
+          <text class="tag tag-gray">演示参考</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

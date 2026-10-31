@@ -1,0 +1,125 @@
+<!-- pages/farmerDetail/farmerDetail.wxml -->
+<view class="page" wx:if="{{farmer}}">
+  <!-- 头部 -->
+  <view class="farmer-hero">
+    <image class="farmer-hero-bg" src="/assets/images/harvest.svg" mode="aspectFit" />
+    <view class="farmer-hero-mask"></view>
+    <view class="row">
+      <view class="avatar-lg" style="background:{{farmer.avatarColor}}">{{farmer.name[0]}}</view>
+      <view class="hero-info">
+        <view class="farmer-name">{{farmer.name}}</view>
+        <view class="hero-meta">{{farmer.village}} · {{farmer.farmerId}} · 自 {{farmer.joinedYear}} 起</view>
+        <view class="hero-bio">{{farmer.bio}}</view>
+      </view>
+    </view>
+    <view class="row between mt-24">
+      <view class="credit-box">
+        <view class="credit-num">{{farmer.creditScore}}</view>
+        <view class="muted white">信用分</view>
+      </view>
+      <view class="credit-side">
+        <text class="tag {{farmer.level.cls}}">{{farmer.level.text}}</text>
+        <view class="muted white mt-8">{{farmer.starText}}</view>
+      </view>
+    </view>
+    <view class="credit-bar-wrap"><view class="credit-bar" style="width:{{creditBar}}%"></view></view>
+  </view>
+
+  <view class="container">
+    <!-- 信用分构成：GB/T 23794-2023 三维度模型（依据可查、算法透明） -->
+    <view class="section-title">信用评价构成</view>
+    <view class="card">
+      <view class="muted credit-tip">评价依据：{{creditBasis}}</view>
+
+      <view class="credit-dim" wx:for="{{creditDims}}" wx:key="key" wx:for-item="dim">
+        <view class="between">
+          <text class="strong">{{dim.name}}</text>
+          <text class="muted">{{dim.score}} / {{dim.max}} 分</text>
+        </view>
+        <view class="bar-track"><view class="bar-fill {{dim.barCls}}" style="width:{{dim.pct}}%"></view></view>
+        <view class="credit-item" wx:for="{{dim.items}}" wx:key="name" wx:for-item="it">
+          <view class="between">
+            <text>{{it.name}}</text>
+            <text class="muted {{it.score === 0 ? 'warn-text' : ''}}">{{it.score}}/{{it.max}}</text>
+          </view>
+          <view class="muted credit-note">{{it.note}}</view>
+        </view>
+        <view class="muted credit-src">依据：{{dim.basis}}</view>
+      </view>
+
+      <view class="divider"></view>
+      <view class="row between">
+        <view><text class="muted">累计批次</text> <text class="strong">{{farmer.totalBatches}}</text></view>
+        <view><text class="muted">消费者反馈</text> <text class="strong">{{farmer.reviewsCount}}</text></view>
+        <view><text class="muted">农事记录</text> <text class="strong">{{records.length}}</text></view>
+      </view>
+    </view>
+
+    <!-- 历史批次 -->
+    <view class="section-title">历史批次（长期经营记录）</view>
+    <view class="card" wx:if="{{batches.length}}">
+      <view class="batch-item" wx:for="{{batches}}" wx:key="batchId" bindtap="goBatch" data-id="{{item.batchId}}">
+        <view class="between">
+          <view class="batch-prod">{{item.productName}}</view>
+          <view class="row">
+            <text class="tag {{item.flagTag}}" wx:if="{{item.flag}}">违规</text>
+            <text class="tag {{item.statusTag}}">{{item.status}}</text>
+          </view>
+        </view>
+        <view class="muted mt-8">{{item.plantDate}} → {{item.harvestDate || '种植中'}} · {{item.estYield}}</view>
+        <view class="muted mt-8 plot-link" catchtap="goPlot" data-id="{{item.plotId}}">地块 {{item.plotId}} · {{item.plotName}} ›</view>
+      </view>
+    </view>
+    <view class="empty" wx:else>暂无批次</view>
+
+    <!-- 消费者反馈（数据回传农户） -->
+    <view class="section-title between">
+      <text>消费者反馈（{{reviews.length}}）</text>
+      <text class="add-btn" wx:if="{{canReview}}" bindtap="openReview">＋ 我要反馈</text>
+    </view>
+    <view class="muted self-tip" wx:if="{{isSelf}}">您收到的消费者反馈会自动回传，直接影响信用分与口碑</view>
+    <view class="card" wx:if="{{reviews.length}}">
+      <view class="review-item" wx:for="{{reviews}}" wx:key="reviewId">
+        <view class="between">
+          <view class="review-name">{{item.buyerName}}</view>
+          <view class="muted">{{item.date}}</view>
+        </view>
+        <view class="muted mt-8">{{item.starText}}</view>
+        <view class="review-content mt-8">{{item.content}}</view>
+        <view class="muted mt-8" wx:if="{{item.flag}}">⚠ {{item.flag}}</view>
+      </view>
+    </view>
+    <view class="empty" wx:else>{{canReview ? '暂无反馈，扫码购买后可发表第一条反馈' : '暂无反馈'}}</view>
+
+    <!-- 农事记录 -->
+    <view class="section-title">农事记录（{{records.length}}）</view>
+    <view class="card" wx:if="{{records.length}}">
+      <view class="record-item" wx:for="{{records}}" wx:key="recordId">
+        <view class="between">
+          <view class="row">
+            <text class="tag {{item.typeTag}}">{{item.type}}</text>
+            <view class="rec-prod">{{item.productName}}</view>
+          </view>
+          <view class="muted">{{item.date}}</view>
+        </view>
+        <view class="rec-content mt-8">{{item.content}}</view>
+      </view>
+    </view>
+    <view class="empty" wx:else>暂无农事记录</view>
+  </view>
+
+  <!-- 反馈弹层 -->
+  <view class="mask" wx:if="{{showReviewSheet}}" bindtap="closeReview"></view>
+  <view class="sheet {{showReviewSheet ? 'sheet-up' : ''}}" wx:if="{{showReviewSheet}}">
+    <view class="sheet-head">
+      <text class="muted" bindtap="closeReview">取消</text>
+      <text class="sheet-title">反馈农户</text>
+      <text class="sheet-submit" bindtap="submitReview">提交</text>
+    </view>
+    <view class="stars">
+      <text class="star {{reviewForm.rating >= n ? 'on' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:for-item="n" wx:key="*this" data-r="{{n}}" bindtap="onRating">★</text>
+    </view>
+    <textarea class="review-input" placeholder="说说你的购买 / 食用体验，反馈会回传给农户……" value="{{reviewForm.content}}" bindinput="onContent" maxlength="200" />
+    <view class="muted count-tip">{{reviewForm.content.length}} / 200</view>
+  </view>
+</view>

@@ -1,0 +1,248 @@
+/* pages/productEdit/productEdit.wxss —— 农产品建档：档案式表单
+   规则：白卡 + 双层阴影，行间 26rpx，输入框统一 88rpx，状态色只在 绿 / 金 / 红 / 灰 内 */
+
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* ---------------------------- 身份 ---------------------------- */
+.role-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 0 0 24rpx;
+  margin-bottom: 24rpx;
+  border-bottom: 1rpx solid var(--line);
+}
+
+/* 身份徽标：浅绿圆角底 + 内容居中，🌾 收在徽标内 */
+.role-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: 10rpx 20rpx;
+  border-radius: var(--r-sm);
+  background: var(--green-mist);
+  color: var(--green);
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------- 表单 ---------------------------- */
+.field {
+  flex: 1;
+  margin-bottom: 26rpx;
+}
+.field.half {
+  margin-right: 20rpx;
+  min-width: 0;
+}
+.field.half:last-child { margin-right: 0; }
+
+.field-label {
+  display: block;
+  margin-bottom: 10rpx;
+  color: var(--text-2);
+  font-size: 24rpx;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* 卡片开头那几块是分区标题，压成墨绿加粗，仍保持 24rpx */
+.card > .field-label:first-child {
+  margin-bottom: 14rpx;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.input,
+.picker {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.picker {
+  display: flex;
+  align-items: center;
+}
+
+.input:focus {
+  background: #FFFFFF;
+  border-color: rgba(23, 96, 58, 0.35);
+}
+
+.input-placeholder { color: var(--text-light); }
+
+/* ---------------------------- 定位 ---------------------------- */
+.loc-box {
+  display: flex;
+  align-items: center;
+  min-height: 96rpx;
+  padding: 20rpx 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+}
+.loc-hover { opacity: 0.88; }
+
+/* 📍 做成浅绿圆角徽标：定宽定高 + 居中 */
+.loc-icon {
+  flex: 0 0 64rpx;
+  width: 64rpx;
+  height: 64rpx;
+  margin-right: 20rpx;
+  border-radius: var(--r-sm);
+  background: rgba(23, 96, 58, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  line-height: 1;
+}
+
+.loc-info { flex: 1; min-width: 0; }
+
+.loc-addr {
+  color: var(--ink);
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+/* ---------------------------- 生长环境 ---------------------------- */
+.env-grid {
+  display: flex;
+  margin: 8rpx 0 0;
+  padding: 12rpx 0;
+  background: var(--green-mist);
+  border-radius: var(--r-md);
+}
+
+.env-item {
+  position: relative;
+  flex: 1;
+  text-align: center;
+  padding: 10rpx 4rpx;
+}
+
+/* 四个读数之间只用一条极淡竖线分隔 */
+.env-item + .env-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 16rpx;
+  bottom: 16rpx;
+  width: 1rpx;
+  background: var(--line);
+}
+
+/* 读数统一收进墨绿，覆盖 wxml 里的行内彩色，保证只有一套状态色 */
+.env-num {
+  color: var(--ink);
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------- 照片墙 ---------------------------- */
+.photo-wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+  margin-top: 16rpx;
+}
+
+.photo-item {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--green-mist);
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: var(--r-md);
+}
+
+.photo-del {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: var(--warn);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+/* 「📍已定位」做成照片内的小贴纸：浅绿圆角底 + 居中 */
+.photo-loc {
+  position: absolute;
+  left: 8rpx;
+  right: 8rpx;
+  bottom: 8rpx;
+  padding: 4rpx 8rpx;
+  background: var(--green-mist);
+  border-radius: var(--r-sm);
+  color: var(--green);
+  font-size: 20rpx;
+  line-height: 1.5;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* 上传位：浅绿圆角徽标，📷＋ 居中 */
+.photo-add {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: var(--r-md);
+  background: var(--green-mist);
+  border: 1rpx dashed rgba(23, 96, 58, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  font-size: 30rpx;
+  line-height: 1;
+}
+
+.tip {
+  margin-top: 14rpx;
+  color: var(--text-light);
+  font-size: 21rpx;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+/* 收尾说明：居中、更轻，像档案脚注 */
+.footer-tip {
+  padding: 26rpx 8rpx 8rpx;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 21rpx;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}

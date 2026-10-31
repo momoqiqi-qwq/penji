@@ -1,0 +1,284 @@
+/* pages/simulate/simulate.wxss —— 农田实况（传感器面板） */
+.page {
+  min-height: 100vh;
+  padding-bottom: 60rpx;
+  background: var(--bg);
+}
+
+/* ---------------- 顶部 ---------------- */
+.sim-head {
+  position: relative;
+  overflow: hidden;
+  padding: 40rpx 32rpx 40rpx;
+  color: #F2F7EF;
+  border-radius: 0 0 40rpx 40rpx;
+  background: #0A2318;
+}
+/* 头图背景照片 */
+.sim-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+/* 渐变遮罩：保证文字可读，底部加深与内容区衔接 */
+.sim-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 35, 24, 0.50) 0%, rgba(10, 35, 24, 0.22) 42%, rgba(10, 35, 24, 0.70) 100%);
+}
+.sim-kicker {
+  position: relative;
+  z-index: 2;
+  font-size: 20rpx;
+  letter-spacing: 0.2em;
+  color: rgba(226, 240, 222, 0.5);
+}
+.sim-title {
+  position: relative;
+  z-index: 2;
+  margin-top: 14rpx;
+  font-size: 48rpx;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+}
+.sim-plot {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 24rpx;
+  max-width: 100%;
+  padding: 14rpx 22rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.14);
+}
+.sim-plot-tx {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #EEF5EA;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sim-caret {
+  margin-left: 12rpx;
+  font-size: 22rpx;
+  color: rgba(226, 240, 222, 0.6);
+}
+
+/* ---------------- 数据来源 ---------------- */
+.source-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--r-md);
+  padding: 20rpx 24rpx;
+  margin: 20rpx 0 16rpx;
+  border: 1rpx solid var(--border);
+  background: #FFFFFF;
+}
+.source-bar.source-live,
+.source-bar.source-cloud {
+  background: var(--green-light);
+  border-color: rgba(23, 96, 58, 0.14);
+}
+.source-bar.source-demo {
+  background: #FBF6EC;
+  border-color: rgba(180, 128, 47, 0.16);
+}
+.source-label {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.source-bar.source-live .source-label,
+.source-bar.source-cloud .source-label { color: #145634; }
+.source-bar.source-demo .source-label { color: #8A6412; }
+.source-time {
+  font-size: 20rpx;
+  color: var(--text-light);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- 自动刷新 ---------------- */
+.auto-refresh-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  padding: 18rpx 24rpx;
+  margin-bottom: 16rpx;
+}
+.ar-left {
+  display: flex;
+  align-items: center;
+}
+.ar-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  margin-right: 14rpx;
+}
+.ar-dot-on {
+  background: #2E9A62;
+  box-shadow: 0 0 10rpx rgba(46, 154, 98, 0.7);
+  animation: ar-pulse 1.6s ease-in-out infinite;
+}
+.ar-dot-off { background: #C8D0C9; }
+@keyframes ar-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.ar-text {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: var(--text);
+}
+.ar-hint {
+  font-size: 20rpx;
+  color: var(--text-light);
+}
+
+/* ---------------- 传感器卡片 ---------------- */
+/* 与 plotDetail 保持一致的农业自然色板 */
+.metric-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.metric-card {
+  width: 48.6%;
+  margin-bottom: 18rpx;
+  padding: 26rpx 24rpx 24rpx;
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  border: 1rpx solid rgba(23, 33, 27, 0.04);
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 16rpx 34rpx -28rpx rgba(23, 33, 27, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+/* 每卡主题色：左边条 + 淡色背景 + 数字颜色 */
+.metric-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 6rpx;
+  background: var(--mc);
+}
+.m-temp  { --mc:#B4802F; background: linear-gradient(135deg, #FFFFFF 0%, #FBF4E6 100%); }
+.m-humid { --mc:#3A8A7A; background: linear-gradient(135deg, #FFFFFF 0%, #E8F4F0 100%); }
+.m-light { --mc:#A8B835; background: linear-gradient(135deg, #FFFFFF 0%, #F4F6E4 100%); }
+.m-soil  { --mc:#17603A; background: linear-gradient(135deg, #FFFFFF 0%, #E9F2EB 100%); }
+/* 图标底色也跟主题色走（20% 不透明度） */
+.m-temp  .metric-ico { background: rgba(180, 128, 47, 0.12); border-color: rgba(180, 128, 47, 0.18); }
+.m-humid .metric-ico { background: rgba(58, 138, 122, 0.12); border-color: rgba(58, 138, 122, 0.18); }
+.m-light .metric-ico  { background: rgba(168, 184, 53, 0.12); border-color: rgba(168, 184, 53, 0.18); }
+.m-soil  .metric-ico { background: rgba(23, 96, 58, 0.12); border-color: rgba(23, 96, 58, 0.18); }
+/* 数字颜色走主题色 */
+.m-temp  .metric-num { color: #B4802F; }
+.m-humid .metric-num { color: #3A8A7A; }
+.m-light .metric-num  { color: #A8B835; }
+.m-soil  .metric-num { color: #17603A; }
+
+.metric-ico {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 18rpx;
+  background: var(--green-mist);
+  border: 1rpx solid rgba(23, 96, 58, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18rpx;
+  transition: background 0.2s ease;
+}
+.metric-ic {
+  width: 34rpx;
+  height: 34rpx;
+}
+.metric-num {
+  font-size: 50rpx;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.metric-num .unit {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: var(--text-light);
+  margin-left: 4rpx;
+}
+.metric-name {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+}
+
+.demo-tip {
+  margin-top: 4rpx;
+  font-size: 21rpx;
+  line-height: 1.7;
+  color: #A2ACA3;
+}
+
+/* ---------------- AI 建议 ---------------- */
+.ai-summary {
+  font-size: 27rpx;
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.ai-block { margin-top: 4rpx; }
+.ai-label {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--green);
+  margin: 18rpx 0 10rpx;
+}
+.ai-label::before {
+  content: "";
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 2rpx;
+  background: currentColor;
+  margin-right: 12rpx;
+}
+.ai-label.warn { color: var(--warn); }
+.ai-line {
+  font-size: 24rpx;
+  line-height: 1.75;
+  color: var(--text-2);
+  padding-left: 20rpx;
+  margin: 8rpx 0;
+  position: relative;
+}
+.ai-line::before {
+  content: "";
+  position: absolute;
+  left: 4rpx;
+  top: 16rpx;
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 50%;
+  background: #CBD5CC;
+}
+
+.flex1 { flex: 1; }

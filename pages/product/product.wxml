@@ -1,0 +1,342 @@
+<!-- pages/product/product.wxml -->
+<view class="page" wx:if="{{batch}}">
+  <!-- 产品头部 -->
+  <view class="prod-hero">
+    <image class="prod-hero-bg" src="/assets/images/crop-{{cropIcon}}.svg" mode="aspectFit" />
+    <view class="prod-hero-mask"></view>
+    <view class="prod-tag">溯源档案 {{batch.batchId}}</view>
+    <view class="prod-name">{{batch.productName}}</view>
+    <view class="hero-tags">
+      <text class="tag tag-green">{{batch.category}}</text>
+      <text class="tag {{batch.statusTag}}">{{batch.status}}</text>
+      <text class="tag {{batch.flagTag}}" wx:if="{{batch.flag}}">⚠ 违规</text>
+      <text class="tag" wx:if="{{batch.stage}}">当前：{{batch.stage}}</text>
+    </view>
+    <view class="prod-meta">
+      <text>种植 {{batch.plantDate}}</text>
+      <text wx:if="{{batch.harvestDate}}"> → 采收 {{batch.harvestDate}}</text>
+    </view>
+    <view class="prod-meta" wx:if="{{batch.estYield}}">预计产量 {{batch.estYield}}</view>
+    <view class="certs" wx:if="{{batch.certifications.length}}">
+      <text class="cert-label">认证：</text>
+      <text class="tag tag-gold" wx:for="{{batch.certifications}}" wx:key="*this">{{item}}</text>
+    </view>
+    <view class="seed-src" wx:if="{{batch.seedSource}}">种源：{{batch.seedSource}}</view>
+  </view>
+
+  <view class="container">
+    <!-- 消费风险提示（消费者口径，与采购商核验相互独立） -->
+    <view class="section-title">风险提示</view>
+    <view class="card risk-card risk-{{risk.level}}" wx:if="{{risk}}">
+      <view class="risk-head">
+        <text class="risk-icon">{{risk.level === 'high' ? '!' : (risk.level === 'mid' ? 'i' : '✓')}}</text>
+        <text class="risk-title">{{risk.levelText}}</text>
+        <text class="tag {{risk.cls}}">{{risk.level === 'high' ? '建议谨慎选购' : (risk.level === 'mid' ? '建议留意' : '可放心参考')}}</text>
+      </view>
+      <block wx:if="{{risk.items.length}}">
+        <view class="risk-item" wx:for="{{risk.items}}" wx:key="text">
+          <text class="risk-dot risk-dot-{{item.level}}">{{item.level === 'high' ? '!' : '·'}}</text>
+          <text class="risk-text">{{item.text}}</text>
+        </view>
+      </block>
+      <view class="risk-safe" wx:else>该批次生产档案、食品检测与合规核验暂未发现异常。</view>
+      <view class="risk-advice">💡 {{risk.advice}}</view>
+    </view>
+
+    <!-- 种植地点（GPS 防伪） -->
+    <view class="section-title">种植地点</view>
+    <view class="card link-card" bindtap="viewLocation" wx:if="{{batch.location}}">
+      <view class="between">
+        <view class="row">
+          <view class="loc-pin"><image class="loc-pin-ic" src="/assets/icons/pin.png" mode="aspectFit" /></view>
+          <view>
+            <view class="link-title">{{batch.location.address}}</view>
+            <view class="muted mt-8">北纬 {{batch.location.latitude}} · 东经 {{batch.location.longitude}}（点击查看地图）</view>
+          </view>
+        </view>
+        <view class="tag tag-green">已核验</view>
+      </view>
+    </view>
+
+    <!-- 成长周期 -->
+    <view class="section-title" wx:if="{{growthCycle.length}}">成长周期</view>
+    <view class="card" wx:if="{{growthCycle.length}}">
+      <view class="timeline">
+        <view class="tl-item" wx:for="{{growthCycle}}" wx:key="stage">
+          <view class="tl-dot {{item.isCurrent ? 'tl-dot-now' : ''}}"></view>
+          <view class="tl-content">
+            <view class="between">
+              <view class="row">
+                <view class="cy-stage">{{item.stage}}</view>
+                <text class="tag tag-green" wx:if="{{item.isCurrent}}">当前阶段</text>
+              </view>
+              <view class="muted">{{item.date}}</view>
+            </view>
+            <view class="muted mt-8" wx:if="{{item.desc}}">{{item.desc}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 农田环境摘要（消费者弱化技术参数，仅四参数 + 数据来源） -->
+    <view class="section-title">环境数据</view>
+    <view class="card">
+      <view class="env-now" wx:if="{{latestEnv}}">
+        <view class="env-cell">
+          <view class="env-big" style="color:#C2793A">{{latestEnv.airTemp}}℃</view>
+          <view class="muted">空气温度</view>
+        </view>
+        <view class="env-cell">
+          <view class="env-big" style="color:#4A7FA8">{{latestEnv.airHumidity}}%</view>
+          <view class="muted">空气湿度</view>
+        </view>
+        <view class="env-cell">
+          <view class="env-big" style="color:#B9892F">{{latestEnv.light}}%</view>
+          <view class="muted">光照</view>
+        </view>
+        <view class="env-cell">
+          <view class="env-big" style="color:#3E7A5C">{{latestEnv.soilMoisture}}%</view>
+          <view class="muted">土壤湿度</view>
+        </view>
+      </view>
+      <view class="env-src" wx:if="{{latestEnv}}">
+        <text class="tag {{latestEnvTag.cls}}">{{latestEnv.sourceLabel}}</text>
+      </view>
+      <view class="env-block" wx:if="{{envSpark.airTemp.bars.length}}">
+        <view class="between">
+          <view class="env-name">空气温度曲线</view>
+          <view class="env-val">{{envSpark.airTemp.min}}~{{envSpark.airTemp.max}}℃</view>
+        </view>
+        <view class="spark">
+          <view wx:for="{{envSpark.airTemp.bars}}" wx:key="date" class="spark-bar" style="height:{{item.height}}%;background:#C2793A;"></view>
+        </view>
+      </view>
+      <view class="env-block" wx:if="{{envSpark.airHumidity.bars.length}}">
+        <view class="between">
+          <view class="env-name">空气湿度曲线</view>
+          <view class="env-val">{{envSpark.airHumidity.min}}~{{envSpark.airHumidity.max}}%</view>
+        </view>
+        <view class="spark">
+          <view wx:for="{{envSpark.airHumidity.bars}}" wx:key="date" class="spark-bar" style="height:{{item.height}}%;background:#4A7FA8;"></view>
+        </view>
+      </view>
+      <view class="env-block" wx:if="{{envSpark.light.bars.length}}">
+        <view class="between">
+          <view class="env-name">光照曲线</view>
+          <view class="env-val">{{envSpark.light.min}}~{{envSpark.light.max}}%</view>
+        </view>
+        <view class="spark">
+          <view wx:for="{{envSpark.light.bars}}" wx:key="date" class="spark-bar" style="height:{{item.height}}%;background:#B9892F;"></view>
+        </view>
+      </view>
+      <view class="env-block" wx:if="{{envSpark.soilMoisture.bars.length}}">
+        <view class="between">
+          <view class="env-name">土壤湿度曲线</view>
+          <view class="env-val">{{envSpark.soilMoisture.min}}~{{envSpark.soilMoisture.max}}%</view>
+        </view>
+        <view class="spark">
+          <view wx:for="{{envSpark.soilMoisture.bars}}" wx:key="date" class="spark-bar" style="height:{{item.height}}%;background:#3E7A5C;"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- AI 环境分析报告 -->
+    <view class="section-title" wx:if="{{aiReport}}">AI 分析</view>
+    <view class="card" wx:if="{{aiReport}}">
+      <view class="row">
+        <view class="ai-score" style="color:{{aiReport.levelText === '优' || aiReport.levelText === '良' ? '#17603A' : aiReport.levelText === '中' ? '#B4802F' : '#B23B34'}}">{{aiReport.levelText}}</view>
+        <view class="ml-16">
+          <text class="tag {{aiReport.levelCls}}">环境{{aiReport.levelText}}</text>
+          <view class="muted mt-8">基于四类传感器数据自动分析</view>
+        </view>
+      </view>
+      <view class="ai-summary mt-8">{{aiReport.summary}}</view>
+      <view class="divider"></view>
+      <view class="ai-item" wx:for="{{aiReport.issues}}" wx:key="*this">
+        <text class="ai-icon warn">!</text>
+        <text>{{item}}</text>
+      </view>
+      <view class="ai-item" wx:for="{{aiReport.suggestions}}" wx:key="*this">
+        <text class="ai-icon tip">→</text>
+        <text>{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 棚迹有机生产评价指数（OPI） -->
+    <view class="section-title" wx:if="{{opi}}">有机生产评价 OPI</view>
+    <view class="card" wx:if="{{opi}}">
+      <view class="opi-row">
+        <view class="opi-score-big">{{opi.score}}<text class="opi-unit">分</text></view>
+        <text class="tag {{opi.cls}}">{{opi.level}}</text>
+      </view>
+      <view class="opi-dim" wx:for="{{opi.dims}}" wx:key="key">
+        <view class="opi-dim-head"><text>{{item.name}}</text><text class="muted">{{item.weight}}% · {{item.score}}分</text></view>
+        <view class="opi-bar"><view class="opi-bar-in" style="width:{{item.score}}%"></view></view>
+      </view>
+      <view class="opi-note">※ 本指数仅用于生产过程评价与风险提示，不等同于国家官方有机产品认证。</view>
+      <view class="muted mt-8" wx:if="{{!opi.hasTest}}">该批次暂无检测数据，检测维度按基础分计，不代表检测合格。</view>
+    </view>
+
+    <!-- 有机生产合规情况（消费者简版，对照 GB/T 19630-2019） -->
+    <view class="section-title" wx:if="{{organic}}">合规核验</view>
+    <view class="card" wx:if="{{organic}}">
+      <view class="orgc-head">
+        <text class="tag {{organic.cls}}">{{organic.statusText}}</text>
+        <text class="muted">对照 {{organic.standardName}} 核验</text>
+      </view>
+      <view class="orgc-item" wx:for="{{organic.checks}}" wx:key="key">
+        <text class="orgc-ico org-{{item.status}}">{{item.status === 'pass' ? '✓' : (item.status === 'fail' ? '✗' : (item.status === 'unknown' ? '?' : '◐'))}}</text>
+        <view class="orgc-body">
+          <view class="orgc-name">{{item.name}}</view>
+          <!-- 不符合/待核验项：展示对应国标条款，供消费者对照 -->
+          <view class="orgc-std" wx:if="{{item.status === 'fail' || item.status === 'unknown'}}">
+            <text class="orgc-std-tag">国标</text>{{item.standard}}
+          </view>
+        </view>
+      </view>
+      <view class="orgc-note">※ 本结果仅反映生产过程合规情况，供消费参考；判定依据为 GB/T 19630-2019 国家标准，正式有机产品认证以国家授权认证机构为准。土壤有机质、氮磷钾、阳离子交换量仅作培肥监测，不作判定。</view>
+    </view>
+
+    <!-- 食品检测结果 -->
+    <view class="section-title">食品检测结果</view>
+    <view class="card" wx:if="{{inspections.length}}">
+      <block wx:for="{{inspections}}" wx:key="inspId">
+        <view class="insp-item">
+          <view class="insp-top">
+            <text class="insp-org">{{item.org}}</text>
+            <text class="tag {{item.conclusion === '合格' ? 'tag-green' : 'tag-warn'}}">{{item.conclusion}}</text>
+          </view>
+          <view class="muted mt-8">{{item.standard}} · {{item.date}} · 采购商 {{item.buyerName}}</view>
+          <view class="insp-line" wx:for="{{item.items}}" wx:for-item="it" wx:key="name">
+            <text>{{it.name}}：{{it.result}}（限值 {{it.limit}}）</text>
+            <text class="tag {{it.conclusion === '合格' ? 'tag-green' : 'tag-warn'}}">{{it.conclusion}}</text>
+          </view>
+          <text class="tag tag-gold" wx:if="{{item.isDemo}}">演示检测数据</text>
+        </view>
+      </block>
+    </view>
+    <view class="card" wx:else>
+      <view class="no-test">暂无检测数据</view>
+      <view class="muted">该批次尚未录入食品检测结果，不代表检测合格。</view>
+    </view>
+
+    <!-- 现场照片（带定位） -->
+    <view class="section-title" wx:if="{{photos.length}}">现场照片</view>
+    <view class="card photo-card" wx:if="{{photos.length}}">
+      <view class="photo-wall">
+        <view class="photo-item" wx:for="{{photos}}" wx:key="path">
+          <image class="photo-img" src="{{item.path}}" mode="aspectFill" data-url="{{item.path}}" bindtap="previewPhoto" />
+          <view class="photo-loc" wx:if="{{item.location}}">📍{{item.location.latitude}},{{item.location.longitude}}</view>
+          <view class="photo-date" wx:if="{{item.date}}">{{item.date}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 档案归属：地块 + 农户 -->
+    <view class="section-title">档案归属</view>
+    <view class="card link-card" bindtap="goPlot" wx:if="{{plot}}">
+      <view class="between">
+        <view>
+          <view class="link-title">{{plot.name}}</view>
+          <view class="muted mt-8">{{plot.plotId}} · {{plot.soilType}} · {{plot.area}} 亩</view>
+        </view>
+        <view class="link-arrow">›</view>
+      </view>
+    </view>
+
+
+    <view class="card link-card" bindtap="goFarmer" wx:if="{{farmer}}">
+      <view class="row between">
+        <view class="row">
+          <view class="avatar" style="background:{{farmer.avatarColor}}">{{farmer.name[0]}}</view>
+          <view>
+            <view class="link-title">{{farmer.name}}</view>
+            <view class="muted mt-8">{{farmer.village}} · {{farmer.totalBatches}} 批次</view>
+          </view>
+        </view>
+        <view class="credit-box">
+          <view class="credit-num">{{farmer.creditScore}}</view>
+          <view class="muted">信用分</view>
+        </view>
+      </view>
+      <view class="row mt-16">
+        <text class="tag {{farmer.level.cls}}">{{farmer.level.text}}</text>
+        <text class="muted ml">{{farmer.starText}}</text>
+      </view>
+    </view>
+
+    <!-- 同地块历史茬次 -->
+    <view class="section-title" wx:if="{{siblingBatches.length}}">同地块其它茬次</view>
+    <view class="card" wx:if="{{siblingBatches.length}}">
+      <view class="sib-item" wx:for="{{siblingBatches}}" wx:key="batchId" bindtap="goSibling" data-id="{{item.batchId}}">
+        <view class="between">
+          <view class="sib-prod">{{item.productName}}</view>
+          <text class="tag {{item.statusTag}}">{{item.status}}</text>
+        </view>
+        <view class="muted mt-8">{{item.plantDate}} → {{item.harvestDate || '种植中'}}</view>
+      </view>
+    </view>
+
+    <!-- 本批次农事记录 -->
+    <view class="section-title">农事记录（{{records.length}}）</view>
+    <view class="card" wx:if="{{records.length}}">
+      <view class="timeline">
+        <view class="tl-item" wx:for="{{records}}" wx:key="recordId">
+          <view class="tl-dot"></view>
+          <view class="tl-content">
+            <view class="between">
+              <view class="row">
+                <text class="tag {{item.typeTag}}">{{item.type}}</text>
+              </view>
+              <view class="muted">{{item.date}}</view>
+            </view>
+            <view class="rec-content mt-8">{{item.content}}</view>
+            <view class="muted mt-8" wx:if="{{item.cost}}">投入 ¥{{item.cost}}</view>
+            <!-- 该农事操作发生时的真实田间环境快照 -->
+            <view class="rec-env" wx:if="{{item.envSnapshot}}">
+              <text class="tag {{item.envTag}}">{{item.envLabel}}</text>
+              <text class="rec-env-num">温度 {{item.envSnapshot.airTemp}}℃ · 湿度 {{item.envSnapshot.airHumidity}}% · 光照 {{item.envSnapshot.light}}% · 土壤湿度 {{item.envSnapshot.soilMoisture}}%</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="empty" wx:else>暂无农事记录</view>
+
+    <!-- 消费者反馈 -->
+    <view class="section-title between">
+      <text>消费者反馈（{{reviews.length}}）</text>
+      <text class="add-btn" wx:if="{{canReview}}" bindtap="openReview">＋ 反馈</text>
+    </view>
+    <view class="card" wx:if="{{reviews.length}}">
+      <view class="review-item" wx:for="{{reviews}}" wx:key="reviewId">
+        <view class="between">
+          <view class="review-name">{{item.buyerName}}</view>
+          <view class="muted">{{item.date}}</view>
+        </view>
+        <view class="muted mt-8">{{item.starText}}</view>
+        <view class="review-content mt-8">{{item.content}}</view>
+      </view>
+    </view>
+    <view class="empty" wx:else>暂无反馈，扫码后可以发表第一条反馈</view>
+
+    <button class="btn btn-block mt-24" wx:if="{{canReview}}" bindtap="openReview">我要反馈（数据将回传农户）</button>
+    <button class="btn btn-outline btn-block mt-16" bindtap="goQr">查看本批次二维码 ›</button>
+    <button class="btn btn-outline btn-block mt-16" open-type="share">分享溯源档案</button>
+  </view>
+
+  <!-- 反馈弹层 -->
+  <view class="mask" wx:if="{{showReviewSheet}}" bindtap="closeReview"></view>
+  <view class="sheet {{showReviewSheet ? 'sheet-up' : ''}}" wx:if="{{showReviewSheet}}">
+    <view class="sheet-head">
+      <text class="muted" bindtap="closeReview">取消</text>
+      <text class="sheet-title">反馈本批次</text>
+      <text class="sheet-submit" bindtap="submitReview">提交</text>
+    </view>
+    <view class="stars">
+      <text class="star {{reviewForm.rating >= n ? 'on' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:for-item="n" wx:key="*this" data-r="{{n}}" bindtap="onRating">★</text>
+    </view>
+    <textarea class="review-input" placeholder="说说你的购买 / 食用体验，反馈会回传给农户…" value="{{reviewForm.content}}" bindinput="onContent" maxlength="200" />
+    <view class="muted count-tip">{{reviewForm.content.length}} / 200</view>
+  </view>
+</view>

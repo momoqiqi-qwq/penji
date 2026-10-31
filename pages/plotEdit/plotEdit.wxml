@@ -1,0 +1,82 @@
+<!-- pages/plotEdit/plotEdit.wxml -->
+<view class="page">
+  <view class="container">
+    <view class="role-bar">
+      <text class="muted">当前身份</text>
+      <text class="role-text">🌾 农户 · {{farmerName}}</text>
+    </view>
+
+    <view class="card">
+      <view class="field">
+        <view class="field-label">地块名称 *</view>
+        <input class="input" placeholder="如：王家村 2 号地" value="{{name}}" bindinput="onName" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">所在村</view>
+        <input class="input" placeholder="如：王家村" value="{{village}}" bindinput="onVillage" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">规模面积（亩）*</view>
+        <input class="input" type="digit" placeholder="如：2.5" value="{{area}}" bindinput="onArea" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">土地类型</view>
+        <picker bindchange="onSoilChange" value="{{soilIndex}}" range="{{soilOptions}}">
+          <view class="picker">{{soilOptions[soilIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field-label">轮换制</view>
+        <textarea class="textarea" placeholder="如：草莓 → 西红柿 → 黄瓜（一年两茬轮作）" value="{{rotation}}" bindinput="onRotation" maxlength="60" />
+      </view>
+
+      <!-- 有机管理信息（采购商合规核验依据） -->
+      <view class="field">
+        <view class="field-label">有机转换期起始日期</view>
+        <picker mode="date" value="{{organicSince}}" end="2030-12-31" bindchange="onOrganicSince">
+          <view class="picker">{{organicSince || '开始按有机方式管理、停用化学品的日期'}}</view>
+        </picker>
+        <view class="muted field-hint">一年生蔬菜转换期不少于 24 个月（以播种日起算），多年生作物参考 36 个月</view>
+      </view>
+
+      <view class="field">
+        <view class="field-label">隔离缓冲带</view>
+        <view class="switch-row">
+          <switch checked="{{bufferHas}}" bindchange="onBufferChange" color="#1f7a3a" />
+          <text class="muted">已设置隔离缓冲带（防止周边常规地块禁用物质漂移）</text>
+        </view>
+        <textarea wx:if="{{bufferHas}}" class="textarea" placeholder="如：与东侧常规地块设 4 米缓冲带，种植香根草隔离" value="{{bufferDesc}}" bindinput="onBufferDesc" maxlength="80" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">种植地点（GPS 定位，防伪）*</view>
+        <view class="loc-box" bindtap="chooseLocation">
+          <block wx:if="{{location}}">
+            <view class="loc-addr">📍 {{location.address}}</view>
+            <view class="muted">北纬 {{location.latitude}} · 东经 {{location.longitude}}（点击重选）</view>
+          </block>
+          <view wx:else class="loc-addr" style="color:#9aa0a6">点击选点 / 自动定位</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="field-label">地块照片（最多 6 张，附带定位）</view>
+        <view class="photo-wall">
+          <view class="photo-item" wx:for="{{photos}}" wx:key="path">
+            <image class="photo-img" src="{{item.path}}" mode="aspectFill" bindtap="previewPhoto" data-url="{{item.path}}" />
+            <view class="photo-del" catchtap="deletePhoto" data-idx="{{index}}">×</view>
+            <view class="photo-loc" wx:if="{{item.location}}">📍已定位</view>
+          </view>
+          <view class="photo-add" wx:if="{{photos.length < 6}}" bindtap="choosePhoto">＋</view>
+        </view>
+        <view class="muted tip">照片为本地临时路径，仅当前会话可见；真实部署可上传 wx.cloud 存储获得永久链接</view>
+      </view>
+    </view>
+
+    <button class="btn btn-block mt-16" bindtap="submit">{{mode === 'add' ? '建档地块' : '保存修改'}}</button>
+  </view>
+</view>

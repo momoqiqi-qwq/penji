@@ -1,0 +1,128 @@
+<!-- pages/productEdit/productEdit.wxml -->
+<view class="page">
+  <view class="container">
+    <view class="role-bar">
+      <text class="muted">当前身份</text>
+      <text class="role-text">🌾 农户 · {{farmerName}}（仅农户可上传，消费者只能反馈）</text>
+    </view>
+
+    <view class="card">
+      <view class="field">
+        <view class="field-label">所属地块 *</view>
+        <picker bindchange="onPlotChange" value="{{plotIndex}}" range="{{plots}}" range-key="name">
+          <view class="picker">{{plots.length ? plots[plotIndex].name + ' ›' : '暂无地块'}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field-label">农产品名称 *</view>
+        <input class="input" placeholder="如：樱桃番茄" value="{{productName}}" bindinput="onName" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">品类</view>
+        <picker bindchange="onCategoryChange" value="{{categoryIndex}}" range="{{categories}}">
+          <view class="picker">{{categories[categoryIndex]}} ›</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field-label">当前生长阶段</view>
+        <picker bindchange="onStageChange" value="{{stageIndex}}" range="{{stages}}">
+          <view class="picker">{{stages[stageIndex]}} ›</view>
+        </picker>
+      </view>
+
+      <view class="row">
+        <view class="field half">
+          <view class="field-label">播种日期 *</view>
+          <picker mode="date" value="{{plantDate}}" bindchange="onPlantDate">
+            <view class="picker">{{plantDate}} ›</view>
+          </picker>
+        </view>
+        <view class="field half">
+          <view class="field-label">预计收获日期</view>
+          <picker mode="date" value="{{expectedHarvest}}" bindchange="onExpectedHarvest">
+            <view class="picker">{{expectedHarvest}} ›</view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="row">
+        <view class="field half">
+          <view class="field-label">种子/种苗来源</view>
+          <input class="input" placeholder="如：农技站" value="{{seedSource}}" bindinput="onSeedSource" />
+        </view>
+        <view class="field half">
+          <view class="field-label">预计产量</view>
+          <input class="input" placeholder="如：1200 kg" value="{{estYield}}" bindinput="onEstYield" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 种植地点（防伪） -->
+    <view class="card">
+      <view class="field-label">种植地点（必须 GPS 定位）*</view>
+      <view class="loc-box" bindtap="chooseLocation" hover-class="loc-hover">
+        <block wx:if="{{location}}">
+          <view class="loc-icon">📍</view>
+          <view class="loc-info">
+            <view class="loc-addr">{{location.address}}</view>
+            <view class="muted">北纬 {{location.latitude}} · 东经 {{location.longitude}}（点击重新选点）</view>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="loc-icon">{{locating ? '⏳' : '📍'}}</view>
+          <view class="loc-info">
+            <view class="loc-addr">{{locating ? '定位中...' : '点击选择种植地点 / 自动定位'}}</view>
+            <view class="muted">照片与档案将绑定该坐标</view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 生长环境（四类传感器自动采集，不可手填） -->
+    <view class="card">
+      <view class="field-label">生长环境（空气温度 / 空气湿度 / 光照 / 土壤湿度 自动采集，不可手填）</view>
+      <view class="env-grid" wx:if="{{envSnapshot}}">
+        <view class="env-item">
+          <view class="env-num" style="color:#C2793A">{{envSnapshot.airTemp}}℃</view>
+          <view class="muted">空气温度</view>
+        </view>
+        <view class="env-item">
+          <view class="env-num" style="color:#4A7FA8">{{envSnapshot.airHumidity}}%</view>
+          <view class="muted">空气湿度</view>
+        </view>
+        <view class="env-item">
+          <view class="env-num" style="color:#B9892F">{{envSnapshot.light}}%</view>
+          <view class="muted">光照</view>
+        </view>
+        <view class="env-item">
+          <view class="env-num" style="color:#3E7A5C">{{envSnapshot.soilMoisture}}%</view>
+          <view class="muted">土壤湿度</view>
+        </view>
+      </view>
+      <view wx:else class="muted">传感器数据获取中…</view>
+      <view class="mt-8" wx:if="{{envSnapshot}}">
+        <text class="tag {{envSnapshot.sourceTag.cls}}">{{envSnapshot.sourceLabel}}</text>
+      </view>
+    </view>
+
+    <!-- 现场照片（附带定位） -->
+    <view class="card">
+      <view class="field-label">现场照片（每张自动附带拍摄定位，最多 6 张）*</view>
+      <view class="photo-wall">
+        <view class="photo-item" wx:for="{{photos}}" wx:key="path">
+          <image class="photo-img" src="{{item.path}}" mode="aspectFill" bindtap="previewPhoto" data-url="{{item.path}}" />
+          <view class="photo-del" catchtap="deletePhoto" data-idx="{{index}}">×</view>
+          <view class="photo-loc">📍已定位</view>
+        </view>
+        <view class="photo-add" wx:if="{{photos.length < 6}}" bindtap="choosePhoto">📷＋</view>
+      </view>
+      <view class="muted tip">照片为本地临时路径；真实部署可上传 wx.cloud 存储获得永久链接</view>
+    </view>
+
+    <button class="btn btn-block" bindtap="submit">提交建档（AI 分析 + 生成二维码）</button>
+    <view class="footer-tip muted">提交后将由 AI 自动分析生产环境并生成农产品档案，二维码与档案绑定，消费者扫码即可查看真实生长过程</view>
+  </view>
+</view>

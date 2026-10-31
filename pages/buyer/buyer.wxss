@@ -1,0 +1,315 @@
+/* pages/buyer/buyer.wxss 采购商工作台 */
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-bottom: 60rpx;
+}
+
+/* ---------------- 头图 ---------------- */
+.buyer-head {
+  position: relative;
+  overflow: hidden;
+  padding: 38rpx 32rpx 36rpx;
+  color: #F2F7EF;
+  border-radius: 0 0 40rpx 40rpx;
+  background:
+    radial-gradient(110% 70% at 86% -16%, rgba(58, 110, 168, 0.5) 0%, rgba(58, 110, 168, 0) 60%),
+    linear-gradient(168deg, #0A2318 0%, #10321F 54%, #0A2819 100%);
+}
+.buyer-head::after {
+  content: "";
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  bottom: -34%;
+  height: 74%;
+  background: repeating-linear-gradient(
+    172deg,
+    rgba(207, 235, 200, 0.08) 0,
+    rgba(207, 235, 200, 0.08) 1rpx,
+    transparent 1rpx,
+    transparent 32rpx
+  );
+  transform: rotate(-4deg);
+  pointer-events: none;
+}
+/* 头图背景照片 + 遮罩：保持文字可读，与内容区自然衔接 */
+.bh-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+.bh-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(10, 35, 24, 0.58) 0%, rgba(10, 35, 24, 0.32) 38%, rgba(10, 35, 24, 0.8) 100%);
+}
+.bh-kicker {
+  position: relative;
+  z-index: 2;
+  font-size: 20rpx;
+  letter-spacing: 0.24em;
+  color: rgba(226, 240, 222, 0.46);
+}
+.bh-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+}
+.bh-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  flex: 0 0 88rpx;
+  border-radius: 26rpx;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1rpx solid rgba(255, 255, 255, 0.16);
+  color: #F2F7EF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+.bh-info {
+  flex: 1;
+  min-width: 0;
+  margin-left: 20rpx;
+}
+.bh-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.bh-sub {
+  font-size: 22rpx;
+  color: rgba(226, 240, 222, 0.6);
+  margin-top: 6rpx;
+}
+.bh-switch {
+  flex: 0 0 auto;
+  font-size: 21rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1rpx solid rgba(255, 255, 255, 0.14);
+  color: #EAF3E6;
+}
+.bh-desc {
+  position: relative;
+  z-index: 2;
+  margin-top: 22rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.08);
+  font-size: 21rpx;
+  line-height: 1.7;
+  color: rgba(226, 240, 222, 0.55);
+}
+
+/* ---------------- tabs ---------------- */
+.tabs {
+  display: flex;
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  padding: 6rpx;
+  margin: 24rpx 0;
+}
+.tab {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--text-2);
+  border-radius: 18rpx;
+  transition: all 0.16s ease;
+}
+.tab.on {
+  background: var(--ink);
+  color: #F1F6EE;
+  font-weight: 600;
+}
+
+/* ---------------- 风险预警 ---------------- */
+.risk-box {
+  background: #FCF1F0;
+  border: 1rpx solid rgba(178, 59, 52, 0.18);
+  border-radius: var(--r-lg);
+  padding: 26rpx;
+  margin-bottom: 26rpx;
+}
+/* section-title between（折叠标题）—— 复用全局模式 */
+.section-title.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 12rpx 18rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+.section-title.between:active { opacity: 0.6; }
+.fold-arrow {
+  font-size: 34rpx;
+  color: var(--text-light);
+  transform: rotate(90deg);
+  transition: transform 0.24s ease;
+  line-height: 1;
+}
+.fold-arrow.up { transform: rotate(-90deg); }
+.risk-item {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx dashed rgba(178, 59, 52, 0.22);
+}
+.risk-item:first-of-type { border-top: none; padding-top: 12rpx; }
+.risk-name {
+  font-size: 25rpx;
+  font-weight: 600;
+  color: #6E2A24;
+  line-height: 1.5;
+}
+.risk-detail {
+  font-size: 22rpx;
+  color: #8A5540;
+  margin-top: 8rpx;
+  line-height: 1.6;
+  padding-left: 18rpx;
+  position: relative;
+}
+.risk-detail::before {
+  content: "";
+  position: absolute;
+  left: 2rpx;
+  top: 14rpx;
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 50%;
+  background: rgba(178, 59, 52, 0.45);
+}
+.risk-go {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: #9C2B24;
+  font-weight: 600;
+}
+
+/* ---------------- 批次卡 ---------------- */
+.batch-card {
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid rgba(23, 33, 27, 0.04);
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 18rpx 36rpx -28rpx rgba(23, 33, 27, 0.3);
+  transition: transform 0.12s ease;
+}
+.card-hover {
+  transform: scale(0.985);
+  opacity: 0.94;
+}
+.bc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bc-name {
+  font-size: 31rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.bc-code {
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  color: #A2ACA3;
+  font-variant-numeric: tabular-nums;
+}
+.bc-line {
+  margin-top: 12rpx;
+  font-size: 23rpx;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+.bc-tags {
+  margin-top: 16rpx;
+  display: flex;
+  flex-wrap: wrap;
+}
+.bc-tags .tag {
+  margin: 0 10rpx 8rpx 0;
+}
+
+/* ---------------- 标准库 ---------------- */
+.demo-banner {
+  background: #FBF6EC;
+  border: 1rpx solid rgba(180, 128, 47, 0.18);
+  color: #8A6412;
+  border-radius: var(--r-md);
+  padding: 20rpx 24rpx;
+  font-size: 21rpx;
+  line-height: 1.7;
+  margin-bottom: 24rpx;
+}
+.std-card {
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid rgba(23, 33, 27, 0.04);
+  box-shadow: 0 2rpx 6rpx rgba(23, 33, 27, 0.03), 0 18rpx 36rpx -28rpx rgba(23, 33, 27, 0.3);
+}
+.std-code {
+  font-size: 21rpx;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.std-name {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 10rpx;
+  line-height: 1.45;
+}
+.std-scope {
+  font-size: 22rpx;
+  color: var(--text-light);
+  margin-top: 8rpx;
+  line-height: 1.6;
+}
+.std-items {
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid var(--line);
+}
+.std-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 23rpx;
+  padding: 9rpx 0;
+  color: var(--text-2);
+}
+.std-limit {
+  color: var(--green-dark);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.std-card .tag {
+  margin-top: 16rpx;
+  display: inline-block;
+}

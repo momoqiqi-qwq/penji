@@ -1,0 +1,72 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/chooseRole/chooseRole",
+    "pages/plot/plot",
+    "pages/plotDetail/plotDetail",
+    "pages/farmer/farmer",
+    "pages/farmerDetail/farmerDetail",
+    "pages/product/product",
+    "pages/scan/scan",
+    "pages/addRecord/addRecord",
+    "pages/plotEdit/plotEdit",
+    "pages/productEdit/productEdit",
+    "pages/qr/qr",
+    "pages/diagnose/diagnose",
+    "pages/simulate/simulate",
+    "pages/buyer/buyer",
+    "pages/inspect/inspect"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#0B2419",
+    "navigationBarTitleText": "棚迹",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F6F5F1"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#98A69C",
+    "selectedColor": "#17603A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home-on.png"
+      },
+      {
+        "pagePath": "pages/plot/plot",
+        "text": "地块",
+        "iconPath": "assets/tabbar/plot.png",
+        "selectedIconPath": "assets/tabbar/plot-on.png"
+      },
+      {
+        "pagePath": "pages/scan/scan",
+        "text": "扫一扫",
+        "iconPath": "assets/tabbar/scan.png",
+        "selectedIconPath": "assets/tabbar/scan-on.png"
+      },
+      {
+        "pagePath": "pages/simulate/simulate",
+        "text": "实况",
+        "iconPath": "assets/tabbar/live.png",
+        "selectedIconPath": "assets/tabbar/live-on.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于记录农产品种植地点与拍摄位置，保障溯源信息真实"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation",
+    "chooseLocation"
+  ],
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

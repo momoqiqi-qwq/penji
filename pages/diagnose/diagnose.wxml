@@ -1,0 +1,115 @@
+<!-- pages/diagnose/diagnose.wxml -->
+<view class="page">
+  <view class="diag-hero">
+    <view class="diag-icon">🩺</view>
+    <view class="diag-title">农技诊断</view>
+    <view class="diag-desc">描述作物出现的症状，结合田间传感器（空气温度 / 空气湿度 / 光照 / 土壤湿度）读数，分析病因并给出可落地的处置方案</view>
+  </view>
+
+  <view class="container">
+    <!-- 症状输入 -->
+    <view class="card">
+      <view class="muted mb-16" wx:if="{{envHint}}">{{envHint}}</view>
+      <view class="field">
+        <view class="field-label">作物名称</view>
+        <input class="input" placeholder="如：西红柿、草莓、黄瓜" value="{{crop}}" bindinput="onCrop" maxlength="20" />
+      </view>
+      <view class="field">
+        <view class="field-label">问题症状 <text class="req">*</text></view>
+        <textarea class="textarea" placeholder="如：下部叶片发黄、果面有灰色霉层、中午打蔫、叶背有蚜虫……" value="{{text}}" bindinput="onText" maxlength="{{maxText}}" auto-height />
+        <view class="counter">{{textLen}}/{{maxText}}</view>
+      </view>
+      <button class="btn btn-block" bindtap="submit" loading="{{loading}}" disabled="{{loading}}">{{loading ? '诊断中…' : '开始诊断'}}</button>
+    </view>
+
+    <!-- 诊断结果 -->
+    <block wx:if="{{result}}">
+      <view id="result-anchor" class="section-title">诊断结果与处置方案</view>
+      <view class="card result-card">
+        <view class="between">
+          <view class="result-title">{{result.title}}</view>
+          <text class="tag {{result.severityCls}}" wx:if="{{result.matched}}">风险：{{result.severity}}</text>
+        </view>
+
+        <view class="result-summary" wx:if="{{result.summary}}">{{result.summary}}</view>
+
+        <!-- 相近结论 -->
+        <view class="alt-wrap" wx:if="{{result.alternatives.length}}">
+          <text class="alt-label">也可能是：</text>
+          <text class="alt-item" wx:for="{{result.alternatives}}" wx:key="*this">{{item}}</text>
+        </view>
+
+        <!-- ① 可能原因 -->
+        <view class="result-block" wx:if="{{result.causes.length}}">
+          <view class="result-label">① 可能原因</view>
+          <view class="result-line" wx:for="{{result.causes}}" wx:key="*this">
+            <text class="dot dot-cause">·</text><text>{{item}}</text>
+          </view>
+        </view>
+
+        <!-- ② 立即处置 -->
+        <view class="result-block" wx:if="{{result.immediate.length}}">
+          <view class="plan-label label-urgent">🚨 立即处置（24小时内）</view>
+          <view class="result-line" wx:for="{{result.immediate}}" wx:key="*this">
+            <text class="dot dot-urgent">!</text><text>{{item}}</text>
+          </view>
+        </view>
+
+        <!-- ③ 有机防治 -->
+        <view class="result-block plan-box plan-organic" wx:if="{{result.organic.length}}">
+          <view class="plan-label label-organic">🌱 有机防治方案（推荐）</view>
+          <view class="result-line" wx:for="{{result.organic}}" wx:key="*this">
+            <text class="dot dot-organic">✓</text><text>{{item}}</text>
+          </view>
+        </view>
+
+        <!-- ④ 常规药剂参考 -->
+        <view class="result-block plan-box plan-chem" wx:if="{{result.chemical.length}}">
+          <view class="plan-label label-chem">🧪 常规药剂参考（有机禁用 · 仅对照）</view>
+          <view class="result-line" wx:for="{{result.chemical}}" wx:key="*this">
+            <text class="dot dot-chem">×</text><text>{{item}}</text>
+          </view>
+        </view>
+
+        <!-- ⑤ 预防措施 -->
+        <view class="result-block" wx:if="{{result.prevent.length}}">
+          <view class="plan-label label-prevent">🛡 后续预防与管理措施</view>
+          <view class="result-line" wx:for="{{result.prevent}}" wx:key="*this">
+            <text class="dot dot-prevent">○</text><text>{{item}}</text>
+          </view>
+        </view>
+
+        <!-- 继续确认 -->
+        <view class="result-block" wx:if="{{result.ask.length}}">
+          <view class="result-label">💬 还可以补充</view>
+          <view class="chip-wrap">
+            <view class="chip" wx:for="{{result.ask}}" wx:key="*this" data-q="{{item}}" bindtap="useAsk">{{item}}</view>
+          </view>
+          <view class="muted mt-8">点选后补充到上方描述里，再次诊断会更准确。</view>
+        </view>
+
+        <view class="organic-note" wx:if="{{result.organicNote}}">🌿 {{result.organicNote}}</view>
+      </view>
+    </block>
+
+    <!-- 诊断记录 -->
+    <block wx:if="{{history.length}}">
+      <view class="section-title between">
+        <text>诊断记录</text>
+        <text class="link" bindtap="clearHistory">清空</text>
+      </view>
+      <view class="card">
+        <view class="hist-item" wx:for="{{history}}" wx:key="id" data-id="{{item.id}}" bindtap="showHistoryItem">
+          <view class="between">
+            <text class="hist-title">{{item.title}}</text>
+            <text class="tag {{item.severityCls}}">{{item.severity}}</text>
+          </view>
+          <view class="muted mt-8 hist-line">{{item.crop || '未填作物'}} · {{item.tsText}}</view>
+          <view class="muted hist-text">{{item.text}}</view>
+        </view>
+      </view>
+    </block>
+
+    <view class="footer-tip muted">诊断结果结合症状描述与田间传感器读数生成，仅供参考；重大病虫害请及时联系当地农技站现场鉴定。</view>
+  </view>
+</view>

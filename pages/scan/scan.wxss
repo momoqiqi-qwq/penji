@@ -1,0 +1,263 @@
+/* pages/scan/scan.wxss —— 扫码溯源 */
+.page {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+  background: linear-gradient(180deg, #F4F7F2 0%, #EFF3EC 40%, #F7F5F0 100%);
+}
+
+/* ---------------- 头图 ---------------- */
+.scan-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 44rpx 36rpx 120rpx;
+  color: #F2F7EF;
+  border-radius: 0 0 40rpx 40rpx;
+  background: #0A2318;
+}
+/* 头图背景照片 */
+.scan-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+/* 渐变遮罩：保证文字可读，底部加深与内容区衔接 */
+.scan-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 35, 24, 0.55) 0%, rgba(10, 35, 24, 0.30) 40%, rgba(10, 35, 24, 0.72) 100%);
+}
+.scan-kicker {
+  position: relative;
+  z-index: 2;
+  font-size: 20rpx;
+  letter-spacing: 0.24em;
+  color: rgba(226, 240, 222, 0.5);
+}
+.scan-title {
+  position: relative;
+  z-index: 2;
+  margin-top: 16rpx;
+  font-size: 46rpx;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  color: #F6FAF1;
+}
+
+/* ---------------- 扫码入口 ---------------- */
+.scan-entry {
+  margin-top: -60rpx;
+  position: relative;
+  z-index: 5;
+}
+
+/* 醒目扫一扫标志（带脉冲动画） */
+.scan-badge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 36rpx;
+}
+.scan-badge-hover { opacity: 0.82; }
+.scan-badge-core {
+  position: relative;
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #2E8A5C 0%, #17603A 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 10rpx 30rpx -8rpx rgba(23, 96, 58, 0.5),
+    0 0 0 6rpx rgba(46, 138, 92, 0.12);
+}
+.scan-badge-ic {
+  width: 64rpx;
+  height: 64rpx;
+}
+/* 脉冲扩散环 */
+.scan-badge-ring {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 140rpx;
+  height: 140rpx;
+  margin-left: -70rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(46, 138, 92, 0.5);
+  animation: scanPulse 2.2s ease-out infinite;
+}
+@keyframes scanPulse {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+.scan-badge-tx {
+  margin-top: 14rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.1em;
+}
+
+/* ---------------- 列表 ---------------- */
+.code-input {
+  height: 88rpx;
+  padding: 0 24rpx;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 28rpx;
+  color: var(--text);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.recent-item {
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+.recent-item:first-child { padding-top: 0; }
+.recent-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.recent-main { flex: 1; min-width: 0; }
+.recent-prod {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+.link-arrow {
+  font-size: 34rpx;
+  color: #C3CCC4;
+  font-weight: 300;
+  line-height: 1;
+}
+.qr-mini-btn {
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  background: var(--green-light);
+  color: #145634;
+  font-size: 21rpx;
+  border: 1rpx solid rgba(23, 96, 58, 0.1);
+}
+
+/* ---------------- 区块背景（按功能语义区分） ---------------- */
+/* 我的农产品二维码：浅绿点阵纹理，呼应二维码 */
+.qr-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(23, 96, 58, 0.10) 1.2rpx, transparent 0) 0 0 / 18rpx 18rpx,
+    linear-gradient(135deg, #F3F9F4 0%, #EAF4EE 100%);
+}
+
+/* 输入溯源码：柔绿渐变 + 右侧条码装饰，呼应"溯源码" */
+.code-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #EEF7F0 0%, #E5F2EA 100%);
+}
+.code-deco {
+  position: absolute;
+  right: 24rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.code-deco::before,
+.code-deco::after {
+  content: "";
+  display: block;
+}
+/* 用多个竖线模拟条码/溯源码线条 */
+.code-deco {
+  width: 90rpx;
+  height: 110rpx;
+  background:
+    linear-gradient(to right,
+      #17603A 0 4rpx, transparent 4rpx 10rpx,
+      #17603A 10rpx 16rpx, transparent 16rpx 22rpx,
+      #17603A 22rpx 30rpx, transparent 30rpx 38rpx,
+      #17603A 38rpx 44rpx, transparent 44rpx 50rpx,
+      #17603A 50rpx 58rpx, transparent 58rpx 64rpx,
+      #17603A 64rpx 72rpx, transparent 72rpx 80rpx,
+      #17603A 80rpx 88rpx);
+  background-size: 100% 100%;
+  opacity: 0.18;
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 50%, transparent 100%);
+}
+
+/* 最近查看：暖调底色 + 左侧琥珀色条，呼应"近期记录" */
+.recent-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FBF8F2 0%, #F6F1E6 100%);
+}
+.recent-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6rpx;
+  background: linear-gradient(180deg, #C79A3B 0%, #8B6914 100%);
+}
+
+/* 全部批次：冷绿底色 + 左侧绿色条，呼应"全量档案" */
+.batch-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #F2F8F4 0%, #E8F2EC 100%);
+}
+.batch-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6rpx;
+  background: linear-gradient(180deg, #2E8A5C 0%, #145634 100%);
+}
+/* 列表项在带色条卡片内需缩进，避让色条 */
+.recent-card .recent-item,
+.batch-card .recent-item {
+  padding-left: 20rpx;
+}
+
+/* ---------------- 折叠标题 ---------------- */
+.section-title.between {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+.section-title.between:active {
+  opacity: 0.6;
+}
+.fold-arrow {
+  font-size: 30rpx;
+  color: var(--text-light);
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 0.24s ease;
+  margin-left: 12rpx;
+}
+.fold-arrow.up {
+  transform: rotate(-90deg);
+}

@@ -1,0 +1,21 @@
+# ---- 依赖 ----
+node_modules/
+miniprogram_npm/
+
+# ---- 微信开发者工具本地产物 ----
+.temp/
+.upload/
+*.log
+
+# ---- 系统 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 编辑器 ----
+.idea/
+.vscode/
+
+# ---- 其他 ----
+coverage/
+*.local.json

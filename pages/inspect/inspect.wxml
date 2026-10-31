@@ -1,0 +1,228 @@
+<!-- pages/inspect/inspect.wxml 采购商批次核验 -->
+<!-- ========= 入口：输入或选择批次号 ========= -->
+<view class="insp-landing" wx:if="{{!batchId}}">
+  <view class="il-hero">
+    <image class="il-hero-bg" src="/assets/images/inspect-hero.jpg" mode="aspectFill" />
+    <view class="il-hero-mask"></view>
+    <view class="il-hero-body">
+      <view class="il-hero-kicker">VERIFY · 批次核验</view>
+      <view class="il-title">{{ilTitle}}</view>
+      <view class="il-desc">{{ilDesc}}</view>
+    </view>
+  </view>
+
+  <view class="il-input">
+    <input class="il-input-inner" placeholder="{{ilPlaceholder}}" value="{{inputId}}" bindinput="onInputId" confirm-type="done" bindconfirm="submitInput" />
+    <view class="il-go" bindtap="submitInput">{{ilBtnGo}}</view>
+  </view>
+
+  <view class="il-sep"><text>{{ilSep}}</text></view>
+  <view class="il-list">
+    <view class="il-item" wx:for="{{sampleBatches}}" wx:key="batchId" data-id="{{item.batchId}}" bindtap="pickSample">
+      <view class="il-item-main">
+        <view class="il-item-name">{{item.productName}}</view>
+        <view class="il-item-sub">{{item.farmerName}} {{ilSepDot}} {{item.batchId}}</view>
+      </view>
+      <view class="il-item-arrow">{{ilArrow}}</view>
+    </view>
+  </view>
+</view>
+
+<!-- ========= 有 batchId：正常核验详情 ========= -->
+<view class="page" wx:elif="{{batch}}">
+  <!-- 批次头 -->
+  <view class="insp-head">
+    <image class="ih-bg" src="/assets/images/inspect-hero.jpg" mode="aspectFill" />
+    <view class="ih-mask"></view>
+    <view class="ih-kicker">VERIFY · 批次核验</view>
+    <view class="ih-title">{{batch.productName}} <text class="ih-id">{{batch.batchId}}</text></view>
+    <view class="ih-sub">农户 {{farmer.name}}（{{farmer.village}}）· 地块 {{plot.name}} · {{batch.status}}</view>
+    <view class="ih-sub">种植 {{batch.plantDate}}<text wx:if="{{batch.harvestDate}}"> · 采收 {{batch.harvestDate}}</text></view>
+  </view>
+
+  <view class="container">
+    <!-- OPI 有机生产评价 -->
+    <view class="section-title">有机生产评价 OPI</view>
+    <view class="card" wx:if="{{opi}}">
+      <view class="opi-top">
+        <view class="opi-score">{{opi.score}}<text class="opi-unit">分</text></view>
+        <view>
+          <text class="tag {{opi.cls}}">{{opi.level}}</text>
+          <view class="opi-test muted" wx:if="{{!opi.hasTest}}">暂无检测数据，检测维度按基础分计，不可默认判定合格</view>
+        </view>
+      </view>
+      <view class="opi-dim" wx:for="{{opi.dims}}" wx:key="key">
+        <view class="opi-dim-head">
+          <text>{{item.name}}</text>
+          <text class="muted">权重 {{item.weight}}% · {{item.score}}分</text>
+        </view>
+        <view class="opi-bar"><view class="opi-bar-in" style="width:{{item.score}}%"></view></view>
+      </view>
+      <view class="opi-note">※ 本指数仅用于生产过程评价与风险提示，不等同于国家官方有机产品认证。</view>
+    </view>
+
+    <!-- 有机蔬菜生产合规核验（对照 GB/T 19630-2019 国家标准） -->
+    <view class="section-title mt-24">合规核验</view>
+    <view class="card" wx:if="{{organic}}">
+      <view class="org-head">
+        <text class="tag {{organic.cls}}">{{organic.statusText}}</text>
+        <text class="muted org-count" wx:if="{{organic.failCount}}">不符合 {{organic.failCount}} 项</text>
+        <text class="muted org-count" wx:elif="{{organic.unknownCount}}">待核验 {{organic.unknownCount}} 项</text>
+        <text class="muted org-count" wx:elif="{{organic.warnCount}}">待完善 {{organic.warnCount}} 项</text>
+        <text class="muted org-count" wx:else>强制项全部符合</text>
+      </view>
+      <view class="org-std-name">判定依据：{{organic.standardName}}</view>
+      <view class="org-item org-item-{{item.status}}" wx:for="{{organic.checks}}" wx:key="key">
+        <view class="org-row">
+          <text class="org-ico org-{{item.status}}">{{item.status === 'pass' ? '✓' : (item.status === 'fail' ? '✗' : (item.status === 'unknown' ? '?' : '◐'))}}</text>
+          <text class="org-name">{{item.name}}</text>
+          <text class="tag {{item.status === 'pass' ? 'tag-green' : (item.status === 'fail' ? 'tag-warn' : (item.status === 'monitor' ? 'tag-gray' : 'tag-gold'))}}">
+            {{item.status === 'pass' ? '符合' : (item.status === 'fail' ? '不符合' : (item.status === 'monitor' ? '监测项' : (item.status === 'warn' ? '待完善' : '待核验')))}}
+          </text>
+        </view>
+        <view class="org-detail muted">{{item.detail}}</view>
+        <!-- 国标条款对照：不合格项红色高亮 -->
+        <view class="org-std {{item.status === 'fail' ? 'org-std-fail' : ''}}">
+          <text class="org-std-tag">国标</text>{{item.standard}}
+        </view>
+      </view>
+      <view class="org-note">※ {{organic.note}}</view>
+    </view>
+
+    <!-- 数据完整性核验 -->
+    <view class="section-title mt-24">数据完整性</view>
+    <view class="card" wx:if="{{comp}}">
+      <view class="comp-rate">完整度 <text class="comp-num">{{comp.rate}}%</text>（{{comp.passed}}/{{comp.total}} 项齐备）</view>
+      <view class="comp-item" wx:for="{{comp.checks}}" wx:key="key">
+        <text class="comp-ico {{item.ok ? 'ok' : 'no'}}">{{item.ok ? '✓' : '✗'}}</text>
+        <text class="comp-name">{{item.name}}</text>
+      </view>
+    </view>
+
+    <!-- 传感器环境数据 -->
+    <view class="section-title mt-24">环境数据</view>
+    <view class="card" wx:if="{{latestEnv}}">
+      <view class="env-row">
+        <view class="env-cell"><view class="env-num">{{latestEnv.airTemp}}℃</view><view class="env-name">空气温度</view></view>
+        <view class="env-cell"><view class="env-num">{{latestEnv.airHumidity}}%</view><view class="env-name">空气湿度</view></view>
+        <view class="env-cell"><view class="env-num">{{latestEnv.light}}%</view><view class="env-name">光照</view></view>
+        <view class="env-cell"><view class="env-num">{{latestEnv.soilMoisture}}%</view><view class="env-name">土壤湿度</view></view>
+      </view>
+      <view class="env-src"><text class="tag {{latestEnvTag.cls}}">{{latestEnv.sourceLabel}}</text></view>
+    </view>
+    <view class="card" wx:else><view class="muted">该地块暂无传感器环境数据</view></view>
+
+    <!-- 生产全过程时间线（只读） -->
+    <view class="section-title mt-24">生产记录</view>
+    <view class="card">
+      <block wx:for="{{batch.growthCycle}}" wx:key="stage">
+        <view class="tl-item">
+          <view class="tl-dot plan"></view>
+          <view class="tl-body">
+            <view class="tl-stage">{{item.stage}} <text class="muted">{{item.date}}</text></view>
+            <view class="tl-desc" wx:if="{{item.desc}}">{{item.desc}}</view>
+          </view>
+        </view>
+      </block>
+      <block wx:for="{{records}}" wx:key="recordId">
+        <view class="tl-item">
+          <view class="tl-dot"></view>
+          <view class="tl-body">
+            <view class="tl-stage">{{item.type}} <text class="muted">{{item.date}}</text></view>
+            <view class="tl-desc">{{item.content}}</view>
+            <view class="tl-env" wx:if="{{item.envSnapshot}}">
+              <text class="tag {{item.envTag}}">{{item.envLabel}}</text>
+              <text class="tl-env-num">温度 {{item.envSnapshot.airTemp}}℃ · 湿度 {{item.envSnapshot.airHumidity}}% · 光照 {{item.envSnapshot.light}}% · 土壤湿度 {{item.envSnapshot.soilMoisture}}%</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 投入品台账 -->
+    <view class="section-title mt-24">投入品</view>
+    <view class="card">
+      <block wx:if="{{batch.inputs && batch.inputs.length}}">
+        <view class="inp-item" wx:for="{{batch.inputs}}" wx:key="date">
+          <text class="inp-name">{{item.name}}（{{item.type}}）</text>
+          <text class="muted">{{item.date}} · {{item.amount}}</text>
+        </view>
+      </block>
+      <view class="muted" wx:else>暂无投入品记录</view>
+    </view>
+
+    <!-- 食品检测结果 -->
+    <view class="section-title mt-24">食品检测结果</view>
+    <view class="card" wx:if="{{inspections.length}}">
+      <block wx:for="{{inspections}}" wx:key="inspId">
+        <view class="insp-item">
+          <view class="insp-top">
+            <text class="insp-org">{{item.org}}</text>
+            <text class="tag {{item.conclusion === '合格' ? 'tag-green' : 'tag-warn'}}">{{item.conclusion}}</text>
+          </view>
+          <view class="muted">{{item.standard}} · {{item.date}} · {{item.buyerName}}</view>
+          <view class="insp-line" wx:for="{{item.items}}" wx:for-item="it" wx:key="name">
+            <text>{{it.name}}：{{it.result}}（限值 {{it.limit}}）</text>
+            <text class="tag {{it.conclusion === '合格' ? 'tag-green' : 'tag-warn'}}">{{it.conclusion}}</text>
+          </view>
+          <text class="tag {{item.isDemo ? 'tag-gold' : 'tag-green'}}" wx:if="{{item.isDemo}}">演示检测数据</text>
+        </view>
+      </block>
+    </view>
+    <view class="card" wx:else>
+      <view class="no-test">暂无检测数据</view>
+      <view class="muted">该批次尚未录入食品检测结果，不可默认判定为合格。</view>
+    </view>
+
+    <button class="btn btn-primary btn-block mt-24" bindtap="toggleForm">{{showForm ? '收起录入表单' : '＋ 录入食品检测结果'}}</button>
+
+    <!-- 录入表单 -->
+    <view class="card mt-16" wx:if="{{showForm}}">
+      <view class="field">
+        <view class="field-label">执行标准</view>
+        <picker range="{{standards}}" range-key="code" value="{{stdIndex}}" bindchange="onStdPick">
+          <view class="picker-val">{{standards[stdIndex].code}} {{standards[stdIndex].name}} ▾</view>
+        </picker>
+      </view>
+      <view class="field">
+        <view class="field-label">检测机构 *</view>
+        <input class="input" placeholder="如：郑州市农产品质量检测中心" value="{{form.org}}" bindinput="onOrg" />
+      </view>
+      <view class="field">
+        <view class="field-label">检测日期</view>
+        <picker mode="date" value="{{form.date}}" bindchange="onDate">
+          <view class="picker-val">{{form.date}} ▾</view>
+        </picker>
+      </view>
+
+      <view class="field-label mt-16">检测项目 *</view>
+      <view class="item-form" wx:for="{{form.items}}" wx:key="index">
+        <input class="input if-input" placeholder="项目名（如 铅）" value="{{item.name}}" data-idx="{{index}}" data-field="name" bindinput="onItemInput" />
+        <input class="input if-input" placeholder="检测结果（如 0.03mg/kg）" value="{{item.result}}" data-idx="{{index}}" data-field="result" bindinput="onItemInput" />
+        <input class="input if-input" placeholder="限量（如 ≤0.1mg/kg）" value="{{item.limit}}" data-idx="{{index}}" data-field="limit" bindinput="onItemInput" />
+        <view class="if-row">
+          <picker range="{{['合格','不合格']}}" value="{{item.conclusion === '合格' ? 0 : 1}}" data-idx="{{index}}" bindchange="onItemConc">
+            <view class="picker-val small">单项结论：{{item.conclusion}} ▾</view>
+          </picker>
+          <text class="if-del" data-idx="{{index}}" bindtap="removeItem">删除</text>
+        </view>
+      </view>
+      <view class="add-item" bindtap="addItem">＋ 添加检测项目</view>
+
+      <view class="field mt-16">
+        <view class="field-label">检测总结论</view>
+        <picker range="{{['合格','不合格']}}" value="{{form.conclusion === '合格' ? 0 : 1}}" bindchange="onConclusion">
+          <view class="picker-val">{{form.conclusion}} ▾</view>
+        </picker>
+      </view>
+      <button class="btn btn-primary btn-block mt-16" bindtap="submitInspection">提交检测结果</button>
+    </view>
+  </view>
+</view>
+<!-- 批次不存在兜底（有 batchId 但查不到） -->
+<view class="page-empty" wx:elif="{{batchId}}">
+  <view class="empty-icon">📦</view>
+  <view class="empty-title">批次不存在</view>
+  <view class="empty-desc">该批次档案未在本地找到，可能已被清除。请返回采购商工作台重新选择。</view>
+  <view class="btn btn-primary mt-24" bindtap="goBack">返回</view>
+</view>

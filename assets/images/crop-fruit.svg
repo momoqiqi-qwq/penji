@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- 树干 -->
+  <path d="M57 100 L57 75 L63 75 L63 100" fill="#8B6520"/>
+  <!-- 树冠（三层圆） -->
+  <circle cx="60" cy="55" r="35" fill="#2E8A5C"/>
+  <circle cx="40" cy="48" r="20" fill="#35A06A"/>
+  <circle cx="80" cy="48" r="20" fill="#1E7048"/>
+  <circle cx="60" cy="30" r="18" fill="#6EC58F"/>
+  <!-- 叶子点缀 -->
+  <ellipse cx="28" cy="48" rx="8" ry="4" fill="#17603A" opacity="0.7" transform="rotate(-30 28 48)"/>
+  <ellipse cx="92" cy="48" rx="8" ry="4" fill="#17603A" opacity="0.7" transform="rotate(30 92 48)"/>
+  <!-- 果实（红色） -->
+  <circle cx="45" cy="55" r="6" fill="#B23B34"/>
+  <circle cx="60" cy="65" r="5.5" fill="#B23B34"/>
+  <circle cx="75" cy="52" r="6" fill="#B23B34"/>
+  <circle cx="52" cy="40" r="4" fill="#B23B34"/>
+  <circle cx="68" cy="42" r="4.5" fill="#B23B34"/>
+  <!-- 果实高光 -->
+  <circle cx="43" cy="53" r="2" fill="#E07070"/>
+  <circle cx="73" cy="50" r="2" fill="#E07070"/>
+</svg>

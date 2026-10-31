@@ -1,0 +1,50 @@
+<!-- pages/addRecord/addRecord.wxml -->
+<view class="page">
+  <view class="container">
+    <view class="role-bar">🌾 农户 · {{farmerName}}（农事记录仅农户可添加）</view>
+    <view class="card">
+      <view class="field">
+        <view class="field-label">我的地块</view>
+        <picker bindchange="onPlotChange" value="{{plotIndex}}" range="{{plots}}" range-key="name">
+          <view class="picker">{{plots.length ? plots[plotIndex].name : '暂无地块'}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field-label">批次（该地块下的茬次）</view>
+        <picker bindchange="onBatchChange" value="{{batchIndex}}" range="{{batches}}" range-key="productName" disabled="{{!batches.length}}">
+          <view class="picker {{batches.length ? '' : 'placeholder'}}">
+            {{batches.length ? batches[batchIndex].productName : '该地块暂无批次'}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field-label">类型</view>
+        <picker bindchange="onTypeChange" value="{{typeIndex}}" range="{{typeOptions}}">
+          <view class="picker">{{typeOptions[typeIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field-label">日期</view>
+        <picker mode="date" value="{{date}}" bindchange="onDateChange">
+          <view class="picker">{{date}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field-label">记录内容</view>
+        <textarea class="textarea" placeholder="如：施用腐熟有机肥 200kg" value="{{content}}" bindinput="onContent" maxlength="200" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">投入金额（元，选填）</view>
+        <input class="input" type="digit" placeholder="0" value="{{cost}}" bindinput="onCost" />
+      </view>
+    </view>
+
+    <view class="tip muted">新增农事记录会同步提升农户「农事完整度」并刷新信用分。</view>
+    <button class="btn btn-block mt-16" bindtap="submit">提交记录</button>
+  </view>
+</view>

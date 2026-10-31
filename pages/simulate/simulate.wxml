@@ -1,0 +1,102 @@
+<!-- pages/simulate/simulate.wxml -->
+<view class="page">
+  <!-- 顶部地块选择 -->
+  <view class="sim-head">
+    <image class="sim-bg" src="/assets/images/sim-hero.jpg" mode="aspectFill" />
+    <view class="sim-mask"></view>
+    <view class="sim-kicker">SENSOR LIVE · 田间实况</view>
+    <view class="sim-title">智慧农田监测</view>
+    <picker bindchange="onPlotChange" value="{{plotIndex}}" range="{{plots}}" range-key="name">
+      <view class="sim-plot">
+        <text class="sim-plot-tx">{{current.name || '选择地块'}}</text>
+        <text class="sim-caret">▾</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="container">
+    <!-- 数据来源标注（真实/演示） -->
+    <view class="source-bar source-{{source}}">
+      <text class="source-label">{{sourceLabel}}</text>
+      <text class="source-time" wx:if="{{deviceId}}">设备 {{deviceId}} · {{updateTime}}</text>
+      <text class="source-time" wx:else>{{updateTime}}</text>
+    </view>
+
+    <!-- 自动刷新状态条 -->
+    <view class="auto-refresh-bar">
+      <view class="ar-left" bindtap="toggleAutoRefresh">
+        <text class="ar-dot {{autoRefresh ? 'ar-dot-on' : 'ar-dot-off'}}"></text>
+        <text class="ar-text">{{autoRefresh ? '自动刷新中' : '自动刷新已暂停'}}</text>
+      </view>
+      <text class="ar-hint" wx:if="{{autoRefresh}}">与传感器上报频率同步</text>
+      <text class="ar-hint" wx:else>点击开启</text>
+    </view>
+
+    <!-- 四类传感器实时数据 -->
+    <view class="metric-grid">
+      <view class="metric-card m-temp">
+        <view class="metric-ico"><image class="metric-ic" src="/assets/icons/temp.png" mode="aspectFit" /></view>
+        <view class="metric-num">{{airTemp}}<text class="unit">℃</text></view>
+        <view class="metric-name">空气温度</view>
+      </view>
+      <view class="metric-card m-humid">
+        <view class="metric-ico"><image class="metric-ic" src="/assets/icons/humidity.png" mode="aspectFit" /></view>
+        <view class="metric-num">{{airHumidity}}<text class="unit">%</text></view>
+        <view class="metric-name">空气湿度</view>
+      </view>
+      <view class="metric-card m-light">
+        <view class="metric-ico"><image class="metric-ic" src="/assets/icons/sun.png" mode="aspectFit" /></view>
+        <view class="metric-num">{{light}}<text class="unit">%</text></view>
+        <view class="metric-name">光照</view>
+      </view>
+      <view class="metric-card m-soil">
+        <view class="metric-ico"><image class="metric-ic" src="/assets/icons/soil.png" mode="aspectFit" /></view>
+        <view class="metric-num">{{soilMoisture}}<text class="unit">%</text></view>
+        <view class="metric-name">土壤湿度</view>
+      </view>
+    </view>
+
+    <view class="demo-tip" wx:if="{{source === 'demo'}}">
+      当前为演示模拟数据。切换到「实时」或「云端」模式即可显示真实采集数据。
+    </view>
+
+    <!-- AI 智慧农业种植建议 -->
+    <view class="section-title mt-24">种植建议 <text class="tag {{aiReport.levelCls}}">环境{{aiReport.levelText}}</text></view>
+    <view class="card" wx:if="{{aiReport}}">
+      <view class="ai-summary">{{aiReport.summary}}</view>
+      <view class="divider"></view>
+      <view class="ai-block" wx:if="{{aiReport.issues.length}}">
+        <view class="ai-label warn">风险提示</view>
+        <view class="ai-line" wx:for="{{aiReport.issues}}" wx:key="*this">{{item}}</view>
+      </view>
+      <view class="ai-block mt-16">
+        <view class="ai-label">可落地种植建议</view>
+        <view class="ai-line" wx:for="{{aiReport.suggestions}}" wx:key="*this">{{item}}</view>
+      </view>
+    </view>
+
+    <button class="btn btn-outline btn-block mt-16" bindtap="goPlot">查看地块全档案 ›</button>
+    <button class="btn btn-outline btn-block mt-16" bindtap="goDiagnose">AI 农诊断 ›</button>
+
+    <!-- 数据来源切换 -->
+    <view class="section-title mt-24">数据来源（一键切换）</view>
+    <view class="card">
+      <view class="row">
+        <button class="btn flex1 {{sourceMode==='demo'?'btn-primary':'btn-outline'}}" bindtap="onMode" data-mode="demo">演示</button>
+        <button class="btn flex1 {{sourceMode==='cloud'?'btn-primary':'btn-outline'}}" style="margin-left:12rpx" bindtap="onMode" data-mode="cloud">云端</button>
+        <button class="btn flex1 {{sourceMode==='live'?'btn-primary':'btn-outline'}}" style="margin-left:12rpx" bindtap="onMode" data-mode="live">实时</button>
+      </view>
+      <view class="muted mt-8">{{modeDesc}}</view>
+
+      <block wx:if="{{sourceMode==='cloud'}}">
+        <view class="muted mt-16">环境 ID：{{cloudEnv || '（未填，请改 config.js 里的 cloudEnv）'}}</view>
+        <view class="muted mt-8">云端取不到数据时显示演示数据并在上方标注来源，不会静默混用。</view>
+      </block>
+
+      <view class="row mt-16">
+        <button class="btn btn-primary flex1" bindtap="applyMode">应用</button>
+        <button class="btn btn-outline flex1" style="margin-left:12rpx" bindtap="refreshManual">立即刷新</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- 地面线 -->
+  <line x1="10" y1="100" x2="110" y2="100" stroke="#8B6914" stroke-width="2" stroke-linecap="round"/>
+  <!-- 幼苗茎 -->
+  <path d="M60 100 Q60 70 60 55" stroke="#17603A" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- 左叶 -->
+  <path d="M60 65 Q35 55 30 35 Q50 50 60 65 Z" fill="#2E8A5C" stroke="#0E3B26" stroke-width="1.2"/>
+  <path d="M60 65 Q42 52 36 38" stroke="#0E3B26" stroke-width="0.8" fill="none"/>
+  <!-- 右叶 -->
+  <path d="M60 75 Q85 65 90 45 Q70 60 60 75 Z" fill="#35A06A" stroke="#0E3B26" stroke-width="1.2"/>
+  <path d="M60 75 Q78 62 84 48" stroke="#0E3B26" stroke-width="0.8" fill="none"/>
+  <!-- 顶部嫩芽 -->
+  <ellipse cx="60" cy="48" rx="6" ry="10" fill="#C8E96B" stroke="#35A06A" stroke-width="1" transform="rotate(-10 60 48)"/>
+  <!-- 泥土 -->
+  <ellipse cx="60" cy="100" rx="28" ry="6" fill="#6B4B20" opacity="0.5"/>
+</svg>

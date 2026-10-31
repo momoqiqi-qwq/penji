@@ -1,0 +1,45 @@
+/* custom-tab-bar */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 110rpx;
+  background: #FFFFFF;
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: content-box;
+  border-top: 1rpx solid rgba(23, 33, 27, 0.06);
+  box-shadow: 0 -2rpx 12rpx rgba(23, 33, 27, 0.04);
+  z-index: 999;
+}
+.tab-bar-border {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1rpx;
+  background: rgba(23, 33, 27, 0.06);
+  pointer-events: none;  /* 关键！border 不能拦截点击 */
+}
+.tab-bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 10rpx 0;
+  box-sizing: border-box;
+}
+.tab-bar-item image {
+  width: 44rpx;
+  height: 44rpx;
+  display: block;
+}
+.tab-text {
+  font-size: 22rpx;
+  margin-top: 4rpx;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}

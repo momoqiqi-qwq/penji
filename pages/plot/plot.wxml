@@ -1,0 +1,63 @@
+<!-- pages/plot/plot.wxml -->
+<view class="page">
+  <view class="hero-ink plot-hero">
+    <image class="plot-hero-bg" src="/assets/images/plot-hero.jpg" mode="aspectFill" />
+    <view class="plot-hero-mask"></view>
+    <view class="hero-kicker">LAND · 地块档案</view>
+    <view class="hero-title">看见每一块地的生长</view>
+    <view class="hero-desc">多年多茬记录 · 土壤与传感器数据</view>
+  </view>
+
+  <view class="container">
+    <!-- 身份条 -->
+    <view class="head-bar">
+      <view class="role-chip {{role === 'farmer' ? 'is-farmer' : (role === 'buyer' ? 'is-buyer' : 'is-consumer')}}">
+        <image class="role-chip-ic" src="/assets/icons/{{role === 'farmer' ? 'farmer' : (role === 'buyer' ? 'buyer' : 'consumer')}}.png" mode="aspectFit" />
+        <view class="role-chip-tx">
+          <view class="role-chip-name">{{roleLabel}}</view>
+        </view>
+      </view>
+      <view class="head-add" wx:if="{{role === 'farmer'}}" hover-class="head-add-hover" bindtap="goAdd">＋ 新建</view>
+    </view>
+
+    <view class="search">
+      <input class="search-input" placeholder="搜索地块名 / 编号 / 村 / 农户" value="{{keyword}}" bindinput="onInput" />
+    </view>
+
+    <view wx:if="{{plots.length}}" class="plot-list">
+      <view wx:for="{{plots}}" wx:key="plotId" class="plot-card" hover-class="plot-hover" hover-stay-time="60" bindtap="goDetail" data-id="{{item.plotId}}">
+        <view class="plot-top">
+          <view class="plot-thumb">
+            <image class="plot-crop-ic" src="/assets/images/crop-{{item.cropIcon}}.svg" mode="aspectFit" />
+          </view>
+          <view class="plot-main">
+            <view class="between">
+              <view class="plot-code">{{item.plotId}}</view>
+              <view class="tag tag-green">{{item.batchCount}} 茬</view>
+            </view>
+            <view class="plot-name">{{item.name}}</view>
+            <view class="plot-meta">{{item.village}} · {{item.soilType}} · {{item.area}} 亩</view>
+          </view>
+        </view>
+
+        <view class="plot-rotation" wx:if="{{item.rotation}}">
+          <image class="rot-ic" src="/assets/icons/farmer.png" mode="aspectFit" />
+          <text>{{item.rotation}}</text>
+        </view>
+
+        <view class="divider"></view>
+        <view class="row between">
+          <view class="row">
+            <view class="plot-key">主理</view>
+            <view class="plot-farmer">{{item.farmerName}}</view>
+          </view>
+          <view class="plot-star">★ {{item.farmerStar}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:else class="empty">
+      {{role === 'farmer' ? '您名下暂无地块，点右上「新建」开始建档' : '未找到地块'}}
+    </view>
+  </view>
+</view>

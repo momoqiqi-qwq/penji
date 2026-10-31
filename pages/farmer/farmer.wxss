@@ -1,0 +1,126 @@
+/* pages/farmer/farmer.wxss —— 农户信用档案列表 */
+.page {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+/* ---------------- 头图 ---------------- */
+.farmer-hero { position: relative; }
+.farmer-hero-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+.farmer-hero-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(10, 35, 24, 0.55) 0%, rgba(10, 35, 24, 0.3) 42%, rgba(10, 35, 24, 0.8) 100%);
+}
+.farmer-hero .hero-kicker,
+.farmer-hero .farmer-hero-title {
+  position: relative;
+  z-index: 2;
+}
+
+.farmer-hero-title {
+  margin-top: 14rpx;
+  font-size: 46rpx;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  color: #F5F9F0;
+}
+.hero-desc {
+  max-width: 520rpx;
+}
+
+/* ---------------- 搜索 ---------------- */
+.search {
+  margin: 24rpx 0 28rpx;
+}
+.search-input {
+  height: 84rpx;
+  padding: 0 28rpx;
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 26rpx;
+  color: var(--text);
+}
+
+/* ---------------- 排名头 ---------------- */
+.rank-head {
+  margin-bottom: 18rpx;
+}
+.rank-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+
+/* ---------------- 农户卡 ---------------- */
+.farmer-list { display: block; }
+.farmer-card { padding: 28rpx; }
+.farmer-main { min-width: 0; }
+.farmer-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.farmer-card .avatar {
+  width: 68rpx;
+  height: 68rpx;
+  flex: 0 0 68rpx;
+  font-size: 28rpx;
+  margin-right: 18rpx;
+}
+
+/* 排名徽标：一二三名用低饱和暖色，其余用灰 */
+.rank-badge {
+  width: 46rpx;
+  height: 46rpx;
+  flex: 0 0 46rpx;
+  border-radius: 14rpx;
+  margin-right: 14rpx;
+  text-align: center;
+  line-height: 46rpx;
+  font-size: 21rpx;
+  font-weight: 700;
+  color: #8B988C;
+  background: #F1F2EE;
+  font-variant-numeric: tabular-nums;
+}
+.rank-badge.tag-gold { background: #FBF1DA; color: #8A5A12; }
+.rank-badge.tag-green { background: #EDF1F0; color: #5C6B62; }
+.rank-badge.tag-gray { background: #F8EEE4; color: #8A5C33; }
+
+.credit-box { text-align: right; }
+.credit-num {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.credit-cap,
+.farmer-card .muted + .muted {
+  color: var(--text-light);
+}
+.credit-cap {
+  font-size: 20rpx;
+  margin-top: 6rpx;
+  letter-spacing: 0.06em;
+}
+.ml { margin-left: 12rpx; }

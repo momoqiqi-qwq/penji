@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bubble" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F3F7F2"/>
+      <stop offset="100%" stop-color="#E9F2EB"/>
+    </linearGradient>
+  </defs>
+  <!-- 对话气泡 -->
+  <path d="M40 50 Q40 30 60 30 L140 30 Q160 30 160 50 L160 110 Q160 130 140 130 L90 130 L65 155 L70 130 L60 130 Q40 130 40 110 Z" 
+        fill="url(#bubble)" stroke="#17603A" stroke-width="3" stroke-opacity="0.25"/>
+  <!-- 星星 -->
+  <g fill="#E8C76B">
+    <path d="M70 65 L74 75 L84 75 L76 81 L79 91 L70 85 L61 91 L64 81 L56 75 L66 75 Z"/>
+    <path d="M100 65 L104 75 L114 75 L106 81 L109 91 L100 85 L91 91 L94 81 L86 75 L96 75 Z"/>
+    <path d="M130 65 L134 75 L144 75 L136 81 L139 91 L130 85 L121 91 L124 81 L116 75 L126 75 Z"/>
+  </g>
+  <!-- 叶子装饰 -->
+  <path d="M150 150 Q175 135 180 110 Q160 125 150 150 Z" fill="#35A06A" opacity="0.8"/>
+  <path d="M148 148 Q170 140 178 122" stroke="#17603A" stroke-width="1.5" fill="none" opacity="0.5"/>
+</svg>

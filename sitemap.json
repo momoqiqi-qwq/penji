@@ -1,0 +1,7 @@
+{
+  "desc": "棚迹小程序 sitemap 配置，允许被微信搜索索引",
+  "rules": [{
+    "action": "allow",
+    "page": "*"
+  }]
+}

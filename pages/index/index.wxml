@@ -1,0 +1,183 @@
+<!-- pages/index/index.wxml -->
+<view class="page">
+  <!-- 头图：身份 + 数据 -->
+  <view class="hero-ink">
+    <image class="hero-bg" src="{{heroBgSrc}}" mode="aspectFill" />
+    <view class="hero-mask"></view>
+    <view class="hero-kicker">PENG JI · 土地档案</view>
+
+    <view class="hero-row">
+      <view class="hero-name">{{appName}}</view>
+      <view class="role-badge" hover-class="role-badge-hover" hover-stay-time="60" bindtap="switchRole">
+        <image class="role-badge-ic" src="/assets/icons/{{role === 'farmer' ? 'farmer' : (role === 'buyer' ? 'buyer' : 'consumer')}}-white.png" mode="aspectFit" />
+        <view class="role-badge-txt">{{roleLabel}}</view>
+      </view>
+    </view>
+
+    <view class="verify-bar" wx:if="{{nickName}}">
+      <text class="verify-dot"></text>
+      <text class="verify-info">{{nickName}}</text>
+      <text class="verify-switch" bindtap="switchRole">切换身份 ›</text>
+    </view>
+
+    <!-- 农户：我的数据统计 -->
+    <view class="hero-stats" wx:if="{{role === 'farmer'}}">
+      <view class="hero-stat" hover-class="stat-hover" hover-stay-time="80" bindtap="goStat" data-key="plots"><text class="n">{{myStats.plots}}</text><text class="l">我的地块</text></view>
+      <view class="hero-stat" hover-class="stat-hover" hover-stay-time="80" bindtap="goStat" data-key="batches"><text class="n">{{myStats.batches}}</text><text class="l">我的批次</text></view>
+      <view class="hero-stat" hover-class="stat-hover" hover-stay-time="80" bindtap="goStat" data-key="reviews"><text class="n">{{myStats.reviews}}</text><text class="l">收到反馈</text></view>
+      <view class="hero-stat" hover-class="stat-hover" hover-stay-time="80" bindtap="goStat" data-key="credit"><text class="n">{{myStats.creditScore}}</text><text class="l">信用分</text></view>
+    </view>
+    <!-- 非农户：全局统计 -->
+    <view class="hero-stats" wx:else>
+      <view class="hero-stat" hover-class="stat-hover" hover-stay-time="80" bindtap="goStat" data-key="plots"><text class="n">{{stats.plots}}</text><text class="l">地块</text></view>
+      <view class="hero-stat" hover-class="stat-hover" hover-stay-time="80" bindtap="goStat" data-key="batches"><text class="n">{{stats.batches}}</text><text class="l">批次</text></view>
+      <view class="hero-stat" hover-class="stat-hover" hover-stay-time="80" bindtap="goStat" data-key="farmers"><text class="n">{{stats.farmers}}</text><text class="l">农户</text></view>
+      <view class="hero-stat" hover-class="stat-hover" hover-stay-time="80" bindtap="goStat" data-key="reviews"><text class="n">{{stats.reviews}}</text><text class="l">反馈</text></view>
+    </view>
+  </view>
+
+  <view class="container">
+    <!-- ============ 农户视图 ============ -->
+    <block wx:if="{{role === 'farmer'}}">
+      <!-- 我的信用概览 -->
+      <view class="credit-card card-press" bindtap="goFeedback" wx:if="{{myLevel}}">
+        <view class="cc-left">
+          <view class="cc-score">{{myStats.creditScore}}<text class="cc-unit"> 分</text></view>
+          <view class="cc-level">
+            <text class="tag {{myLevel.cls}}">{{myLevel.text}}</text>
+            <text class="cc-star">{{myStarText}}</text>
+          </view>
+        </view>
+        <view class="cc-right">
+          <image class="cc-harvest" src="/assets/images/harvest.svg" mode="aspectFit" />
+          <view class="cc-tip">我的信用档案</view>
+          <view class="cc-arrow">›</view>
+        </view>
+      </view>
+
+      <!-- 操作入口（全宽列表，更适合农户点击） -->
+      <view class="section-title mt-24">常用功能</view>
+      <view class="action-list">
+        <view wx:for="{{entries}}" wx:key="key" class="action-item" hover-class="action-hover" bindtap="goEntry" data-url="{{item.url}}">
+          <view class="action-photo" wx:if="{{item.photo}}">
+            <image class="action-photo-ic" src="{{item.photo}}" mode="aspectFill" lazy-load />
+          </view>
+          <view class="action-icon" wx:else style="background:{{item.color}}14">
+            <image class="action-ic" src="/assets/icons/{{item.key}}.png" mode="aspectFit" />
+          </view>
+          <view class="action-main">
+            <view class="action-name">{{item.name}}</view>
+            <view class="action-desc">{{item.desc}}</view>
+          </view>
+          <view class="action-arrow">›</view>
+        </view>
+      </view>
+
+      <!-- 消费者反馈（可折叠） -->
+      <view class="section-title between" catchtap="toggleFeedback">
+        <text>消费者反馈{{myFeedback.length ? '（' + myFeedback.length + ' 条）' : ''}}</text>
+        <view class="fold-arrow {{feedbackExpanded ? 'up' : ''}}">›</view>
+      </view>
+      <view class="card fb-card" wx:if="{{feedbackExpanded}}">
+        <view wx:if="{{myFeedback.length}}">
+          <view class="fb-item" wx:for="{{myFeedback}}" wx:key="reviewId">
+            <view class="between">
+              <text class="fb-name">{{item.buyerName}}</text>
+              <text class="fb-star">{{item.starText}}</text>
+            </view>
+            <view class="muted fb-content">{{item.content}}</view>
+          </view>
+        </view>
+        <view wx:else class="empty fb-empty">
+          <image class="fb-empty-ic" src="/assets/images/feedback.svg" mode="aspectFit" />
+          <view class="fb-empty-tx">还没有收到反馈，上传农产品档案后等待买家评价</view>
+        </view>
+      </view>
+    </block>
+
+    <!-- ============ 采购商 / 消费者视图 ============ -->
+    <block wx:else>
+      <!-- 采购商：入口网格（照片头图） -->
+      <view class="entry-grid" wx:if="{{role === 'buyer'}}">
+        <view wx:for="{{entries}}" wx:key="key" class="entry {{item.photo ? 'entry-photo-card' : ''}}" hover-class="entry-hover" bindtap="goEntry" data-url="{{item.url}}">
+          <view class="entry-media" wx:if="{{item.photo}}">
+            <image class="entry-photo" src="{{item.photo}}" mode="aspectFill" lazy-load />
+            <view class="entry-media-mask"></view>
+            <view class="entry-icon entry-icon-float"><image class="entry-ic" src="/assets/icons/{{item.key}}.png" mode="aspectFit" /></view>
+          </view>
+          <view class="entry-body">
+            <view class="entry-icon" wx:if="{{!item.photo}}"><image class="entry-ic" src="/assets/icons/{{item.key}}.png" mode="aspectFit" /></view>
+            <view class="entry-name">{{item.name}}</view>
+            <view class="entry-desc">{{item.desc}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 消费者：常用功能列表（与农户板块一致） -->
+      <block wx:else>
+        <view class="section-title">常用功能</view>
+        <view class="action-list">
+          <view wx:for="{{entries}}" wx:key="key" class="action-item" hover-class="action-hover" bindtap="goEntry" data-url="{{item.url}}">
+            <view class="action-photo" wx:if="{{item.photo}}">
+              <image class="action-photo-ic" src="{{item.photo}}" mode="aspectFill" lazy-load />
+            </view>
+            <view class="action-icon" wx:else style="background:{{item.color}}14">
+              <image class="action-ic" src="/assets/icons/{{item.key}}.png" mode="aspectFit" />
+            </view>
+            <view class="action-main">
+              <view class="action-name">{{item.name}}</view>
+              <view class="action-desc">{{item.desc}}</view>
+            </view>
+            <view class="action-arrow">›</view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 推荐地块（可折叠） -->
+      <view class="section-title between" catchtap="toggleFeaturedPlot">
+        <text>主推地块</text>
+        <view class="fold-arrow {{featuredPlotExpanded ? 'up' : ''}}">›</view>
+      </view>
+      <view class="card card-press hl-card" wx:if="{{featuredPlotExpanded && featuredPlot}}" bindtap="goPlot" data-id="{{featuredPlot.plotId}}">
+        <view class="between">
+          <view class="hl-main">
+            <view class="hl-title">{{featuredPlot.name}}</view>
+            <view class="muted hl-meta">{{featuredPlot.village}} · {{featuredPlot.soilType}} · {{featuredPlot.area}} 亩</view>
+          </view>
+          <view class="tag tag-green">{{featuredPlot.batchCount}} 茬</view>
+        </view>
+        <view class="divider"></view>
+        <view class="row">
+          <view class="hl-key">主理</view>
+          <view class="hl-val">{{featuredPlot.farmerName}}</view>
+          <view class="hl-star">★ {{featuredPlot.farmerStar}}</view>
+        </view>
+      </view>
+
+      <!-- 推荐农户（可折叠） -->
+      <view class="section-title between" catchtap="toggleFeaturedFarmer">
+        <text>信誉农户</text>
+        <view class="fold-arrow {{featuredFarmerExpanded ? 'up' : ''}}">›</view>
+      </view>
+      <view class="card card-press hl-card" wx:if="{{featuredFarmerExpanded && featuredFarmer}}" bindtap="goFarmer" data-id="{{featuredFarmer.farmerId}}">
+        <view class="between">
+          <view class="row">
+            <view class="avatar" style="background:{{featuredFarmer.avatarColor}}">{{featuredFarmer.name[0]}}</view>
+            <view>
+              <view class="hl-title">{{featuredFarmer.name}}</view>
+              <view class="muted hl-meta">{{featuredFarmer.village}} · {{featuredFarmer.totalBatches}} 批次</view>
+            </view>
+          </view>
+          <view class="credit-box">
+            <view class="credit-num">{{featuredFarmer.creditScore}}</view>
+            <view class="credit-cap">信用分</view>
+          </view>
+        </view>
+        <view class="row mt-16">
+          <text class="tag {{featuredFarmer.level.cls}}">{{featuredFarmer.level.text}}</text>
+          <text class="muted ml">{{featuredFarmer.starText}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>
