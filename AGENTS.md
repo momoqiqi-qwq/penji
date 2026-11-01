@@ -32,6 +32,16 @@ git rev-list --left-right --count origin/main...HEAD   # 左=远端新提交，�
 
 **拉到新提交后必须补一条更新日志**（见下一节），这是这条约定的闭合动作——没有日志等于这次同步没做完。
 
+本机（Windows）连 GitHub 需要走系统代理，且 schannel 后端会报 `SEC_E_NO_CREDENTIALS`；这些都是仓库本地配置，已设好，换机器要重设：
+
+```bash
+git config --local http.proxy  http://127.0.0.1:7890
+git config --local https.proxy http://127.0.0.1:7890
+git config --local http.sslBackend openssl   # schannel 在本机握手失败，必须用 openssl
+```
+
+本约定同样固化在仓库根目录的 [`agent.md`](agent.md)，两份内容冲突时以本文件为准。
+
 ## 更新日志
 
 `README.md` 里的「更新日志」表是这台项目的时间线，任何人都从这里看「最近变了什么」。
