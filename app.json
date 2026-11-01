@@ -15,7 +15,8 @@
     "pages/diagnose/diagnose",
     "pages/simulate/simulate",
     "pages/buyer/buyer",
-    "pages/inspect/inspect"
+    "pages/inspect/inspect",
+    "pages/credential/credential"
   ],
   "window": {
     "backgroundTextStyle": "dark",

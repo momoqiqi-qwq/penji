@@ -19,6 +19,14 @@ Page({
     // 是不是本人的档案：决定能不能看到「提升信用」这条修复通道
     isSelf: false,
     repair: { items: [], gainable: 0, rest: 0 },
+    // 信用凭证：农户自己决定给谁看哪几个维度
+    credentials: [],
+    showCredSheet: false,
+    scopeOptions: [],
+    audiences: store.CRED_AUDIENCES,
+    credAudience: '采购商',
+    credDays: 30,
+    credNote: '',
     showReviewSheet: false,
     reviewForm: { rating: 5, content: '' }
   },
@@ -78,6 +86,26 @@ Page({
     const isSelf = !!(cur.isFarmer && cur.farmerId && cur.farmerId === farmer.farmerId)
     // 修复通道只给本人看：把「你还差哪几项」摊开给外人看，等于替农户示弱
     const plan = isSelf ? store.getRepairPlan(farmer.farmerId) : { items: [], gainable: 0 }
+
+    // 凭证列表要带「有效期过了没 / 我作废了没」，这些都算在 store 那一侧，
+    // 页面不自己比日期——两处判过期迟早会不一致
+    const credentials = isSelf
+      ? store.listCredentials(farmer.farmerId).map(c => {
+          const full = store.getCredential(c.credentialId) || {}
+          const revoked = !!full.revoked
+          const expired = !!full.expired
+          return Object.assign({}, c, {
+            scopeText: store.CRED_SCOPES
+              .filter(s => c.scopes.indexOf(s.key) >= 0)
+              .map(s => s.name)
+              .join(' · '),
+            revoked,
+            statusText: revoked ? '已作废' : (expired ? '已过期' : '有效'),
+            statusCls: revoked ? 'tag-warn' : (expired ? 'tag-gray' : 'tag-green')
+          })
+        })
+      : []
+
     this.setData({
       farmer,
       batches: batchesView,
@@ -89,6 +117,7 @@ Page({
       role: cur.role,
       canReview: auth.canReview(cur.role),
       isSelf,
+      credentials,
       // 只摊前 4 条，剩下的按条数提示——8 项全铺开会把这一页拉得很长
       repair: {
         items: plan.items.slice(0, 4),
@@ -159,6 +188,88 @@ Page({
     const entry = e.currentTarget.dataset.entry
     if (!entry) return
     wx.navigateTo({ url: entry })
+  },
+
+  // ========== 信用凭证 ==========
+  // 每次打开都重置勾选：上一份的授权范围不该被默默继承，否则农户容易多发一个维度
+  openCredSheet() {
+    this.setData({
+      showCredSheet: true,
+      scopeOptions: store.CRED_SCOPES.map(s => ({ key: s.key, name: s.name, desc: s.desc, on: false })),
+      credAudience: '采购商',
+      credDays: 30,
+      credNote: ''
+    })
+  },
+
+  closeCredSheet() {
+    this.setData({ showCredSheet: false })
+  },
+
+  toggleScope(e) {
+    const key = e.currentTarget.dataset.key
+    this.setData({
+      scopeOptions: this.data.scopeOptions.map(s => (
+        s.key === key ? { key: s.key, name: s.name, desc: s.desc, on: !s.on } : s
+      ))
+    })
+  },
+
+  pickAudience(e) {
+    this.setData({ credAudience: e.currentTarget.dataset.a })
+  },
+
+  pickDays(e) {
+    this.setData({ credDays: +e.currentTarget.dataset.d })
+  },
+
+  onCredNote(e) {
+    this.setData({ credNote: e.detail.value })
+  },
+
+  submitCredential() {
+    if (!this.data.isSelf) return
+    const scopes = this.data.scopeOptions.filter(s => s.on).map(s => s.key)
+    if (!scopes.length) {
+      wx.showToast({ title: '先勾选要披露的维度', icon: 'none' })
+      return
+    }
+    const cred = store.createCredential({
+      farmerId: this.data.farmerId,
+      scopes,
+      audience: this.data.credAudience,
+      days: this.data.credDays,
+      note: this.data.credNote
+    })
+    if (!cred) {
+      wx.showToast({ title: '生成失败，请重试', icon: 'none' })
+      return
+    }
+    this.setData({ showCredSheet: false })
+    wx.showToast({ title: '凭证已生成', icon: 'success' })
+    this.refresh()
+  },
+
+  goCredential(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.navigateTo({ url: '/pages/credential/credential?id=' + id })
+  },
+
+  // 收回授权：给出去的东西必须能拿回来，否则「授权」只是「交出」
+  onRevoke(e) {
+    if (!this.data.isSelf) return
+    const id = e.currentTarget.dataset.id
+    wx.showModal({
+      title: '作废这份凭证',
+      content: '作废后对方打开只会看到「已作废」，内容仅作留档。',
+      success: res => {
+        if (!res.confirm) return
+        store.revokeCredential(id, this.data.farmerId)
+        wx.showToast({ title: '已作废', icon: 'success' })
+        this.refresh()
+      }
+    })
   },
 
   onPullDownRefresh() {

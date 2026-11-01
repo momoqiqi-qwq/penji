@@ -82,6 +82,33 @@
       </view>
     </block>
 
+    <!-- 信用凭证：农户自己决定「给谁看哪几个维度」。只对本人开-->
+    <block wx:if="{{isSelf}}">
+      <view class="section-title between">
+        <text>信用凭证（{{credentials.length}}）</text>
+        <text class="add-btn" bindtap="openCredSheet">＋ 开具</text>
+      </view>
+      <view class="muted self-tip">对外只出一份快照：勾哪几项就只给对方看哪几项，到期自动失效，也随时能作废</view>
+      <view class="card" wx:if="{{credentials.length}}">
+        <view class="cred-row" wx:for="{{credentials}}" wx:key="credentialId" bindtap="goCredential" data-id="{{item.credentialId}}">
+          <view class="between">
+            <view class="row">
+              <text class="tag {{item.statusCls}}">{{item.statusText}}</text>
+              <text class="cred-aud">{{item.audience}}</text>
+            </view>
+            <text class="muted">{{item.expireAt}} 到期 ›</text>
+          </view>
+          <view class="muted mt-8">授权：{{item.scopeText}}</view>
+          <view class="muted mt-8" wx:if="{{item.note}}">用途：{{item.note}}</view>
+          <view class="between cred-foot">
+            <text class="muted">签发 {{item.createdAt}}</text>
+            <text class="cred-revoke" wx:if="{{!item.revoked}}" catchtap="onRevoke" data-id="{{item.credentialId}}">作废</text>
+          </view>
+        </view>
+      </view>
+      <view class="empty" wx:else>还没有开具过凭证</view>
+    </block>
+
     <!-- 历史批次 -->
     <view class="section-title">历史批次（长期经营记录）</view>
     <view class="card" wx:if="{{batches.length}}">
@@ -148,5 +175,38 @@
     </view>
     <textarea class="review-input" placeholder="说说你的购买 / 食用体验，反馈会回传给农户……" value="{{reviewForm.content}}" bindinput="onContent" maxlength="200" />
     <view class="muted count-tip">{{reviewForm.content.length}} / 200</view>
+  </view>
+
+  <!-- 开具凭证弹层 -->
+  <view class="mask" wx:if="{{showCredSheet}}" bindtap="closeCredSheet"></view>
+  <view class="sheet {{showCredSheet ? 'sheet-up' : ''}}" wx:if="{{showCredSheet}}">
+    <view class="sheet-head">
+      <text class="muted" bindtap="closeCredSheet">取消</text>
+      <text class="sheet-title">开具凭证</text>
+      <text class="sheet-submit" bindtap="submitCredential">生成</text>
+    </view>
+
+    <view class="cred-label">授权哪些维度</view>
+    <view class="scope-item {{s.on ? 'scope-on' : ''}}" wx:for="{{scopeOptions}}" wx:for-item="s" wx:key="key" bindtap="toggleScope" data-key="{{s.key}}">
+      <view class="between">
+        <text class="scope-name">{{s.name}}</text>
+        <text class="scope-check">{{s.on ? '✓' : ''}}</text>
+      </view>
+      <view class="muted scope-desc">{{s.desc}}</view>
+    </view>
+
+    <view class="cred-label">给谁看</view>
+    <view class="row cred-chips">
+      <text class="cred-chip {{credAudience === a ? 'cred-chip-on' : ''}}" wx:for="{{audiences}}" wx:for-item="a" wx:key="*this" data-a="{{a}}" bindtap="pickAudience">{{a}}</text>
+    </view>
+
+    <view class="cred-label">有效期</view>
+    <view class="row cred-chips">
+      <text class="cred-chip {{credDays === d ? 'cred-chip-on' : ''}}" wx:for="{{[7,30,90]}}" wx:for-item="d" wx:key="*this" data-d="{{d}}" bindtap="pickDays">{{d}} 天</text>
+    </view>
+
+    <view class="cred-label">用途说明（可选）</view>
+    <input class="cred-input" placeholder="例：春茶收购前的资质预审" value="{{credNote}}" bindinput="onCredNote" maxlength="60" />
+    <view class="muted cred-sheet-tip">原始农事记录、地块位置、联系方式不会随凭证发出；到期或作废后对方页面立刻失效。</view>
   </view>
 </view>

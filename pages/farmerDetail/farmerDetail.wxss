@@ -413,3 +413,90 @@
   width: auto;
   margin: 16rpx 0 0;
 }
+
+/* 信用凭证：一条授权一行，重点在「给谁、到哪天、能看哪几项」 */
+.cred-row {
+  padding: 22rpx 0;
+  border-top: 1rpx solid var(--line);
+}
+.cred-row:first-of-type { border-top: none; padding-top: 6rpx; }
+.cred-row .between { align-items: baseline; }
+.cred-aud {
+  margin-left: 12rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cred-foot { margin-top: 10rpx; }
+.cred-revoke {
+  font-size: 22rpx;
+  color: var(--warn);
+  padding: 4rpx 16rpx;
+  border: 1rpx solid rgba(180, 60, 47, 0.28);
+  border-radius: 999rpx;
+}
+
+/* 弹层里的勾选与选项 */
+.cred-label {
+  margin: 26rpx 0 14rpx;
+  font-size: 22rpx;
+  color: var(--text-light);
+  letter-spacing: 0.06em;
+}
+.scope-item {
+  padding: 20rpx 24rpx;
+  margin-bottom: 14rpx;
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--card);
+}
+.scope-item.scope-on {
+  border-color: rgba(23, 96, 58, 0.4);
+  background: var(--green-mist);
+}
+.scope-item .between { align-items: baseline; }
+.scope-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+.scope-check {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--green);
+}
+.scope-desc {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+.cred-chips { flex-wrap: wrap; }
+.cred-chip {
+  margin: 0 14rpx 14rpx 0;
+  padding: 12rpx 26rpx;
+  font-size: 24rpx;
+  color: var(--text-2);
+  border: 1rpx solid var(--border);
+  border-radius: 999rpx;
+  background: var(--card);
+}
+.cred-chip-on {
+  color: var(--green);
+  border-color: rgba(23, 96, 58, 0.4);
+  background: var(--green-mist);
+  font-weight: 600;
+}
+.cred-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--green-mist);
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+  padding: 22rpx 24rpx;
+  font-size: 26rpx;
+}
+.cred-sheet-tip {
+  margin-top: 18rpx;
+  font-size: 20rpx;
+  line-height: 1.65;
+}

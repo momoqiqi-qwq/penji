@@ -564,6 +564,109 @@ function signPromise(farmerId) {
   return f
 }
 
+// ========== 信用凭证：农户自己决定「给谁看什么」 ==========
+// 依据：个人信息保护法「最小必要」原则 + 农产品质量安全法第五十四条信用记录。
+// 做法：农户勾选要披露的维度 → 生成一份只读快照（分数 + 选定维度明细 + 有效期），
+// 原始档案不出域；对方只看到快照里有的东西，撤销即失效。
+// 这是「授权 + 最小披露」，不是隐私计算——不要在外面说成后者。
+
+const CRED_SCOPES = [
+  { key: 'willingness', name: '履约意愿', desc: '承诺签署、备案完整度' },
+  { key: 'ability', name: '履约能力', desc: '农事档案、检测结论、认证' },
+  { key: 'behavior', name: '履约行为', desc: '消费者评价、溯源覆盖、失信扣分' }
+]
+
+const CRED_AUDIENCES = ['采购商', '金融机构', '村集体']
+
+function _ensureCredentials(data) {
+  if (!Array.isArray(data.credentials)) data.credentials = []
+  return data.credentials
+}
+
+/** 某农户发出的全部凭证（新的在前） */
+function listCredentials(farmerId) {
+  const data = _db()
+  return _ensureCredentials(data)
+    .filter(c => c.farmerId === farmerId)
+    .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+}
+
+/** 读一份凭证：带过期 / 作废标记，页面据此决定显示成什么样 */
+function getCredential(credentialId) {
+  const data = _db()
+  const c = _ensureCredentials(data).find(x => x.credentialId === credentialId)
+  if (!c) return null
+  const today = util.formatDate()
+  return Object.assign({}, c, {
+    expired: !!c.expireAt && c.expireAt < today,
+    revoked: !!c.revokedAt
+  })
+}
+
+/**
+ * 农户生成一份信用凭证
+ * @param {object} payload { farmerId, scopes: ['ability',...], audience, note, days }
+ * @returns {object|null} 没选任何维度时不生成
+ */
+function createCredential(payload) {
+  const data = _db()
+  const farmer = data.farmers.find(f => f.farmerId === payload.farmerId)
+  if (!farmer) return null
+  const scopes = (payload.scopes || []).filter(s => CRED_SCOPES.some(x => x.key === s))
+  if (!scopes.length) return null
+
+  const days = [7, 30, 90].indexOf(+payload.days) >= 0 ? +payload.days : 30
+  const detail = farmer.creditDetail || null
+  const lv = util.scoreLevel(farmer.creditScore)
+
+  // 快照是「当时的真相」：之后农户再涨分也不回填，否则凭证就失去可核验性
+  const snapshot = {
+    score: farmer.creditScore,
+    grade: lv.code,
+    gradeText: lv.text,
+    star: farmer.star,
+    basis: detail ? detail.basis : '',
+    dims: detail
+      ? detail.dims
+          .filter(d => scopes.indexOf(d.key) >= 0)
+          .map(d => ({
+            key: d.key,
+            name: d.name,
+            score: d.score,
+            max: d.max,
+            items: d.items.map(it => ({ name: it.name, score: it.score, max: it.max, note: it.note }))
+          }))
+      : []
+  }
+
+  const credential = {
+    credentialId: 'CR-' + Date.now().toString(36).toUpperCase() + util.randInt(100, 999),
+    farmerId: farmer.farmerId,
+    farmerName: farmer.name,
+    village: farmer.village || '',
+    audience: CRED_AUDIENCES.indexOf(payload.audience) >= 0 ? payload.audience : '采购商',
+    note: (payload.note || '').slice(0, 60),
+    scopes,
+    days,
+    createdAt: util.formatDateTime(),
+    expireAt: util.formatDate(Date.now() + days * 86400000),
+    snapshot
+  }
+  _ensureCredentials(data).push(credential)
+  _persist(data)
+  return credential
+}
+
+/** 作废：农户随时收回授权，凭证页立刻变成「已作废」 */
+function revokeCredential(credentialId, farmerId) {
+  const data = _db()
+  const c = _ensureCredentials(data).find(x => x.credentialId === credentialId)
+  if (!c || c.farmerId !== farmerId) return null
+  if (!c.revokedAt) c.revokedAt = util.formatDateTime()
+  _persist(data)
+  return c
+}
+
 /** 重置全部仿真数据 */
 function resetAll() {
   return mock.resetMockData()
@@ -910,6 +1013,12 @@ module.exports = {
   markViolation,
   getRepairPlan,
   signPromise,
+  listCredentials,
+  getCredential,
+  createCredential,
+  revokeCredential,
+  CRED_SCOPES,
+  CRED_AUDIENCES,
   listBuyers,
   listStandards,
   listInspections,
