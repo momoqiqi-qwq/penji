@@ -1,8 +1,9 @@
 // utils/auth.js
 // 棚迹 登录 / 身份 / 权限
 //
-// 登录只做一件事：用 wx.login 的 code 换回这台设备的微信 openid（云函数 login 里
-// cloud.getWXContext() 直接给，AppSecret 一步都不碰）。
+// 登录只做一件事：拿到这台微信的 openid。云函数 login 里 cloud.getWXContext() 直接给，
+// AppSecret 一步都不碰 —— 正因为 openid 是服务端自己认出来的，前端连 wx.login 都不用跑，
+// 更没有 code 要传（曾经取过一次 code 却从未使用，还让 wx.login 失败白白封死登录）。
 // 身份（consumer / farmer / buyer）是业务选择，和登录分开存：换身份不等于换微信用户，
 // 所以 clearRole() 只清业务字段，openid 与昵称头像留着。
 //
@@ -26,7 +27,8 @@ const EMPTY = {
   openid: '',          // 云函数 login 换回的微信身份；空字符串 = 尚未核验
   unionid: '',         // 绑定过开放平台才有，没有就是空
   identitySource: '',  // 'cloud' 云端核验过 / 'local' 只存在本机 / '' 没登过
-  loginAt: 0
+  loginAt: 0,
+  profileSkipped: false // 用户主动跳过「补头像昵称」：跳过就别每次登录再问一遍
 }
 
 function _read() {
@@ -52,36 +54,23 @@ function _merge(patch) {
   return current()
 }
 
-/** wx.login 取 code（一次性，5 分钟过期；只在前端拿，不缓存） */
-function _wxCode() {
-  return new Promise((resolve) => {
-    wx.login({
-      success: (res) => resolve((res && res.code) || ''),
-      fail: () => resolve('')
-    })
-  })
-}
-
 /**
- * 微信登录：wx.login → 云函数 login 换 openid
- * @returns {Promise<{ok, code, openid, unionid, source, msg}>}
- *   ok=false 只有 wx.login 本身失败；云函数失败只把 source 降级成 'local'，不阻断进小程序
+ * 微信登录：直接问云函数要 openid（openid 由 getWXContext 在服务端认出来）
+ * @returns {Promise<{ok, openid, unionid, source, msg}>}
+ *   ok = 真的核验到了微信身份（= 有 openid）。
+ *   云开发不可用只把 source 降级成 'local' 并给空 openid，不阻断进小程序 ——
+ *   这里没有「登录失败」这条分支，也就没有理由让谁卡在门外。
  */
 async function wxLogin() {
-  const code = await _wxCode()
-  if (!code) {
-    return { ok: false, code: '', openid: '', unionid: '', source: '', msg: 'WX_LOGIN_FAIL' }
-  }
   try {
     const data = await cloud.call('login', {}, LOGIN_TIMEOUT)
     const openid = (data && data.openid) || ''
     if (!openid) {
       // 云函数通了但没给 openid：当作未核验，别伪造
-      return { ok: true, code: code, openid: '', unionid: '', source: 'local', msg: 'LOGIN_NO_OPENID' }
+      return { ok: false, openid: '', unionid: '', source: 'local', msg: 'LOGIN_NO_OPENID' }
     }
     return {
       ok: true,
-      code: code,
       openid: openid,
       unionid: (data && data.unionid) || '',
       source: 'cloud'
@@ -89,7 +78,7 @@ async function wxLogin() {
   } catch (e) {
     const msg = String((e && e.message) || e)
     console.warn('[auth] 云函数 login 不可用，降级本机身份', msg)
-    return { ok: true, code: code, openid: '', unionid: '', source: 'local', msg: msg }
+    return { ok: false, openid: '', unionid: '', source: 'local', msg: msg }
   }
 }
 
@@ -110,12 +99,18 @@ async function ensureLogin(force) {
     }
   }
   const res = await wxLogin()
-  _merge({
-    openid: res.openid || '',
-    unionid: res.unionid || '',
-    identitySource: res.source || '',
-    loginAt: Date.now()
-  })
+  // 只有确实拿到新 openid 才覆盖：云端抖一下不该把上一次核验过的身份抹成空串，
+  // 那等于让一次断网把用户永久降级成本机身份（而且自己不会恢复）。
+  const patch = { loginAt: Date.now() }
+  if (res.openid) {
+    patch.openid = res.openid
+    patch.unionid = res.unionid || ''
+    patch.identitySource = res.source || 'cloud'
+  } else if (!s.openid) {
+    // 本来就没核验过，才允许记成本机身份；有旧值就原样留着
+    patch.identitySource = res.source || ''
+  }
+  _merge(patch)
   return res
 }
 
@@ -148,14 +143,25 @@ async function uploadAvatar(tempPath) {
 function saveWxUserInfo(userInfo) {
   return _merge({
     nickName: (userInfo && userInfo.nickName) || '',
-    avatarUrl: (userInfo && userInfo.avatarUrl) || ''
+    avatarUrl: (userInfo && userInfo.avatarUrl) || '',
+    // 自己填过了，就不再算「跳过头像昵称」，以后登录不必再问
+    profileSkipped: false
   })
+}
+
+/**
+ * 记住「先跳过补头像昵称」
+ * 只 setData 不落盘的话，跳过的人下次登录会被再问一遍 —— 这不是提醒，是纠缠
+ */
+function skipProfile() {
+  return _merge({ profileSkipped: true })
 }
 
 /**
  * 当前身份
  * @returns {{chosen, role, farmerId, buyerId, isConsumer, isFarmer, isBuyer,
- *            nickName, avatarUrl, openid, unionid, identitySource, loginAt, loggedIn}}
+ *            nickName, avatarUrl, openid, unionid, identitySource, loginAt,
+ *            profileSkipped, loggedIn}}
  */
 function current() {
   const s = _read()
@@ -174,6 +180,7 @@ function current() {
     unionid: s.unionid || '',
     identitySource: s.identitySource || '',
     loginAt: s.loginAt || 0,
+    profileSkipped: !!s.profileSkipped,
     // 只有云端核验过 openid 才算真登录；本机身份也能用，但要标出来
     loggedIn: !!s.openid
   }
@@ -217,5 +224,5 @@ function canInspect(role) { return role === 'buyer' }         // 仅采购商录
 module.exports = {
   current, chooseRole, clearRole, identityLabel,
   canEdit, canUpload, canReview, canInspect,
-  wxLogin, ensureLogin, saveWxUserInfo, uploadAvatar
+  wxLogin, ensureLogin, saveWxUserInfo, skipProfile, uploadAvatar
 }

@@ -28,7 +28,11 @@ Page({
   onLoad() {
     this._initNav()
     const cur = auth.current()
+    // 已经核验过微信身份就直接选身份：切身份是最常走的一条路，
+    // 每次都逼人再点一遍「微信一键登录」，那一按什么也没换回来
+    const step = cur.openid ? 'pick' : 'login'
     this.setData({
+      step: step,
       farmers: store.listFarmers(),
       buyers: store.listBuyers(),
       // 之前填过头像昵称就直接带出来（clearRole 不会清掉它们）
@@ -85,23 +89,19 @@ Page({
     this.setData({ profileOpen: false })
   },
 
-  // 第一步：微信登录（wx.login 取 code → 云函数 login 换 openid）
+  // 第一步：微信登录（openid 由云函数 login 的 getWXContext 在服务端认出来）
   async doWxLogin() {
     if (this.data.logging) return
     this.setData({ logging: true })
-    const res = await auth.ensureLogin(true)
-    if (!res.ok) {
-      this.setData({ logging: false })
-      wx.showToast({ title: '微信登录失败，请重试', icon: 'none' })
-      return
-    }
+    // 不写 force：已经核验过就复用，切身份不该每次都花一次云函数调用
+    const res = await auth.ensureLogin()
     // 云开发没就绪：登录本身没失败，但没拿到 openid —— 如实说一句，别假装核验过
     if (!res.openid) {
       wx.showToast({ title: '未连云端，先用本机身份进入', icon: 'none' })
     }
     const cur = auth.current()
-    // 之前填过昵称就不再问一遍（切身份的常规路径：登录 → 直接选身份，和以前一样两步）
-    const needProfile = !cur.nickName || cur.nickName === '微信用户'
+    // 补过昵称、或自己点了「先跳过」，就别再问一遍
+    const needProfile = !cur.nickName && !cur.profileSkipped
     this.setData({
       logging: false,
       step: needProfile ? 'profile' : 'pick',
@@ -133,6 +133,8 @@ Page({
     this._syncIdentity()
   },
   skipProfile() {
+    // 跳过要落盘：否则下次登录又被问一遍，那不是提醒是纠缠
+    auth.skipProfile()
     this.setData({ step: 'pick' })
   },
 
