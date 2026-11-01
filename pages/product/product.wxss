@@ -282,21 +282,14 @@
   color: var(--green-dark);
   font-variant-numeric: tabular-nums;
 }
-.spark {
-  display: flex;
-  align-items: flex-end;
-  height: 96rpx;
-  padding: 10rpx 0 0;
+/* 环境曲线：Canvas 2D 画折线 + 渐变填充（旧的 .spark 条形已换掉）。
+   宽高必须由样式给定——脚本里 createSelectorQuery 读到的 size 就是这两个值，读到 0 就画不出来 */
+.spark-canvas {
+  display: block;
+  width: 100%;
+  height: 150rpx;
   margin-top: 10rpx;
 }
-.spark-bar {
-  flex: 1;
-  min-width: 6rpx;
-  margin-right: 3rpx;
-  border-radius: 3rpx 3rpx 0 0;
-  opacity: 0.85;
-}
-.spark-bar:last-child { margin-right: 0; }
 
 /* ---------------- AI 报告 ---------------- */
 .ai-score {

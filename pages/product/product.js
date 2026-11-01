@@ -18,7 +18,7 @@ Page({
     reviews: [],
     siblingBatches: [],
     growthCycle: [],
-    envSpark: null,
+    envLine: null,          // 环境曲线数据（toLinechart 输出，Canvas 2D 画）
     latestEnv: null,
     latestEnvTag: '',
     opi: null,
@@ -80,11 +80,11 @@ Page({
 
     // 传感器环境曲线（空气温度 / 空气湿度 / 光照 / 土壤湿度；来自地块环境历史）
     const env = store.getPlotEnvHistory(batch.plotId, 30)
-    const envSpark = {
-      airTemp: chart.toSparkline(env, 'airTemp', 24),
-      airHumidity: chart.toSparkline(env, 'airHumidity', 24),
-      light: chart.toSparkline(env, 'light', 24),
-      soilMoisture: chart.toSparkline(env, 'soilMoisture', 24)
+    const envLine = {
+      airTemp: chart.toLinechart(env, 'airTemp', 24),
+      airHumidity: chart.toLinechart(env, 'airHumidity', 24),
+      light: chart.toLinechart(env, 'light', 24),
+      soilMoisture: chart.toLinechart(env, 'soilMoisture', 24)
     }
     // 最新环境快照 + 来源标注
     const latestEnv = env && env.length ? env[env.length - 1] : (batch.envSnapshot || null)
@@ -110,7 +110,7 @@ Page({
       reviews: reviewsView,
       siblingBatches: siblingView,
       growthCycle,
-      envSpark,
+      envLine,
       latestEnv,
       latestEnvTag,
       opi,
@@ -121,7 +121,116 @@ Page({
       aiReport: batch.aiReport || null,
       role: cur.role,
       canReview: auth.canReview(cur.role)
+    }, () => this._drawAllLinecharts())
+  },
+
+  // ======== Canvas 2D 折线图绘制 ========
+  // 配色沿用这一页原本条形图的四色，换画法不换语义
+  _drawAllLinecharts() {
+    if (!this.data.envLine) return
+    const themeColors = {
+      airTemp:      { stroke: '#C2793A', fill: 'rgba(194,121,58,0.18)' },
+      airHumidity:  { stroke: '#4A7FA8', fill: 'rgba(74,127,168,0.18)' },
+      light:        { stroke: '#B9892F', fill: 'rgba(185,137,47,0.18)' },
+      soilMoisture: { stroke: '#3E7A5C', fill: 'rgba(62,122,92,0.18)' }
+    }
+    const fields = ['airTemp', 'airHumidity', 'light', 'soilMoisture']
+    fields.forEach(f => {
+      const data = this.data.envLine[f]
+      if (data && data.points && data.points.length) {
+        this._drawLinechart('canvas-' + f, data, themeColors[f])
+      }
     })
+  },
+
+  _drawLinechart(canvasId, data, colors) {
+    if (!data || !data.points || data.points.length < 1) return
+    const query = wx.createSelectorQuery()
+    query.select('#' + canvasId)
+      .fields({ node: true, size: true })
+      .exec((res) => {
+        if (!res || !res[0] || !res[0].node) return
+        const canvas = res[0].node
+        const ctx = canvas.getContext('2d')
+        const w = res[0].width
+        const h = res[0].height
+        // 高清屏适配
+        const dpr = wx.getSystemInfoSync().pixelRatio || 2
+        canvas.width = w * dpr
+        canvas.height = h * dpr
+        ctx.scale(dpr, dpr)
+
+        ctx.clearRect(0, 0, w, h)
+        const pad = { top: 6, right: 6, bottom: 6, left: 6 }
+        const cw = w - pad.left - pad.right
+        const ch = h - pad.top - pad.bottom
+        const pts = data.points
+
+        // 坐标映射：x→[0,cw], y→[0,ch]
+        const mapPt = (p) => ({
+          x: pad.left + p.x * cw,
+          y: pad.top + p.y * ch
+        })
+
+        // 渐变填充（折线下方）
+        if (pts.length >= 2) {
+          ctx.beginPath()
+          const first = mapPt(pts[0])
+          ctx.moveTo(first.x, pad.top + ch)
+          ctx.lineTo(first.x, first.y)
+          for (let i = 1; i < pts.length; i++) {
+            const cur = mapPt(pts[i])
+            const prev = mapPt(pts[i - 1])
+            const cx = (prev.x + cur.x) / 2
+            ctx.quadraticCurveTo(prev.x, prev.y, cx, (prev.y + cur.y) / 2)
+          }
+          const last = mapPt(pts[pts.length - 1])
+          ctx.lineTo(last.x, last.y)
+          ctx.lineTo(last.x, pad.top + ch)
+          ctx.closePath()
+          const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch)
+          grad.addColorStop(0, colors.fill)
+          grad.addColorStop(1, 'rgba(255,255,255,0)')
+          ctx.fillStyle = grad
+          ctx.fill()
+        }
+
+        // 折线（二次贝塞尔平滑）
+        ctx.beginPath()
+        if (pts.length === 1) {
+          const p = mapPt(pts[0])
+          ctx.moveTo(p.x, p.y)
+        } else {
+          for (let i = 0; i < pts.length; i++) {
+            const cur = mapPt(pts[i])
+            if (i === 0) {
+              ctx.moveTo(cur.x, cur.y)
+            } else {
+              const prev = mapPt(pts[i - 1])
+              const cpx = prev.x + (cur.x - prev.x) / 2
+              ctx.quadraticCurveTo(prev.x, prev.y, cpx, (prev.y + cur.y) / 2)
+            }
+          }
+        }
+        ctx.strokeStyle = colors.stroke
+        ctx.lineWidth = 2.2
+        ctx.lineJoin = 'round'
+        ctx.lineCap = 'round'
+        ctx.stroke()
+
+        // 末点高亮
+        if (pts.length >= 1) {
+          const last = mapPt(pts[pts.length - 1])
+          ctx.beginPath()
+          ctx.arc(last.x, last.y, 3.8, 0, Math.PI * 2)
+          ctx.fillStyle = colors.stroke
+          ctx.fill()
+          ctx.beginPath()
+          ctx.arc(last.x, last.y, 1.6, 0, Math.PI * 2)
+          ctx.fillStyle = '#ffffff'
+          ctx.fill()
+        }
+      })
   },
 
   _typeTag(type) {

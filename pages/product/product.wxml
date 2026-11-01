@@ -102,41 +102,33 @@
       <view class="env-src" wx:if="{{latestEnv}}">
         <text class="tag {{latestEnvTag.cls}}">{{latestEnv.sourceLabel}}</text>
       </view>
-      <view class="env-block" wx:if="{{envSpark.airTemp.bars.length}}">
+      <view class="env-block" wx:if="{{envLine.airTemp.points.length}}">
         <view class="between">
           <view class="env-name">空气温度曲线</view>
-          <view class="env-val">{{envSpark.airTemp.min}}~{{envSpark.airTemp.max}}℃</view>
+          <view class="env-val">{{envLine.airTemp.rawMin}}~{{envLine.airTemp.rawMax}}℃</view>
         </view>
-        <view class="spark">
-          <view wx:for="{{envSpark.airTemp.bars}}" wx:key="date" class="spark-bar" style="height:{{item.height}}%;background:#C2793A;"></view>
-        </view>
+        <canvas type="2d" id="canvas-airTemp" class="spark-canvas"></canvas>
       </view>
-      <view class="env-block" wx:if="{{envSpark.airHumidity.bars.length}}">
+      <view class="env-block" wx:if="{{envLine.airHumidity.points.length}}">
         <view class="between">
           <view class="env-name">空气湿度曲线</view>
-          <view class="env-val">{{envSpark.airHumidity.min}}~{{envSpark.airHumidity.max}}%</view>
+          <view class="env-val">{{envLine.airHumidity.rawMin}}~{{envLine.airHumidity.rawMax}}%</view>
         </view>
-        <view class="spark">
-          <view wx:for="{{envSpark.airHumidity.bars}}" wx:key="date" class="spark-bar" style="height:{{item.height}}%;background:#4A7FA8;"></view>
-        </view>
+        <canvas type="2d" id="canvas-airHumidity" class="spark-canvas"></canvas>
       </view>
-      <view class="env-block" wx:if="{{envSpark.light.bars.length}}">
+      <view class="env-block" wx:if="{{envLine.light.points.length}}">
         <view class="between">
           <view class="env-name">光照曲线</view>
-          <view class="env-val">{{envSpark.light.min}}~{{envSpark.light.max}}%</view>
+          <view class="env-val">{{envLine.light.rawMin}}~{{envLine.light.rawMax}}%</view>
         </view>
-        <view class="spark">
-          <view wx:for="{{envSpark.light.bars}}" wx:key="date" class="spark-bar" style="height:{{item.height}}%;background:#B9892F;"></view>
-        </view>
+        <canvas type="2d" id="canvas-light" class="spark-canvas"></canvas>
       </view>
-      <view class="env-block" wx:if="{{envSpark.soilMoisture.bars.length}}">
+      <view class="env-block" wx:if="{{envLine.soilMoisture.points.length}}">
         <view class="between">
           <view class="env-name">土壤湿度曲线</view>
-          <view class="env-val">{{envSpark.soilMoisture.min}}~{{envSpark.soilMoisture.max}}%</view>
+          <view class="env-val">{{envLine.soilMoisture.rawMin}}~{{envLine.soilMoisture.rawMax}}%</view>
         </view>
-        <view class="spark">
-          <view wx:for="{{envSpark.soilMoisture.bars}}" wx:key="date" class="spark-bar" style="height:{{item.height}}%;background:#3E7A5C;"></view>
-        </view>
+        <canvas type="2d" id="canvas-soilMoisture" class="spark-canvas"></canvas>
       </view>
     </view>
 
