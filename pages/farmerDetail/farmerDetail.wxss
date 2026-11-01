@@ -383,3 +383,33 @@
   font-size: 20rpx;
   letter-spacing: 0.04em;
 }
+
+/* 提升信用（信用修复通道）：沿用信用明细的卡片语言，只多一个「能涨多少」的强调 */
+.repair-lead {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+.repair-gain {
+  color: var(--green);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.repair-item {
+  padding: 22rpx 0;
+  border-top: 1rpx solid var(--border);
+}
+.repair-item:first-of-type { border-top: none; padding-top: 8rpx; }
+.repair-item .between { align-items: baseline; }
+.repair-how {
+  margin-top: 8rpx;
+  line-height: 1.65;
+}
+/* 微信 button 默认块级满宽，这里要它贴着左边、只包住文字 */
+.repair-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  margin: 16rpx 0 0;
+}

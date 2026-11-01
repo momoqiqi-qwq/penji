@@ -16,6 +16,9 @@ Page({
     // 身份权限
     role: 'consumer',
     canReview: true,   // 仅消费者可评价
+    // 是不是本人的档案：决定能不能看到「提升信用」这条修复通道
+    isSelf: false,
+    repair: { items: [], gainable: 0, rest: 0 },
     showReviewSheet: false,
     reviewForm: { rating: 5, content: '' }
   },
@@ -72,6 +75,9 @@ Page({
 
     const app = getApp()
     const cur = app.refreshAuth()
+    const isSelf = !!(cur.isFarmer && cur.farmerId && cur.farmerId === farmer.farmerId)
+    // 修复通道只给本人看：把「你还差哪几项」摊开给外人看，等于替农户示弱
+    const plan = isSelf ? store.getRepairPlan(farmer.farmerId) : { items: [], gainable: 0 }
     this.setData({
       farmer,
       batches: batchesView,
@@ -81,7 +87,14 @@ Page({
       creditDims,
       creditBasis,
       role: cur.role,
-      canReview: auth.canReview(cur.role)
+      canReview: auth.canReview(cur.role),
+      isSelf,
+      // 只摊前 4 条，剩下的按条数提示——8 项全铺开会把这一页拉得很长
+      repair: {
+        items: plan.items.slice(0, 4),
+        gainable: plan.gainable,
+        rest: Math.max(0, plan.items.length - 4)
+      }
     })
   },
 
@@ -132,6 +145,20 @@ Page({
     wx.showToast({ title: '反馈已提交，将回传农户', icon: 'success' })
     this.setData({ showReviewSheet: false, 'reviewForm.content': '' })
     this.refresh()
+  },
+
+  // 签署承诺书：修复通道里唯一当场涨分的动作，写完立刻重算 + 刷新
+  onSignPromise() {
+    if (!this.data.isSelf) return
+    store.signPromise(this.data.farmerId)
+    wx.showToast({ title: '已签署，信用分已更新', icon: 'success' })
+    this.refresh()
+  },
+
+  goRepair(e) {
+    const entry = e.currentTarget.dataset.entry
+    if (!entry) return
+    wx.navigateTo({ url: entry })
   },
 
   onPullDownRefresh() {

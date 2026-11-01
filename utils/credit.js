@@ -154,26 +154,26 @@ function evaluateFarmer(data, farmer) {
         key: 'willingness', name: '履约意愿', score: willScore, max: WEIGHTS.willingness,
         basis: 'GB/T 23794-2023 §5.2a；承诺达标合格证管理办法（农业农村部令2025年第4号）',
         items: [
-          { name: '质量安全信用承诺签署', score: i1, max: 10, note: farmer.promiseSigned ? '已签署承诺达标承诺' : '尚未签署信用承诺' },
-          { name: '生产主体备案信息完整度', score: i2, max: 10, note: `${profileItems.filter(Boolean).length}/5项备案信息齐全` }
+          { key: 'promise', name: '质量安全信用承诺签署', score: i1, max: 10, note: farmer.promiseSigned ? '已签署承诺达标承诺' : '尚未签署信用承诺' },
+          { key: 'profile', name: '生产主体备案信息完整度', score: i2, max: 10, note: `${profileItems.filter(Boolean).length}/5项备案信息齐全` }
         ]
       },
       {
         key: 'ability', name: '履约能力', score: abilScore, max: WEIGHTS.ability,
         basis: 'GB/T 23794-2023 §5.2b；农产品质量安全法第二十七条生产记录制度',
         items: [
-          { name: '农事生产档案完整率', score: i3, max: 15, note: `必备环节覆盖 ${completeRate}%（播种/管理/植保/采收）` },
-          { name: '检验检测合格情况', score: i4, max: 15, note: inspectNote },
-          { name: '质量认证与标准化生产', score: i5, max: 10, note: `${certBatches.length}/${batches.length}批获绿色/有机/地理标志认证` }
+          { key: 'record', name: '农事生产档案完整率', score: i3, max: 15, note: `必备环节覆盖 ${completeRate}%（播种/管理/植保/采收）` },
+          { key: 'inspect', name: '检验检测合格情况', score: i4, max: 15, note: inspectNote },
+          { key: 'cert', name: '质量认证与标准化生产', score: i5, max: 10, note: `${certBatches.length}/${batches.length}批获绿色/有机/地理标志认证` }
         ]
       },
       {
         key: 'behavior', name: '履约行为', score: behaScore, max: WEIGHTS.behavior,
         basis: 'GB/T 23794-2023 §5.2c；浙江农安信用扣分制；农产品质量安全法第五十四条',
         items: [
-          { name: '消费者扫码评价', score: i6, max: 15, note: reviewNote },
-          { name: '溯源赋码与记录可查', score: i7, max: 10, note: `${traceable.length}/${batches.length}批生产记录可扫码溯源` },
-          { name: '失信行为扣减', score: i8, max: 15,
+          { key: 'review', name: '消费者扫码评价', score: i6, max: 15, note: reviewNote },
+          { key: 'trace', name: '溯源赋码与记录可查', score: i7, max: 10, note: `${traceable.length}/${batches.length}批生产记录可扫码溯源` },
+          { key: 'penalty', name: '失信行为扣减', score: i8, max: 15,
             note: (seriousCount + complaintCount) === 0 ? '无失信记录，得基准满分'
               : `严重失信${seriousCount}条(-${seriousCount * PENALTY_SERIOUS})、核实投诉${complaintCount}条(-${complaintCount * PENALTY_COMPLAINT})` }
         ]
@@ -196,10 +196,64 @@ function evaluateFarmer(data, farmer) {
   return creditDetail
 }
 
+/* ---------------- 信用修复通道 ---------------- */
+// 为什么要有：这套模型是扣分制，只告诉农户「你少了 12 分」没有意义。
+// GB/T 23794-2023 §7 与农产品质量安全法第五十四条都要求信用记录可更正、可修复，
+// 否则一次差评就把人永久锁死在 D 档，等于把人赶出这套体系。
+// 边界：这里只把「差距」翻译成「能做到的动作」，绝不改分——分永远只由 evaluateFarmer 算。
+const REPAIR = {
+  promise: { kind: 'sign', btn: '签署承诺书', how: '点下方按钮签署《农产品质量安全承诺书》，当场生效' },
+  profile: { kind: 'profile', how: '补全姓名、所在村、简介、入驻时间，并至少登记一块地块（每缺一项 -2 分）' },
+  record: { kind: 'record', btn: '去记一条', entry: '/pages/addRecord/addRecord', how: '按播种 / 田间管理 / 植保除草 / 采收四个环节补齐农事记录，缺哪个补哪个' },
+  inspect: { kind: 'external', how: '批次采收后由采购商抽样送检，检测结论录入当天即计入（农户无法自证）' },
+  cert: { kind: 'external', how: '绿色食品 / 有机 / 地理标志认证由认证机构颁发，取得后在批次上登记' },
+  review: { kind: 'external', how: '消费者扫码后的星级评价，靠一次次交付积累，买不到' },
+  trace: { kind: 'record', btn: '去建档', entry: '/pages/product/productEdit/productEdit', how: '每个批次至少 2 条生产记录并生成二维码，让整段过程查得到' },
+  penalty: { kind: 'frozen', how: '失信扣分不可撤销，只能靠其他指标把总分补回来；有异议可申请村集体核验后由管理员更正' }
+}
+
+// 排序权重：农户自己能动手的（0）在前，只能等外部主体的（1）在后，已冻结的（2）垫底
+const RANK = { sign: 0, profile: 0, record: 0, external: 1, frozen: 2 }
+
+/**
+ * 把信用明细翻译成「提升清单」
+ * @param {object} creditDetail evaluateFarmer 的输出
+ * @returns {{items: Array, gainable: number}} gainable = 还能争多少分（不含失信冻结项）
+ */
+function buildRepairPlan(creditDetail) {
+  if (!creditDetail || !creditDetail.dims) return { items: [], gainable: 0 }
+  const items = []
+  creditDetail.dims.forEach(d => {
+    (d.items || []).forEach(it => {
+      const gap = it.max - it.score
+      if (gap <= 0) return
+      const r = REPAIR[it.key] || { kind: 'external', how: '—' }
+      items.push({
+        key: it.key,
+        dim: d.name,
+        name: it.name,
+        note: it.note,
+        now: it.score,
+        max: it.max,
+        gap,
+        how: r.how,
+        kind: r.kind,
+        btn: r.btn || '',
+        entry: r.entry || ''
+      })
+    })
+  })
+  // 同档内先看能涨多少
+  items.sort((a, b) => (RANK[a.kind] - RANK[b.kind]) || (b.gap - a.gap))
+  const gainable = items.filter(i => i.kind !== 'frozen').reduce((s, i) => s + i.gap, 0)
+  return { items, gainable }
+}
+
 module.exports = {
   WEIGHTS,
   GRADES,
   evaluateFarmer,
+  buildRepairPlan,
   gradeOf,
   starOf
 }

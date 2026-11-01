@@ -55,6 +55,33 @@
       </view>
     </view>
 
+    <!-- 提升信用：只对本人显示。分仍然只由 credit.evaluateFarmer 算，这里只是把差距翻成能做的动作 -->
+    <block wx:if="{{isSelf && repair.items.length}}">
+      <view class="section-title">提升信用</view>
+      <view class="card">
+        <view class="between">
+          <view class="repair-lead">还有 <text class="repair-gain">+{{repair.gainable}}</text> 分可以争取</view>
+          <text class="tag tag-green" wx:if="{{farmer.promiseSigned}}">承诺已签</text>
+        </view>
+        <view class="muted credit-tip">依据 GB/T 23794-2023 §7「信用修复」与农产品质量安全法第五十四条，信用记录可更正、可修复——差评不该把人永久锁死。</view>
+
+        <view class="repair-item" wx:for="{{repair.items}}" wx:key="key">
+          <view class="between">
+            <text class="strong">{{item.name}}</text>
+            <view class="muted">{{item.now}}/{{item.max}}
+              <text class="repair-gain" wx:if="{{item.kind !== 'frozen'}}">+{{item.gap}}</text>
+              <text class="warn-text" wx:else>已扣 {{item.gap}}</text>
+            </view>
+          </view>
+          <view class="muted repair-how">{{item.how}}</view>
+          <button wx:if="{{item.kind === 'sign'}}" class="btn btn-sm repair-btn" bindtap="onSignPromise">{{item.btn}}</button>
+          <button wx:elif="{{item.entry}}" class="btn btn-sm btn-ghost repair-btn" bindtap="goRepair" data-entry="{{item.entry}}">{{item.btn}}</button>
+        </view>
+
+        <view class="muted credit-note" wx:if="{{repair.rest}}">另有 {{repair.rest}} 项要等外部条件（检测结论 / 认证颁发 / 消费者评价），见上方明细。</view>
+      </view>
+    </block>
+
     <!-- 历史批次 -->
     <view class="section-title">历史批次（长期经营记录）</view>
     <view class="card" wx:if="{{batches.length}}">

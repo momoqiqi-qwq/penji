@@ -536,6 +536,34 @@ function markViolation(batchId, reason) {
   return batch
 }
 
+// ========== 信用修复通道 ==========
+// 分永远由 credit.evaluateFarmer 算；这里只负责「找出差距」和「把农户能做到的动作记进库」，
+// 任何一步写完都走 _recalcFarmer，所以分数是当场变的，不需要等批处理。
+
+/** 提升清单：把未满分指标翻成待办（只读，不改分） */
+function getRepairPlan(farmerId) {
+  const data = _db()
+  const f = data.farmers.find(x => x.farmerId === farmerId)
+  if (!f || !f.creditDetail) return { items: [], gainable: 0 }
+  return credit.buildRepairPlan(f.creditDetail)
+}
+
+/**
+ * 农户签署《农产品质量安全承诺书》
+ * 修复通道里唯一「点一下立刻涨分」的动作——其余靠补农事记录、等检测结论
+ */
+function signPromise(farmerId) {
+  const data = _db()
+  const f = data.farmers.find(x => x.farmerId === farmerId)
+  if (!f) return null
+  if (f.promiseSigned) return f
+  f.promiseSigned = true
+  f.promiseSignedAt = util.formatDateTime()
+  _recalcFarmer(data, farmerId)
+  _persist(data)
+  return f
+}
+
 /** 重置全部仿真数据 */
 function resetAll() {
   return mock.resetMockData()
@@ -880,6 +908,8 @@ module.exports = {
   addReview,
   registerFarmer,
   markViolation,
+  getRepairPlan,
+  signPromise,
   listBuyers,
   listStandards,
   listInspections,
