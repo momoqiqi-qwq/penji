@@ -18,9 +18,95 @@
     <!-- tab 切换 -->
     <view class="tabs">
       <view class="tab {{tab==='plots' ? 'on' : ''}}" data-tab="plots" bindtap="switchTab">主推地块</view>
+      <view class="tab {{tab==='receipts' ? 'on' : ''}}" data-tab="receipts" bindtap="switchTab">
+        进货验收<text class="tab-badge" wx:if="{{receiptSummary.pending}}">{{receiptSummary.pending}}</text>
+      </view>
       <view class="tab {{tab==='batches' ? 'on' : ''}}" data-tab="batches" bindtap="switchTab">批次核验</view>
       <view class="tab {{tab==='standards' ? 'on' : ''}}" data-tab="standards" bindtap="switchTab">食品标准库</view>
     </view>
+
+    <!-- ============ 进货验收：限期接受确认 / 逾期补录 / 操作时限 ============ -->
+    <block wx:if="{{tab==='receipts'}}">
+      <view class="rc-head">
+        <view class="rc-head-title">进货验收</view>
+        <view class="rc-head-sub">{{receiptLimitText}}</view>
+      </view>
+
+      <view class="rc-summary">
+        <view class="rc-sum-item">
+          <text class="rc-sum-num">{{receiptSummary.pending}}</text>
+          <text class="rc-sum-label">待确认</text>
+        </view>
+        <view class="rc-sum-item">
+          <text class="rc-sum-num warn">{{receiptSummary.warn}}</text>
+          <text class="rc-sum-label">即将超期</text>
+        </view>
+        <view class="rc-sum-item">
+          <text class="rc-sum-num over">{{receiptSummary.overdue}}</text>
+          <text class="rc-sum-label">已逾期</text>
+        </view>
+        <view class="rc-sum-item">
+          <text class="rc-sum-num">{{receiptSummary.done}}</text>
+          <text class="rc-sum-label">已处理</text>
+        </view>
+      </view>
+
+      <view class="mp-empty" wx:if="{{!receipts.length}}">还没有进货单。到「批次核验」对已采收的批次登记进货，登记后开始计算 {{limitHours}} 小时确认时限。</view>
+
+      <view class="rc-card {{item.phase}}" wx:for="{{receipts}}" wx:key="receiptId">
+        <view class="rc-top">
+          <view class="rc-name">{{item.productName}}</view>
+          <text class="tag {{item.statusCls}}">{{item.phaseText}}</text>
+        </view>
+        <view class="rc-code">
+          <text>{{item.receiptId}} · {{item.batchId}}</text>
+          <text class="tag tag-gray rc-demo" wx:if="{{item.isDemo}}">演示样例</text>
+        </view>
+        <view class="rc-line">{{item.farmerName}} · 进货 {{item.receivedText}}{{item.qty ? ' · ' + item.qty + ' ' + item.unit : ''}}</view>
+        <view class="rc-line">截止确认 {{item.deadlineText}}</view>
+
+        <view class="rc-timer" wx:if="{{item.status === 'pending'}}">
+          <view class="rc-timer-text {{item.phase}}">{{item.remainText}}</view>
+          <view class="rc-bar">
+            <view class="rc-bar-in {{item.phase}}" style="width:{{item.progress}}%"></view>
+          </view>
+        </view>
+        <view class="rc-late" wx:if="{{item.lateText}}">{{item.lateText}}</view>
+
+        <view class="rc-done" wx:if="{{item.status !== 'pending'}}">
+          <text>验收结论：{{item.conclusion}}</text>
+          <text wx:if="{{item.note}}"> · 备注：{{item.note}}</text>
+          <text wx:if="{{item.lateReason}}"> · 超期原因：{{item.lateReason}}</text>
+        </view>
+
+        <view class="rc-actions" wx:if="{{item.status === 'pending'}}">
+          <view class="rc-btn {{item.phase === 'overdue' ? 'warn' : ''}}" data-receipt="{{item.receiptId}}" bindtap="onOpenConfirm">
+            {{item.phase === 'overdue' ? '逾期补录' : '接受确认'}}
+          </view>
+        </view>
+
+        <!-- 内联确认表单：超期时多一栏必填原因 -->
+        <view class="rc-form" wx:if="{{formReceiptId === item.receiptId}}">
+          <view class="rc-form-tip {{item.phase === 'overdue' ? 'warn' : ''}}">
+            {{item.phase === 'overdue' ? '已超过 ' + limitHours + ' 小时时限，本次只能「逾期补录」；超期时长与原因会随单留痕。' : '在时限内确认接受；提交后不可再修改。'}}
+          </view>
+          <view class="rc-form-label">验收结论</view>
+          <view class="rc-chips">
+            <view class="rc-chip {{formConclusion === c ? 'on' : ''}}" wx:for="{{conclusions}}" wx:for-item="c" wx:key="*this" data-value="{{c}}" bindtap="onReceiptConclusion">{{c}}</view>
+          </view>
+          <view class="rc-form-label">备注（可选）</view>
+          <textarea class="rc-textarea" placeholder="如到货数量、外观品相、随货单据等" value="{{formNote}}" bindinput="onReceiptNote" maxlength="120" auto-height />
+          <block wx:if="{{item.phase === 'overdue'}}">
+            <view class="rc-form-label">超期原因（必填）</view>
+            <textarea class="rc-textarea" placeholder="如出差在外、等待第三方复检结果等" value="{{formLateReason}}" bindinput="onReceiptLateReason" maxlength="120" auto-height />
+          </block>
+          <view class="rc-form-btns">
+            <view class="rc-btn ghost" bindtap="cancelConfirm">取消</view>
+            <view class="rc-btn" bindtap="submitConfirm">{{item.phase === 'overdue' ? '提交补录' : '确认接受'}}</view>
+          </view>
+        </view>
+      </view>
+    </block>
 
     <!-- ============ 主推农地块（临近成熟自动上浮） ============ -->
     <block wx:if="{{tab==='plots'}}">
@@ -122,6 +208,32 @@
             <text class="tag {{item.testDone ? 'tag-green' : 'tag-gray'}}">{{item.testStatus}}</text>
             <text class="tag {{item.compRate >= 80 ? 'tag-green' : (item.compRate >= 60 ? 'tag-gold' : 'tag-warn')}}">档案 {{item.compRate}}%</text>
             <text class="tag {{item.riskLevel === '低' ? 'tag-green' : (item.riskLevel === '中' ? 'tag-gold' : 'tag-warn')}}">风险{{item.riskLevel}}</text>
+          </view>
+
+          <!-- 已采收的批次才能登记进货；同一批次同一采购商只登记一次 -->
+          <view class="bc-foot" wx:if="{{item.hasReceipt}}">
+            <text class="tag tag-green">已登记进货</text>
+          </view>
+          <view class="bc-foot" wx:elif="{{item.harvested}}">
+            <view class="mp-btn" data-batch="{{item.batchId}}" catchtap="onOpenRegister">登记进货</view>
+          </view>
+
+          <view class="reg-form" wx:if="{{registerBatchId === item.batchId}}" catchtap="stopTap">
+            <view class="reg-row">
+              <text class="reg-label">进货日期</text>
+              <picker mode="date" value="{{regDate}}" bindchange="onRegDate">
+                <view class="reg-picker">{{regDate}}</view>
+              </picker>
+            </view>
+            <view class="reg-row">
+              <text class="reg-label">进货数量</text>
+              <input class="reg-input" type="digit" placeholder="kg，可留空" value="{{regQty}}" bindinput="onRegQty" />
+            </view>
+            <view class="reg-tip">登记后 {{limitHours}} 小时内须完成接受确认，超期只能补录并留痕。</view>
+            <view class="reg-btns">
+              <view class="rc-btn ghost" catchtap="closeRegister">取消</view>
+              <view class="rc-btn" catchtap="submitRegister">确认登记</view>
+            </view>
           </view>
         </view>
       </block>

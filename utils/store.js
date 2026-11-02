@@ -10,6 +10,7 @@ const util = require('./util.js')
 const ai = require('./ai.js')
 const credit = require('./credit.js')
 const maturity = require('./maturity.js')
+const receipt = require('./receipt.js')
 
 function _db() {
   return mock.load() || mock.initMockData()
@@ -289,6 +290,125 @@ function cancelPlotPreorder(preorderId, buyerId) {
   preorder.cancelledBy = buyerId
   _persist(data)
   return { ok: true, preorder }
+}
+
+// ========== 采购商：进货与限期接受确认 ==========
+
+function _ensureReceipts(data) {
+  if (!Array.isArray(data.receipts)) data.receipts = []
+  // 空库首次进入时放三条演示样例（均 isDemo，页面必须如实标注），之后不再自动灌数据
+  if (!data.receipts.length && !data.receiptsSeeded) {
+    data.receipts = mock.seedReceiptSamples(data)
+    data.receiptsSeeded = true
+    _persist(data)
+  }
+  return data.receipts
+}
+
+function _nextReceiptId(receipts) {
+  let max = 0
+  receipts.forEach(r => {
+    const n = Number(String(r.receiptId || '').replace(/\D/g, ''))
+    if (n > max) max = n
+  })
+  return 'RC-' + String(max + 1).padStart(3, '0')
+}
+
+/** 某采购商的进货单（不传 buyerId 则返回全部），按登记时间倒序 */
+function listReceipts(buyerId) {
+  const data = _db()
+  const list = _ensureReceipts(data)
+  return list
+    .filter(r => !buyerId || r.buyerId === buyerId)
+    .slice()
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    .map(r => Object.assign({}, r))
+}
+
+/** 某采购商已登记过进货的批次号，页面据此把「登记进货」换成「已登记」 */
+function listReceiptBatchIds(buyerId) {
+  const data = _db()
+  return _ensureReceipts(data)
+    .filter(r => r.buyerId === buyerId)
+    .map(r => r.batchId)
+}
+
+/**
+ * 登记进货（登记之后才开始计算接受确认时限）
+ * @param {Object} payload { batchId, buyerId, buyerName, date, qty, unit }
+ * 只在批次已采收时可登记：还在种的批次谈不上进货，避免把「预订购」误当成「已到货」。
+ */
+function createReceipt(payload) {
+  const data = _db()
+  const receipts = _ensureReceipts(data)
+  const buyerId = payload.buyerId || ''
+  if (!buyerId) return { ok: false, reason: 'no_buyer' }
+
+  const batch = (data.batches || []).find(b => b.batchId === payload.batchId)
+  if (!batch) return { ok: false, reason: 'batch_unavailable' }
+  if (batch.status !== '已收获' && !batch.harvestDate) return { ok: false, reason: 'not_harvested' }
+
+  const dup = receipts.find(r => r.batchId === batch.batchId && r.buyerId === buyerId)
+  if (dup) return { ok: false, reason: 'duplicate', receipt: dup }
+
+  const date = payload.date || util.formatDate()
+  const receivedAt = util.parseDate(date)
+  if (receivedAt > Date.now()) return { ok: false, reason: 'future_date' }
+
+  const farmer = (data.farmers || []).find(f => f.farmerId === batch.farmerId) || {}
+  const item = {
+    receiptId: _nextReceiptId(receipts),
+    batchId: batch.batchId,
+    plotId: batch.plotId,
+    productName: batch.productName,
+    farmerId: batch.farmerId,
+    farmerName: farmer.name || '',
+    buyerId: buyerId,
+    buyerName: payload.buyerName || '采购商',
+    qty: Number(payload.qty) || 0,
+    unit: payload.unit || 'kg',
+    receivedAt: receivedAt,
+    deadlineAt: receipt.deadlineOf(receivedAt),
+    status: 'pending',
+    conclusion: '',
+    note: '',
+    lateReason: '',
+    lateMs: 0,
+    confirmedAt: 0,
+    isDemo: false,
+    createdAt: Date.now()
+  }
+  receipts.push(item)
+  _persist(data)
+  return { ok: true, receipt: item }
+}
+
+/**
+ * 接受确认
+ * 时限内：直接确认接受；已超期：必须填超期原因，按「逾期补录」记录超期时长（不可静默洗白）。
+ * @param {Object} payload { receiptId, buyerId, conclusion, note, lateReason }
+ */
+function confirmReceipt(payload) {
+  const data = _db()
+  const receipts = _ensureReceipts(data)
+  const item = receipts.find(r => r.receiptId === payload.receiptId)
+  if (!item) return { ok: false, reason: 'not_found' }
+  if (payload.buyerId && item.buyerId !== payload.buyerId) return { ok: false, reason: 'forbidden' }
+  if (item.status !== 'pending') return { ok: false, reason: 'already_done' }
+
+  const now = Date.now()
+  const lateMs = Math.max(0, now - (item.deadlineAt || receipt.deadlineOf(item.receivedAt)))
+  const late = lateMs > 0
+  if (late && !String(payload.lateReason || '').trim()) return { ok: false, reason: 'need_reason' }
+
+  item.status = late ? 'backfilled' : 'accepted'
+  item.conclusion = payload.conclusion || '合格'
+  item.note = payload.note || ''
+  item.lateReason = late ? String(payload.lateReason).trim() : ''
+  item.lateMs = lateMs
+  item.confirmedAt = now
+  _persist(data)
+  return { ok: true, receipt: item, late: late }
 }
 
 // ========== 写操作 ==========
@@ -1001,6 +1121,10 @@ module.exports = {
   listMainPlots,
   createPlotPreorder,
   cancelPlotPreorder,
+  listReceipts,
+  listReceiptBatchIds,
+  createReceipt,
+  confirmReceipt,
   addPlot,
   updatePlot,
   appendPlotPhotos,

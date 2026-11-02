@@ -8,6 +8,7 @@
 const util = require('./util.js')
 const ai = require('./ai.js')
 const credit = require('./credit.js')
+const receipt = require('./receipt.js')
 
 const STORAGE_KEY = 'pengji_mock_v6'
 
@@ -324,7 +325,7 @@ function buildSeed() {
   // 农户信用评价（统一调用 credit.js：GB/T 23794-2023 三维度 + 农安信用分级实践）
   farmers.forEach(f => credit.evaluateFarmer({ farmers, plots, batches, records, reviews, inspections }, f))
 
-  return { version: 8, generatedAt: now, today, farmers, buyers, plots, batches, records, reviews, standards, inspections, preorders: [] }
+  return { version: 8, generatedAt: now, today, farmers, buyers, plots, batches, records, reviews, standards, inspections, preorders: [], receipts: [] }
 }
 
 // ---------- 持久化 ----------
@@ -348,8 +349,53 @@ function resetMockData() {
   const data = buildSeed(); save(data); return data
 }
 
+/**
+ * 进货单演示样例（首次启用「进货验收」且本地还没有进货单时灌入，全部标 isDemo）
+ * 三条覆盖三种时限状态：剩余充裕 / 即将超期 / 已逾期待补录，方便空库也能演示完整流程。
+ * 进货时间按「当前时间往前推」算，避免种子数据放旧了以后全是超期单。
+ */
+function seedReceiptSamples(data, nowTs) {
+  const now = nowTs || Date.now()
+  const buyer = (data.buyers || [])[0] || {}
+  const picks = [
+    { batchId: 'B-002', hoursAgo: 20, qty: 300 },
+    { batchId: 'B-004', hoursAgo: 66, qty: 800 },
+    { batchId: 'B-006', hoursAgo: 96, qty: 200 }
+  ]
+  const list = []
+  picks.forEach((p, i) => {
+    const b = (data.batches || []).find(x => x.batchId === p.batchId)
+    if (!b) return
+    const f = (data.farmers || []).find(x => x.farmerId === b.farmerId) || {}
+    const receivedAt = now - p.hoursAgo * receipt.HOUR
+    list.push({
+      receiptId: 'RC-' + String(i + 1).padStart(3, '0'),
+      batchId: b.batchId,
+      plotId: b.plotId,
+      productName: b.productName,
+      farmerId: b.farmerId,
+      farmerName: f.name || '',
+      buyerId: buyer.buyerId || 'BY-001',
+      buyerName: buyer.name || '采购商',
+      qty: p.qty,
+      unit: 'kg',
+      receivedAt,
+      deadlineAt: receipt.deadlineOf(receivedAt),
+      status: 'pending',
+      conclusion: '',
+      note: '',
+      lateReason: '',
+      lateMs: 0,
+      confirmedAt: 0,
+      isDemo: true,
+      createdAt: receivedAt
+    })
+  })
+  return list
+}
+
 module.exports = {
-  initMockData, resetMockData, load, save, STORAGE_KEY,
+  initMockData, resetMockData, load, save, STORAGE_KEY, seedReceiptSamples,
   _genEnvHistoryForNewPlot: function (plotId, startTs, endTs, profile) {
     return genEnvHistory(plotId, startTs, endTs, profile)
   }

@@ -548,3 +548,306 @@
   font-size: 20rpx;
 }
 
+/* ============ 进货验收：限期接受确认 / 逾期补录 / 操作时限 ============ */
+.tab-badge {
+  display: inline-block;
+  min-width: 30rpx;
+  height: 30rpx;
+  line-height: 30rpx;
+  margin-left: 8rpx;
+  padding: 0 8rpx;
+  border-radius: 999rpx;
+  background: var(--warn);
+  color: #FFFFFF;
+  font-size: 20rpx;
+  text-align: center;
+}
+.tab.on .tab-badge { background: var(--lime); color: var(--ink); }
+
+.rc-head {
+  padding: 8rpx 12rpx 0;
+}
+.rc-head-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.rc-head-sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  line-height: 1.7;
+  color: var(--text-light);
+}
+
+.rc-summary {
+  display: flex;
+  margin: 20rpx 0 24rpx;
+}
+.rc-sum-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-right: 12rpx;
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+  border-radius: var(--r-md);
+}
+.rc-sum-item:last-child { margin-right: 0; }
+.rc-sum-num {
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.rc-sum-num.warn { color: var(--gold); }
+.rc-sum-num.over { color: var(--warn); }
+.rc-sum-label {
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  color: var(--text-light);
+}
+
+.rc-card {
+  position: relative;
+  overflow: hidden;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  background: #FFFFFF;
+  border: 1rpx solid rgba(23, 33, 27, 0.04);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+}
+/* 左侧状态条：绿=正常、金=即将超期、红=已逾期、灰=已处理 */
+.rc-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8rpx;
+  background: var(--green);
+}
+.rc-card.warn::before { background: var(--gold); }
+.rc-card.overdue::before { background: var(--warn); }
+.rc-card.accepted::before { background: var(--green-mist); }
+.rc-card.backfilled::before { background: var(--warn); opacity: 0.5; }
+.rc-card.warn { background: linear-gradient(180deg, #FFFBF2 0%, #FFFFFF 60%); }
+.rc-card.overdue { background: linear-gradient(180deg, #FDF3F2 0%, #FFFFFF 60%); }
+
+.rc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rc-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+.rc-code {
+  display: flex;
+  align-items: center;
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  color: #A2ACA3;
+  font-variant-numeric: tabular-nums;
+}
+.rc-demo { margin-left: 12rpx; letter-spacing: 0; }
+.rc-line {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+
+.rc-timer {
+  margin-top: 18rpx;
+}
+.rc-timer-text {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+.rc-timer-text.warn { color: var(--gold); }
+.rc-timer-text.overdue { color: var(--warn); }
+.rc-bar {
+  height: 12rpx;
+  margin-top: 10rpx;
+  border-radius: 999rpx;
+  background: #EEF0E9;
+  overflow: hidden;
+}
+.rc-bar-in {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #5C8A6A, #86A86F);
+  transition: width 0.3s ease;
+}
+.rc-bar-in.warn { background: linear-gradient(90deg, #C9932F, #E9C86A); }
+.rc-bar-in.overdue { background: linear-gradient(90deg, #A8332C, #C9584F); }
+
+.rc-late {
+  margin-top: 14rpx;
+  padding: 12rpx 16rpx;
+  border-radius: var(--r-sm);
+  background: #FBEBE9;
+  color: #9C2B24;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+.rc-card.backfilled .rc-late { background: #F7F3F1; color: #8A4A42; }
+.rc-done {
+  margin-top: 14rpx;
+  font-size: 22rpx;
+  line-height: 1.7;
+  color: var(--text-2);
+}
+
+.rc-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx dashed var(--line);
+}
+.rc-btn {
+  padding: 14rpx 30rpx;
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: #F1F6EE;
+  font-size: 24rpx;
+  font-weight: 600;
+  box-shadow: var(--sh-btn);
+}
+.rc-btn:active { opacity: 0.86; }
+.rc-btn.warn { background: linear-gradient(160deg, #A8332C, #B23B34); }
+.rc-btn.ghost {
+  background: transparent;
+  color: var(--text-2);
+  border: 1rpx solid var(--border);
+  box-shadow: none;
+}
+
+.rc-form {
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid var(--line);
+}
+.rc-form-tip {
+  font-size: 22rpx;
+  line-height: 1.65;
+  color: var(--text-2);
+  padding: 14rpx 16rpx;
+  border-radius: var(--r-sm);
+  background: var(--green-mist);
+}
+.rc-form-tip.warn { background: #FBEBE9; color: #9C2B24; }
+.rc-form-label {
+  margin-top: 18rpx;
+  font-size: 22rpx;
+  color: var(--text-light);
+}
+.rc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10rpx;
+}
+.rc-chip {
+  padding: 10rpx 24rpx;
+  margin: 0 14rpx 10rpx 0;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--border);
+  background: #FFFFFF;
+  color: var(--text-2);
+  font-size: 24rpx;
+}
+.rc-chip.on {
+  background: var(--green);
+  border-color: var(--green);
+  color: #F1F6EE;
+  font-weight: 600;
+}
+.rc-textarea {
+  width: 100%;
+  min-height: 96rpx;
+  margin-top: 10rpx;
+  padding: 16rpx 18rpx;
+  border-radius: var(--r-sm);
+  border: 1rpx solid var(--border);
+  background: #FCFCF9;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: var(--text);
+}
+.rc-form-btns {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20rpx;
+}
+.rc-form-btns .rc-btn { margin-left: 16rpx; }
+
+/* ============ 批次卡底部：登记进货 ============ */
+.bc-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx dashed var(--line);
+}
+.reg-form {
+  margin-top: 16rpx;
+  padding: 20rpx;
+  border-radius: var(--r-md);
+  background: var(--green-mist);
+  border: 1rpx solid rgba(23, 96, 58, 0.08);
+}
+.reg-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14rpx;
+}
+.reg-label {
+  width: 150rpx;
+  flex: 0 0 150rpx;
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+.reg-picker {
+  flex: 1;
+  padding: 12rpx 18rpx;
+  border-radius: var(--r-sm);
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+  font-size: 24rpx;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.reg-input {
+  flex: 1;
+  height: 64rpx;
+  padding: 0 18rpx;
+  border-radius: var(--r-sm);
+  background: #FFFFFF;
+  border: 1rpx solid var(--border);
+  font-size: 24rpx;
+  color: var(--text);
+}
+.reg-tip {
+  font-size: 20rpx;
+  line-height: 1.6;
+  color: var(--text-light);
+}
+.reg-btns {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16rpx;
+}
+.reg-btns .rc-btn { margin-left: 16rpx; }
+
+
