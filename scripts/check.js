@@ -307,7 +307,7 @@ function checkOrphans(appJson, ignores) {
 
 /* ============================ 10. 包体积 ============================ */
 function checkSize(ignores) {
-  const extraSkip = ['scripts/', 'docs/', 'package.json', 'package-lock.json', '.editorconfig', '.gitignore', 'README.md', 'AGENTS.md']
+  const extraSkip = ['scripts/', 'docs/', 'tmp/', 'package.json', 'package-lock.json', '.editorconfig', '.gitignore', 'README.md', 'AGENTS.md']
   let total = 0
   for (const f of ALL) {
     const r = rel(f)

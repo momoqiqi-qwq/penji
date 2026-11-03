@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>棚迹 Pengji · 从地块到餐桌</title>
+<meta name="description" content="棚迹是一款面向小农户的农产品溯源小程序：传感器数据自动进来，农事记录随手一记，生成批次档案与二维码；消费者扫码溯源，采购商扫码核验。原生微信小程序，零依赖。">
+<meta name="theme-color" content="#0B1F16">
+<meta property="og:type" content="website">
+<meta property="og:title" content="棚迹 Pengji · 从地块到餐桌">
+<meta property="og:description" content="看见每一寸土地的故事。面向小农户的农产品溯源小程序：传感器 → 批次档案 → 二维码 → 溯源与核验。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B1F16'/%3E%3Cpath d='M16 25V13' stroke='%23C8E96B' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M16 17c0-4 3-7 7-7 0 4-3 7-7 7Z' fill='%23C8E96B'/%3E%3Cpath d='M16 21c0-3-2.4-5.4-5.4-5.4 0 3 2.4 5.4 5.4 5.4Z' fill='%233E8F5F'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   棚迹介绍页 · 沿用 app.wxss 的设计语言
+   纸白底 + 四级绿 + 一点青柠（<5%）+ 档案感细线
+   ============================================================ */
+:root{
+  --ink:#0B1F16; --ink-2:#123528; --ink-3:#1B4A33;
+  --green:#17603A; --green-dark:#0E3B26; --green-light:#E9F2EB; --green-mist:#F3F7F2;
+  --lime:#C8E96B; --gold:#B4802F; --warn:#B23B34;
+  --role-farmer:#17603A; --role-consumer:#2D5DA8; --role-buyer:#B4802F;
+  --text:#17211B; --text-2:#55665A; --text-light:#8B988C;
+  --bg:#F6F5F1; --card:#FFFFFF; --border:#EAEBE5;
+  --line:rgba(23,33,27,.07);
+  --r-sm:8px; --r-md:14px; --r-lg:20px; --r-xl:28px;
+  --sh-1:0 1px 3px rgba(23,33,27,.04), 0 10px 24px -14px rgba(23,33,27,.16);
+  --sh-2:0 24px 60px -28px rgba(11,31,22,.42), 0 2px 6px rgba(23,33,27,.05);
+  --sh-btn:0 10px 20px -10px rgba(14,59,38,.5), inset 0 1px 0 rgba(255,255,255,.16);
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","SimSun",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+  --pad:clamp(20px,5vw,64px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+  font-size:16px;line-height:1.75;letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(to right,rgba(23,33,27,.045) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(23,33,27,.045) 1px,transparent 1px);
+  background-size:88px 88px;
+  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 0%,transparent 78%);
+  mask-image:radial-gradient(120% 90% at 50% 0%,#000 0%,transparent 78%);
+}
+main,header.nav,footer{position:relative;z-index:1}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px;border-radius:4px}
+h1,h2,h3,h4,p,ul,dl,dd,figure{margin:0}
+ul{padding:0;list-style:none}
+.wrap{width:min(1180px,100% - var(--pad)*2);margin-inline:auto}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:#fff;padding:10px 16px;border-radius:0 0 var(--r-sm) 0;z-index:99}
+.skip:focus{left:0}
+
+/* ---------------- 导航 ---------------- */
+.nav{
+  position:sticky;top:0;z-index:30;border-bottom:1px solid var(--line);
+  background:rgba(246,245,241,.82);backdrop-filter:blur(14px) saturate(1.2);
+}
+.nav .wrap{display:flex;align-items:center;gap:22px;height:62px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.04em}
+.brand-mark{width:26px;height:26px;flex:none}
+.brand small{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--text-light);font-weight:500}
+.nav-links{display:flex;gap:26px;margin-left:auto;font-size:14px;color:var(--text-2)}
+.nav-links a{position:relative;padding:4px 0}
+.nav-links a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--green);transition:right .3s ease}
+.nav-links a:hover{color:var(--green)}
+.nav-links a:hover::after{right:0}
+.gh-btn{
+  display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;
+  border:1px solid var(--border);border-radius:999px;background:var(--card);
+  font-size:13px;color:var(--text);box-shadow:var(--sh-1);transition:transform .2s,border-color .2s;
+}
+.gh-btn:hover{transform:translateY(-1px);border-color:#cfd8cf}
+.gh-btn svg{width:15px;height:15px;fill:currentColor}
+@media(max-width:820px){.nav-links{display:none}}
+
+/* ---------------- Hero ---------------- */
+.hero{position:relative;padding:clamp(56px,8vw,104px) 0 clamp(40px,6vw,72px);overflow:hidden}
+.hero-field{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.9}
+.hero-field svg{position:absolute;right:-8%;top:-6%;width:min(920px,90vw);height:auto}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.06fr .94fr;gap:clamp(28px,5vw,64px);align-items:center}
+@media(max-width:960px){.hero .wrap{grid-template-columns:1fr}}
+
+.kicker{
+  display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);
+  font-size:11px;letter-spacing:.2em;color:var(--green);text-transform:uppercase;
+}
+.kicker::before{content:"";width:26px;height:1px;background:var(--green);opacity:.55}
+h1{
+  font-family:var(--serif);font-weight:700;line-height:1.08;letter-spacing:-.01em;
+  font-size:clamp(52px,8.4vw,96px);margin:20px 0 0;
+}
+h1 .mark{position:relative;display:inline-block;color:var(--green)}
+h1 .mark::after{
+  content:"";position:absolute;left:-2px;right:-2px;bottom:.08em;height:.19em;
+  background:var(--lime);z-index:-1;border-radius:2px;transform:scaleX(0);transform-origin:left;
+  animation:marker .9s .5s cubic-bezier(.2,.8,.2,1) forwards;
+}
+@keyframes marker{to{transform:scaleX(1)}}
+.hero-sub{font-family:var(--serif);font-size:clamp(19px,2.2vw,25px);color:var(--text);margin-top:18px;letter-spacing:.02em}
+.hero-lead{max-width:46ch;color:var(--text-2);margin-top:16px;font-size:15.5px}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 22px;
+  border-radius:999px;font-size:14.5px;font-weight:600;transition:transform .2s,box-shadow .2s,background .2s;
+}
+.btn-primary{background:var(--ink);color:#fff;box-shadow:var(--sh-btn)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 28px -14px rgba(14,59,38,.6),inset 0 1px 0 rgba(255,255,255,.16)}
+.btn-primary .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px rgba(200,233,107,.22)}
+.btn-ghost{border:1px solid var(--border);background:var(--card);color:var(--text);box-shadow:var(--sh-1)}
+.btn-ghost:hover{transform:translateY(-2px);border-color:#d5ded5}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:28px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--text-light)}
+.hero-meta b{color:var(--text-2);font-weight:600}
+
+/* ---------------- 档案卡 ---------------- */
+.archive{position:relative;margin-inline:auto;width:min(430px,100%);padding:10px 0 0 10px}
+.archive-back{
+  position:absolute;inset:0 10px 10px 0;border:1px dashed #c9d3c9;border-radius:var(--r-xl);
+  background:linear-gradient(160deg,rgba(233,242,235,.55),rgba(246,245,241,0));
+}
+.archive-card{
+  position:relative;background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);
+  box-shadow:var(--sh-2);overflow:hidden;
+  animation:rise .9s .15s cubic-bezier(.16,.84,.3,1) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.archive-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px 14px;border-bottom:1px solid var(--line)}
+.archive-no{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--text-2)}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;
+  font-size:11.5px;font-weight:600;background:var(--green-light);color:var(--green-dark);white-space:nowrap;
+}
+.tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green)}
+.archive-body{display:grid;grid-template-columns:96px 1fr;gap:16px;padding:18px 20px}
+.qr{width:96px;height:96px;border-radius:12px;background:#fff;border:1px solid var(--border);padding:6px;flex:none}
+.qr svg{display:block;width:100%;height:100%}
+.archive-meta{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12.5px;align-content:center}
+.archive-meta dt{color:var(--text-light);white-space:nowrap}
+.archive-meta dd{color:var(--text);font-weight:600;letter-spacing:.01em}
+.readings{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.reading{padding:12px 6px 13px;text-align:center;border-right:1px solid var(--line)}
+.reading:last-child{border-right:0}
+.reading b{display:block;font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.reading b i{font-style:normal;font-size:10px;color:var(--text-light);font-weight:500;margin-left:1px}
+.reading span{display:block;font-size:10.5px;color:var(--text-light);margin-top:2px;letter-spacing:.02em}
+.archive-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 20px 16px}
+.src{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:var(--green-dark);background:var(--green-mist);border:1px solid #dce9de;border-radius:6px;padding:4px 8px}
+.src .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(23,96,58,.35)}55%{box-shadow:0 0 0 6px rgba(23,96,58,0)}}
+.opi{font-family:var(--mono);font-size:12px;color:var(--text-2)}
+.opi b{font-size:20px;color:var(--ink);letter-spacing:-.03em}
+.credit-chip{
+  position:absolute;right:-6px;top:-14px;transform:rotate(2deg);
+  background:var(--ink);color:#fff;border-radius:var(--r-md);padding:9px 13px;
+  box-shadow:0 18px 30px -18px rgba(11,31,22,.7);animation:rise 1s .45s cubic-bezier(.16,.84,.3,1) both;
+}
+.credit-chip .k{display:block;font-size:9.5px;letter-spacing:.18em;color:rgba(255,255,255,.55);font-family:var(--mono)}
+.credit-chip .v{display:flex;align-items:baseline;gap:6px;font-family:var(--mono);font-size:17px;font-weight:700;letter-spacing:-.02em}
+.credit-chip .v em{font-style:normal;font-size:10px;color:var(--lime);letter-spacing:.1em}
+@media(max-width:560px){
+  .readings{grid-template-columns:1fr 1fr}
+  .reading:nth-child(2n){border-right:0}
+  .reading:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .reading{padding:10px 6px 11px}
+}
+@media(max-width:430px){.archive-body{grid-template-columns:80px 1fr;gap:12px}.qr{width:80px;height:80px}.credit-chip{right:0}}
+
+/* ---------------- 通用区块 ---------------- */
+section{padding:clamp(52px,6.2vw,86px) 0;position:relative}
+.sec-head{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:start;margin-bottom:clamp(28px,4vw,44px)}
+.sec-no{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.14em;padding-top:10px}
+.sec-no::after{content:"";display:block;width:24px;height:1px;background:var(--green);opacity:.4;margin-top:8px}
+h2{font-family:var(--serif);font-size:clamp(27px,3.6vw,42px);line-height:1.25;letter-spacing:-.005em;font-weight:700}
+.sec-desc{color:var(--text-2);font-size:15px;max-width:62ch;margin-top:10px}
+.hr{height:1px;background:var(--line);border:0;margin:0}
+
+/* ---------------- 链路 ---------------- */
+.rail{background:var(--ink);color:#fff;overflow:hidden}
+.rail::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(to right,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:88px 100%;
+}
+.rail .wrap{position:relative}
+.rail .sec-no,.rail .sec-no::after{color:var(--lime);background-color:var(--lime)}
+.rail h2{color:#fff}
+.rail .sec-desc{color:rgba(255,255,255,.62)}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:8px}
+@media(max-width:900px){.flow{grid-template-columns:1fr;gap:0}}
+.node{position:relative;padding:22px 20px 26px;border:1px solid rgba(255,255,255,.12);border-radius:var(--r-lg);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012))}
+.flow .node{margin-right:-1px}
+.flow .node:first-child{border-radius:var(--r-lg) 0 0 var(--r-lg)}
+.flow .node:last-child{border-radius:0 var(--r-lg) var(--r-lg) 0;margin-right:0}
+@media(max-width:900px){
+  .flow .node{margin-right:0;border-radius:var(--r-lg);margin-bottom:10px}
+  .flow .node:first-child,.flow .node:last-child{border-radius:var(--r-lg)}
+}
+.node .idx{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:rgba(255,255,255,.42)}
+.node h3{font-size:15.5px;margin-top:10px;font-weight:600;letter-spacing:.01em;color:#fff}
+.node p{font-size:12.5px;color:rgba(255,255,255,.55);margin-top:6px;line-height:1.65}
+.node.accent{border-color:rgba(200,233,107,.32);background:linear-gradient(180deg,rgba(200,233,107,.1),rgba(200,233,107,.02))}
+.node.accent h3{color:var(--lime)}
+.flow-line{height:1px;margin-top:-1px;background:repeating-linear-gradient(90deg,rgba(200,233,107,.5) 0 6px,transparent 6px 14px);background-size:14px 1px;animation:flow 1.6s linear infinite;opacity:.5}
+@keyframes flow{to{background-position:14px 0}}
+@media(max-width:900px){.flow-line{display:none}}
+
+/* ---------------- 身份 ---------------- */
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:900px){.roles{grid-template-columns:1fr}}
+.role-card{
+  position:relative;background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:26px 24px 24px;box-shadow:var(--sh-1);overflow:hidden;
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s,border-color .28s;
+}
+.role-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rc);opacity:.9}
+.role-card:hover{transform:translateY(-4px);box-shadow:var(--sh-2);border-color:#dfe6df}
+.role-top{display:flex;align-items:center;gap:10px}
+.role-dot{width:9px;height:9px;border-radius:50%;background:var(--rc);box-shadow:0 0 0 4px color-mix(in srgb,var(--rc) 13%,transparent)}
+.role-card h3{font-size:19px;font-weight:700;letter-spacing:.02em;color:var(--rc)}
+.role-en{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--text-light);margin-top:2px}
+.role-list{margin-top:18px;display:grid;gap:9px}
+.role-list li{display:grid;grid-template-columns:16px 1fr;gap:9px;font-size:13.5px;color:var(--text-2);line-height:1.55}
+.role-list svg{width:13px;height:13px;margin-top:4px;stroke:var(--rc);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.role-demo{
+  margin-top:20px;padding-top:13px;border-top:1px dashed var(--border);
+  font-family:var(--mono);font-size:10.5px;color:var(--text-light);letter-spacing:.03em;
+}
+.role-demo b{color:var(--text-2);font-weight:600}
+
+/* ---------------- 能力 ---------------- */
+.caps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:960px){.caps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.caps{grid-template-columns:1fr}}
+.cap{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:24px 22px;box-shadow:var(--sh-1);transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.cap:hover{transform:translateY(-3px);box-shadow:var(--sh-2);border-color:#dbe4db}
+.cap .ic{width:34px;height:34px;border-radius:10px;background:var(--green-mist);display:grid;place-items:center;border:1px solid #e2ece4}
+.cap .ic svg{width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cap h3{font-size:16px;margin-top:14px;font-weight:700;letter-spacing:.01em}
+.cap p{font-size:13.5px;color:var(--text-2);margin-top:7px;line-height:1.7}
+.cap .tiny{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:10.5px;color:var(--green);background:var(--green-light);padding:3px 8px;border-radius:5px;letter-spacing:.03em}
+
+/* ---------------- 架构 ---------------- */
+.arch{display:grid;grid-template-columns:1.18fr .82fr;gap:clamp(24px,4vw,56px);align-items:start}
+@media(max-width:900px){.arch{grid-template-columns:1fr}}
+.stack{display:grid;gap:11px}
+.layer{
+  display:grid;grid-template-columns:112px 1fr;gap:16px;align-items:center;
+  border:1px solid var(--border);border-radius:var(--r-md);background:var(--card);padding:16px 18px;box-shadow:var(--sh-1);
+}
+.layer .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--text-light);text-transform:uppercase}
+.layer .val{font-size:14px;color:var(--text);font-weight:600}
+.layer .val small{display:block;font-weight:400;color:var(--text-2);font-size:12.5px;margin-top:2px;letter-spacing:.01em}
+.layer.core{border-color:var(--green);background:linear-gradient(180deg,#fff,var(--green-mist));box-shadow:0 14px 30px -22px rgba(23,96,58,.6)}
+.layer.core .val{color:var(--green-dark)}
+.layer.core .lbl{color:var(--green)}
+.arrow-down{display:flex;justify-content:center;color:#c3cec3;font-family:var(--mono);font-size:12px;margin:-5px 0 -5px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{border:1px solid var(--border);border-radius:var(--r-md);padding:18px;background:var(--card);box-shadow:var(--sh-1)}
+.stat b{display:block;font-family:var(--mono);font-size:clamp(28px,4vw,38px);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink)}
+.stat b em{font-style:normal;font-size:13px;color:var(--green);margin-left:3px;letter-spacing:0}
+.stat span{display:block;font-size:11.5px;color:var(--text-light);margin-top:7px;letter-spacing:.05em}
+.fn-list{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.fn{font-family:var(--mono);font-size:10.5px;color:var(--text-2);border:1px solid var(--border);border-radius:5px;padding:3px 7px;background:rgba(255,255,255,.7)}
+.fn.hot{color:var(--green-dark);border-color:#d3e4d7;background:var(--green-light)}
+
+/* ---------------- 设计系统 ---------------- */
+.design{display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(24px,4vw,56px);align-items:start}
+@media(max-width:900px){.design{grid-template-columns:1fr}}
+.rules{counter-reset:r;display:grid;gap:0}
+.rule{display:grid;grid-template-columns:38px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.rule:first-child{padding-top:0}
+.rule:last-child{border-bottom:0}
+.rule .n{font-family:var(--mono);font-size:11px;color:var(--text-light);padding-top:4px}
+.rule h3{font-size:14.5px;font-weight:700;letter-spacing:.01em}
+.rule p{font-size:13px;color:var(--text-2);margin-top:3px;line-height:1.65}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sw{aspect-ratio:1/1;border-radius:var(--r-sm);position:relative;border:1px solid rgba(23,33,27,.08);overflow:hidden}
+.sw span{position:absolute;left:7px;bottom:5px;font-family:var(--mono);font-size:8.5px;letter-spacing:.02em;opacity:.75}
+.sw.dark span{color:rgba(255,255,255,.8)}
+.typescale{margin-top:18px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px;box-shadow:var(--sh-1)}
+.typescale .t-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:5px 0}
+.typescale .t-row + .t-row{border-top:1px dashed var(--border)}
+.typescale .t-row span{font-family:var(--mono);font-size:10px;color:var(--text-light);white-space:nowrap}
+.typescale .t-row i{font-style:normal;font-family:var(--serif);font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+
+/* ---------------- 诚实边界 ---------------- */
+.honest{background:var(--green-mist);border-top:1px solid #e3ece4;border-bottom:1px solid #e3ece4}
+.honest .sec-no{color:var(--green)}
+.hn-list{display:grid;gap:9px;margin-top:6px}
+.hn{
+  display:grid;grid-template-columns:52px 168px 1fr;gap:14px;align-items:baseline;
+  background:rgba(255,255,255,.72);border:1px solid #e0e9e1;border-radius:var(--r-md);padding:13px 16px;
+}
+@media(max-width:760px){.hn{grid-template-columns:52px 1fr}.hn p{grid-column:2}}
+.pri{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 0;text-align:center;border-radius:4px}
+.pri.p0{background:#fbe9e6;color:var(--warn)}
+.pri.p1{background:#f8efdc;color:#8a6320}
+.pri.p2{background:#ecefe9;color:var(--text-2)}
+.hn b{font-size:13.5px;font-weight:700}
+.hn p{font-size:12.5px;color:var(--text-2);line-height:1.6}
+.honest-note{margin-top:18px;font-size:12.5px;color:var(--text-2);display:flex;gap:9px;align-items:flex-start}
+.honest-note svg{width:15px;height:15px;flex:none;margin-top:3px;stroke:var(--green);fill:none;stroke-width:1.8}
+
+/* ---------------- 开始 ---------------- */
+.start{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);align-items:start}
+@media(max-width:900px){.start{grid-template-columns:1fr}}
+.steps{display:grid;gap:14px;counter-reset:s}
+.step{display:grid;grid-template-columns:26px 1fr;gap:14px}
+.step .c{
+  width:26px;height:26px;border-radius:50%;border:1px solid #cfdacf;background:#fff;
+  display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--green);font-weight:700;
+}
+.step h3{font-size:14.5px;font-weight:700}
+.step p{font-size:13px;color:var(--text-2);margin-top:2px;line-height:1.65}
+.step code{font-family:var(--mono);font-size:12px;background:#eef2ed;border:1px solid #e1e8e1;border-radius:4px;padding:1px 5px;color:var(--green-dark)}
+.term{background:var(--ink);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-2)}
+.term-bar{display:flex;align-items:center;gap:6px;padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.term-bar i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.16)}
+.term-bar i:nth-child(1){background:#e06c5e}.term-bar i:nth-child(2){background:#d9a441}.term-bar i:nth-child(3){background:#7fae6a}
+.term-bar span{margin-left:8px;font-family:var(--mono);font-size:10.5px;color:rgba(255,255,255,.36);letter-spacing:.06em}
+.term pre{margin:0;padding:18px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.9;color:#dfe9e2}
+.term .c{color:rgba(255,255,255,.34)}
+.term .g{color:var(--lime)}
+.term .y{color:#e0c07a}
+.acct{margin-top:16px;font-size:12.5px;color:var(--text-2)}
+.acct b{color:var(--text)}
+.acct span{display:inline-block;border-bottom:1px dashed #c6d2c6;margin-right:4px}
+
+/* ---------------- 页脚 ---------------- */
+footer{background:var(--ink);color:rgba(255,255,255,.62);padding:clamp(44px,6vw,64px) 0 34px}
+.foot-top{display:flex;flex-wrap:wrap;gap:26px;justify-content:space-between;align-items:flex-start;padding-bottom:30px;border-bottom:1px solid rgba(255,255,255,.1)}
+.foot-brand{display:flex;align-items:center;gap:12px;color:#fff}
+.foot-brand b{font-size:17px;letter-spacing:.04em}
+.foot-brand small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:rgba(255,255,255,.4);margin-top:2px}
+.foot-links{display:flex;flex-wrap:wrap;gap:10px 26px;font-size:13px}
+.foot-links a{color:rgba(255,255,255,.68);border-bottom:1px solid transparent;padding-bottom:2px;transition:color .2s,border-color .2s}
+.foot-links a:hover{color:var(--lime);border-color:rgba(200,233,107,.45)}
+.foot-bottom{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between;align-items:center;padding-top:22px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:rgba(255,255,255,.34)}
+.foot-bottom .lime{color:var(--lime)}
+
+/* ---------------- 入场 ----------------
+   默认全部可见；只有 JS 在场（html.anim）才做淡入，
+   脚本挂了、被拦截、或截图工具不等 JS，都不会留下空白。 */
+html.anim [data-reveal]{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+html.anim [data-reveal].in{opacity:1;transform:none}
+html.anim [data-reveal][data-delay="1"]{transition-delay:.08s}
+html.anim [data-reveal][data-delay="2"]{transition-delay:.16s}
+html.anim [data-reveal][data-delay="3"]{transition-delay:.24s}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  [data-reveal]{opacity:1;transform:none}
+}
+</style>
+<script>document.documentElement.classList.add('anim')</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="棚迹首页">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#0B1F16"/>
+        <path d="M16 25V13" stroke="#C8E96B" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M16 17c0-4 3-7 7-7 0 4-3 7-7 7Z" fill="#C8E96B"/>
+        <path d="M16 21c0-3-2.4-5.4-5.4-5.4 0 3 2.4 5.4 5.4 5.4Z" fill="#3E8F5F"/>
+      </svg>
+      <span>棚迹<small>PENG JI</small></span>
+    </a>
+    <nav class="nav-links" aria-label="页面导航">
+      <a href="#flow">链路</a>
+      <a href="#roles">三种身份</a>
+      <a href="#capabilities">能力</a>
+      <a href="#arch">架构</a>
+      <a href="#design">设计系统</a>
+      <a href="#honest">边界</a>
+    </nav>
+    <a class="gh-btn" href="https://github.com/momoqiqi-qwq/penji" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      momoqiqi-qwq/penji
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ==================== HERO ==================== -->
+  <section class="hero" id="top">
+    <div class="hero-field" aria-hidden="true">
+      <svg viewBox="0 0 900 700" fill="none">
+        <g stroke="#17603A" stroke-opacity=".13" stroke-width="1">
+          <path d="M120 90 470 64 512 246 152 286Z"/>
+          <path d="M548 82 810 118 792 320 540 282Z"/>
+          <path d="M150 340 496 322 462 592 118 548Z"/>
+          <path d="M542 348 800 366 772 574 540 596Z"/>
+        </g>
+        <g fill="#17603A" fill-opacity=".05">
+          <path d="M120 90 470 64 512 246 152 286Z"/>
+          <path d="M542 348 800 366 772 574 540 596Z"/>
+        </g>
+        <g stroke="#17603A" stroke-opacity=".2" stroke-width="1" stroke-dasharray="3 7">
+          <path d="M193 78 218 276"/><path d="M268 72 289 268"/><path d="M343 66 358 260"/>
+          <path d="M193 78 218 276"/><path d="M419 60 431 252"/>
+        </g>
+        <g fill="#17603A" fill-opacity=".18">
+          <circle cx="205" cy="170" r="2.4"/><circle cx="240" cy="196" r="2.4"/><circle cx="300" cy="150" r="2.4"/>
+          <circle cx="352" cy="210" r="2.4"/><circle cx="410" cy="140" r="2.4"/><circle cx="452" cy="196" r="2.4"/>
+          <circle cx="600" cy="196" r="2.4"/><circle cx="660" cy="220" r="2.4"/><circle cx="716" cy="170" r="2.4"/>
+          <circle cx="250" cy="440" r="2.4"/><circle cx="330" cy="470" r="2.4"/><circle cx="400" cy="430" r="2.4"/>
+        </g>
+        <circle cx="512" cy="246" r="3.5" fill="#C8E96B"/>
+        <circle cx="512" cy="246" r="12" stroke="#C8E96B" stroke-opacity=".5" stroke-dasharray="2 4"/>
+      </svg>
+    </div>
+
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="kicker">土地档案 · TRACEABLE FROM THE PLOT</p>
+        <h1>从地块<br>到<span class="mark">餐桌</span></h1>
+        <p class="hero-sub">看见每一寸土地的故事。</p>
+        <p class="hero-lead">棚迹是一款面向小农户的农产品溯源小程序。田里的传感器数据自动进来，农事记录随手一记，系统生成批次档案并绑定二维码；消费者扫码看这一批菜是怎么长出来的，采购商扫同一张码核验检测结果。</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="https://github.com/momoqiqi-qwq/penji" target="_blank" rel="noopener"><span class="dot"></span>查看源码</a>
+          <a class="btn btn-ghost" href="#design">读设计系统</a>
+        </div>
+        <div class="hero-meta">
+          <span><b>微信小程序</b> · 原生 · 零依赖</span>
+          <span><b>16</b> 页面</span>
+          <span><b>7</b> 云函数</span>
+          <span><b>4</b> 传感器参数</span>
+        </div>
+      </div>
+
+      <aside class="archive" aria-label="批次档案示例">
+        <div class="archive-back" aria-hidden="true"></div>
+        <div class="archive-card">
+          <div class="archive-head">
+            <span class="archive-no">PJ-260318-RICE-07</span>
+            <span class="tag">可追溯</span>
+          </div>
+          <div class="archive-body">
+            <div class="qr" id="qr" role="img" aria-label="批次二维码示意图"></div>
+            <dl class="archive-meta">
+              <dt>田块</dt><dd>东坡 3 号田</dd>
+              <dt>作物</dt><dd>水稻 · 松粳 22</dd>
+              <dt>农户</dt><dd>张老汉 · F-001</dd>
+              <dt>建档</dt><dd>2026-03-18</dd>
+            </dl>
+          </div>
+          <div class="readings">
+            <div class="reading"><b>26.4<i>°C</i></b><span>空气温度</span></div>
+            <div class="reading"><b>68<i>%</i></b><span>空气湿度</span></div>
+            <div class="reading"><b>32.1<i>klx</i></b><span>光照</span></div>
+            <div class="reading"><b>41<i>%</i></b><span>土壤湿度</span></div>
+          </div>
+          <div class="archive-foot">
+            <span class="src"><span class="pulse"></span>【云端采集真实数据】</span>
+            <span class="opi">OPI <b>87</b> 良好</span>
+          </div>
+        </div>
+        <div class="credit-chip" aria-label="农户信用分">
+          <span class="k">农户信用 · 六档</span>
+          <span class="v">AAA <em>96 / 100</em></span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==================== 链路 ==================== -->
+  <section class="rail" id="flow">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="sec-no">01 / 链路</span>
+        <div>
+          <h2>一条链路，只留一种数据来源</h2>
+          <p class="sec-desc">传感器读数、农事记录、投入品台账在同一个批次上汇合；二维码是这个批次的出口。每一环都能回答「这条数据是谁采的、从哪来的」。</p>
+        </div>
+      </div>
+      <div class="flow" data-reveal data-delay="1">
+        <div class="node"><span class="idx">01 · SENSE</span><h3>传感器</h3><p>MQTT 直连 / 云开发 watch / 演示兜底，四参数一帧</p></div>
+        <div class="node"><span class="idx">02 · STORE</span><h3>readings 集合</h3><p>服务器时间为准，900 ms 防重放，日聚合幂等</p></div>
+        <div class="node accent"><span class="idx">03 · DERIVE</span><h3>环境评价 / OPI</h3><p>与农事记录、投入品台账在批次上汇合</p></div>
+        <div class="node accent"><span class="idx">04 · ARCHIVE</span><h3>批次档案 + 二维码</h3><p>一个批次一张码，档案随记录生长</p></div>
+        <div class="node"><span class="idx">05 · LOOK UP</span><h3>扫码的两端</h3><p>消费者看过程，采购商核验并录入检测</p></div>
+      </div>
+      <div class="flow-line" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 身份 ==================== -->
+  <section id="roles">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="sec-no">02 / 三种身份</span>
+        <div>
+          <h2>同一份数据，三种看法</h2>
+          <p class="sec-desc">身份决定你看到什么、能改什么。权限判定只有一处：<span class="mono">auth.canEdit / canUpload / canReview / canInspect</span>。</p>
+        </div>
+      </div>
+      <div class="roles">
+        <article class="role-card" style="--rc:var(--role-farmer)" data-reveal>
+          <div class="role-top"><span class="role-dot"></span><h3>农户</h3></div>
+          <p class="role-en">FARMER · 土地的主人</p>
+          <ul class="role-list">
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>地块与批次建档，一季一档</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>农事记录与投入品台账，随手一记</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>本地规则库的农技诊断，离线可用</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>环境实况与曲线，来源如实标注</span></li>
+          </ul>
+          <p class="role-demo">演示账号 · <b>张老汉 F-001</b> / 王秀英 F-002 / 李建国 F-003 / 赵桂花 F-004</p>
+        </article>
+
+        <article class="role-card" style="--rc:var(--role-consumer)" data-reveal data-delay="1">
+          <div class="role-top"><span class="role-dot"></span><h3>消费者</h3></div>
+          <p class="role-en">CONSUMER · 扫码的人</p>
+          <ul class="role-list">
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>扫一张码，进这一批菜的档案</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>看 OPI、检测报告、农事与环境曲线</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>评价与反馈，直接影响农户信用</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>不用注册成农户，扫码即看</span></li>
+          </ul>
+          <p class="role-demo">演示账号 · <b>任意</b>（不绑定农户与采购商）</p>
+        </article>
+
+        <article class="role-card" style="--rc:var(--role-buyer)" data-reveal data-delay="2">
+          <div class="role-top"><span class="role-dot"></span><h3>采购商</h3></div>
+          <p class="role-en">BUYER · 收菜的人</p>
+          <ul class="role-list">
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>主推地块按成熟倒计时排序</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>看中就预订购，锁住这一茬</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>批次核验：同一张码，另一套视角</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg><span>录入食品检测，不合格一票否决</span></li>
+          </ul>
+          <p class="role-demo">演示账号 · <b>演示采购商</b></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 能力 ==================== -->
+  <section id="capabilities">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="sec-no">03 / 能力</span>
+        <div>
+          <h2>六件事，做扎实</h2>
+          <p class="sec-desc">不做大而全。传感器、档案、信用、评价、诊断、核验，每一件都要能被追问到「你这个数哪来的」。</p>
+        </div>
+      </div>
+      <div class="caps">
+        <article class="cap" data-reveal>
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 18V9M9 18V5M14 18v-6M19 18v-9"/><path d="M3 21h18"/></svg></div>
+          <h3>四参数，来源必须说清</h3>
+          <p>空气温湿度、光照、土壤湿度。三种来源各有一个标签：<b>【实时直连真实数据】</b> / <b>【云端采集真实数据】</b> / <b>【演示模拟数据】</b>，不混用、不省略。</p>
+          <span class="tiny">sensors.sourceLabel</span>
+        </article>
+        <article class="cap" data-reveal data-delay="1">
+          <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM19 19h2v2h-2z"/></svg></div>
+          <h3>批次档案与二维码</h3>
+          <p>一个批次一条档案、一张码。二维码编码器是手写的最小实现，不引第三方库，也不上传任何数据到外部服务。</p>
+          <span class="tiny">utils/qrcode.js</span>
+        </article>
+        <article class="cap" data-reveal data-delay="2">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3 4.5 6.4v5.2c0 4.4 3.2 8.4 7.5 9.4 4.3-1 7.5-5 7.5-9.4V6.4Z"/><path d="m8.6 12 2.4 2.4 4.4-4.6"/></svg></div>
+          <h3>农户信用分</h3>
+          <p>0–100，六档 AAA→D。履约意愿 20 / 履约能力 40 / 履约行为 40；严重失信每条 −15，经核实投诉 −8。全项目只有一个算法。</p>
+          <span class="tiny">credit.evaluateFarmer</span>
+        </article>
+        <article class="cap" data-reveal>
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 21V9"/><path d="M12 13c0-4 3-7 7-7 0 4-3 7-7 7Z"/><path d="M12 17c0-3.3-2.7-6-6-6 0 3.3 2.7 6 6 6Z"/></svg></div>
+          <h3>OPI 有机生产评价</h3>
+          <p>环境监测 30 / 种植过程 50 / 质量保障与追溯 20，对标 NY/T 3667-2020。连续采集满 30 天才给满分——数据不够就如实扣。</p>
+          <span class="tiny">ai.calcOPI</span>
+        </article>
+        <article class="cap" data-reveal data-delay="1">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h9M4 12h6M4 18h11"/><circle cx="18" cy="7" r="2.4"/><circle cx="15" cy="17" r="2.4"/></svg></div>
+          <h3>农技诊断</h3>
+          <p>本地规则库 + 知识库，把症状、环境读数、作物阶段放在一起给建议。田里没信号也能用，不上传照片也能问。</p>
+          <span class="tiny">diagnose.js + diag-kb.js</span>
+        </article>
+        <article class="cap" data-reveal data-delay="2">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 7h4l2-2h6l2 2h4v12H3Z"/><circle cx="12" cy="13" r="3.2"/></svg></div>
+          <h3>采购商核验</h3>
+          <p>采购商扫同一张码，看到的不是营销页而是核验页：投入品、转换期、缓冲带、检测结果逐项过，然后录入自己的检测。</p>
+          <span class="tiny">store.getOrganicCompliance</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 架构 ==================== -->
+  <section id="arch">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="sec-no">04 / 架构</span>
+        <div>
+          <h2>只有一个入库口</h2>
+          <p class="sec-desc">页面从不直接读写存储，也不引用演示数据。<span class="mono">utils/store.js</span> 是唯一的数据访问层——换成云开发时只改这一个文件，页面一行不动。</p>
+        </div>
+      </div>
+      <div class="arch">
+        <div class="stack" data-reveal>
+          <div class="layer"><span class="lbl">View</span><span class="val">16 个页面<small>只调 store.js，越权时给人话提示再退回</small></span></div>
+          <div class="arrow-down">↓</div>
+          <div class="layer core"><span class="lbl">Store</span><span class="val">utils/store.js<small>唯一读写入库口 · 写操作必重算信用分</small></span></div>
+          <div class="arrow-down">↓</div>
+          <div class="layer"><span class="lbl">Impl</span><span class="val">mock.js ⇄ wx.cloud<small>接口不变，实现可替换：本地演示 / 云开发</small></span></div>
+          <div class="arrow-down">↓</div>
+          <div class="layer"><span class="lbl">Cloud</span><span class="val">7 个云函数<small>统一返回 { ok, data } 或 { ok, msg }</small></span></div>
+          <div class="fn-list">
+            <span class="fn">initdb</span><span class="fn hot">login</span><span class="fn hot">ingest</span>
+            <span class="fn">latest</span><span class="fn">history</span><span class="fn">stats</span><span class="fn">mqttPull</span>
+          </div>
+        </div>
+        <div data-reveal data-delay="1">
+          <div class="stats">
+            <div class="stat"><b data-count="16">16</b><span>页面</span></div>
+            <div class="stat"><b data-count="7">7</b><span>云函数</span></div>
+            <div class="stat"><b data-count="0">0</b><span>npm 依赖</span></div>
+            <div class="stat"><b data-count="4">4</b><span>传感器参数</span></div>
+          </div>
+          <p class="sec-desc" style="margin-top:18px">二维码编码器、MQTT 客户端都是手写的最小实现。加依赖之前，先想清楚为什么。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="hr">
+
+  <!-- ==================== 设计系统 ==================== -->
+  <section id="design">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="sec-no">05 / 设计系统</span>
+        <div>
+          <h2>四条硬规则</h2>
+          <p class="sec-desc">全部 token 在 <span class="mono">app.wxss</span> 顶部。规则不是为了好看，是为了让 16 个页面看起来像一个人画的。</p>
+        </div>
+      </div>
+      <div class="design">
+        <div class="rules" data-reveal>
+          <div class="rule"><span class="n">01</span><div><h3>绿色只有四级</h3><p>ink / green / lime / green-mist。要第五种绿，说明设计错了。</p></div></div>
+          <div class="rule"><span class="n">02</span><div><h3>字号只有六级</h3><p>20 / 22 / 24 / 26 / 32 / 40 rpx。页面里不会出现 27rpx 这种数字。</p></div></div>
+          <div class="rule"><span class="n">03</span><div><h3>阴影永远两层</h3><p>近处一层实、远处一层散。单层阴影一定显廉价。</p></div></div>
+          <div class="rule"><span class="n">04</span><div><h3>圆角只用四档</h3><p>r-sm / r-md / r-lg / r-xl，不随手写像素值。</p></div></div>
+          <p class="sec-desc" style="margin-top:18px">唯一例外是角色色：<b style="color:var(--role-farmer)">农户绿</b> / <b style="color:var(--role-consumer)">消费者蓝</b> / <b style="color:var(--role-buyer)">采购商金</b>，只用于「这是谁」，不进入业务语义。</p>
+        </div>
+        <div data-reveal data-delay="1">
+          <div class="swatches">
+            <div class="sw dark" style="background:#0B1F16"><span>#0B1F16</span></div>
+            <div class="sw dark" style="background:#17603A"><span>#17603A</span></div>
+            <div class="sw" style="background:#C8E96B"><span>#C8E96B</span></div>
+            <div class="sw" style="background:#F3F7F2"><span>#F3F7F2</span></div>
+            <div class="sw" style="background:#F6F5F1"><span>#F6F5F1</span></div>
+            <div class="sw" style="background:#FFFFFF"><span>#FFFFFF</span></div>
+            <div class="sw dark" style="background:#B4802F"><span>#B4802F</span></div>
+            <div class="sw dark" style="background:#2D5DA8"><span>#2D5DA8</span></div>
+          </div>
+          <div class="typescale">
+            <div class="t-row"><i style="font-size:30px">土地档案</i><span>40 rpx · 标题</span></div>
+            <div class="t-row"><i style="font-size:24px">批次可追溯</i><span>32 rpx · 小节</span></div>
+            <div class="t-row"><i style="font-size:19px">东坡 3 号田</i><span>26 rpx · 正文强调</span></div>
+            <div class="t-row"><i style="font-size:17px">空气温度 26.4°C</i><span>24 rpx · 正文</span></div>
+            <div class="t-row"><i style="font-size:15px">来源【云端采集真实数据】</i><span>22 rpx · 辅助</span></div>
+            <div class="t-row"><i style="font-size:13px">更新于 3 分钟前</i><span>20 rpx · 注释</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 边界 ==================== -->
+  <section class="honest" id="honest">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="sec-no">06 / 边界</span>
+        <div>
+          <h2>现在还不是成品</h2>
+          <p class="sec-desc">一个溯源产品最不能做的事，是把演示数据说成真实采集。所以这里把没做完的部分也列出来。</p>
+        </div>
+      </div>
+      <div class="hn-list" data-reveal data-delay="1">
+        <div class="hn"><span class="pri p0">P0</span><b>数据层仍是本地 mock</b><p>多设备看到的是各自的本地数据。要上线，得按 store.js 的接口逐个替换为云开发实现。</p></div>
+        <div class="hn"><span class="pri p0">P0</span><b>照片不落云存储</b><p>选完图只存了临时路径，重进小程序即失效。接 wx.cloud.uploadFile 后写回 fileID。</p></div>
+        <div class="hn"><span class="pri p1">P1</span><b>设备密钥是字面量</b><p>ingest 里的演示密钥仅用于本地跑通，生产必须走环境变量 PENGJI_DEVICE_KEYS。</p></div>
+        <div class="hn"><span class="pri p2">P2</span><b>没有自动化测试</b><p>目前只有静态自检；信用分、OPI、诊断引擎值得补纯函数单测。</p></div>
+      </div>
+      <p class="honest-note">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+        <span>云开发没就绪时，登录会降级为「本机身份 · 未连云端」，首页如实标出来——不假装核验过微信身份。</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== 开始 ==================== -->
+  <section id="start">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="sec-no">07 / 上手</span>
+        <div>
+          <h2>三分钟跑起来</h2>
+          <p class="sec-desc">不需要云环境，也不需要后台账号。演示数据会在第一次打开时自动种下。</p>
+        </div>
+      </div>
+      <div class="start">
+        <div class="steps" data-reveal>
+          <div class="step"><span class="c">1</span><div><h3>克隆仓库</h3><p>用微信开发者工具直接打开项目根目录。</p></div></div>
+          <div class="step"><span class="c">2</span><div><h3>跑一遍自检</h3><p><code>npm run check</code> 检查 JSON、页面四件套、tabBar 一致性、事件处理器、主包体积等 10 项。</p></div></div>
+          <div class="step"><span class="c">3</span><div><h3>先选身份</h3><p>农户、消费者、采购商看到的首页完全不同。选错也没关系，顶部随时切换。</p></div></div>
+          <div class="step"><span class="c">4</span><div><h3>重置演示数据</h3><p><code>utils/store.resetAll()</code>，或清掉本地缓存（存储键 <code>pengji_mock_v6</code>）。</p></div></div>
+          <p class="acct"><span>演示农户</span> <b>张老汉 F-001</b> ／ <span>采购商</span> <b>演示采购商</b> ／ <span>消费者</span> <b>任意</b></p>
+        </div>
+        <div class="term" data-reveal data-delay="1">
+          <div class="term-bar"><i></i><i></i><i></i><span>penji · zsh</span></div>
+          <pre><span class="c"># 1. 自检（改完代码先跑这个）</span>
+<span class="g">$</span> npm run check
+
+<span class="c"># 2. 用微信开发者工具打开项目根目录</span>
+<span class="g">$</span> cli open --project .
+
+<span class="c"># 3. 打开后即可运行：mock.js 会种下</span>
+<span class="c">#    4 位农户 / 5 块地 / 若干批次 / 检测报告</span>
+<span class="y">✓</span> 无需云环境也能走完整个流程
+</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" style="width:32px;height:32px">
+          <rect width="32" height="32" rx="8" fill="#123528"/>
+          <path d="M16 25V13" stroke="#C8E96B" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M16 17c0-4 3-7 7-7 0 4-3 7-7 7Z" fill="#C8E96B"/>
+          <path d="M16 21c0-3-2.4-5.4-5.4-5.4 0 3 2.4 5.4 5.4 5.4Z" fill="#3E8F5F"/>
+        </svg>
+        <div><b>棚迹 Pengji</b><small>FROM PLOT TO PLATE</small></div>
+      </div>
+      <nav class="foot-links" aria-label="页脚导航">
+        <a href="https://github.com/momoqiqi-qwq/penji" target="_blank" rel="noopener">GitHub 仓库</a>
+        <a href="https://github.com/momoqiqi-qwq/penji#readme" target="_blank" rel="noopener">README</a>
+        <a href="https://github.com/momoqiqi-qwq/penji/blob/main/AGENTS.md" target="_blank" rel="noopener">开发约定</a>
+        <a href="https://github.com/momoqiqi-qwq/penji/blob/main/app.wxss" target="_blank" rel="noopener">设计 token</a>
+      </nav>
+    </div>
+    <div class="foot-bottom">
+      <span>棚迹 · 从地块到餐桌 · 看见每一寸土地的故事</span>
+      <span>原生微信小程序 · <span class="lime">零依赖</span> · 2026</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* 二维码示意图：确定性点阵，不联网、不编码真实数据 */
+(function () {
+  const host = document.getElementById('qr')
+  if (!host) return
+  const N = 25, cell = 4, quiet = 2, size = (N + quiet * 2) * cell
+  let seed = 20260318
+  const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff
+  let d = ''
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const inFinder = (x < 7 && y < 7) || (x >= N - 7 && y < 7) || (x < 7 && y >= N - 7)
+      if (inFinder) continue
+      if (rnd() > 0.55) d += `M${(x + quiet) * cell} ${(y + quiet) * cell}h${cell}v${cell}h-${cell}z`
+    }
+  }
+  let finders = ''
+  ;[[0, 0], [N - 7, 0], [0, N - 7]].forEach(([fx, fy]) => {
+    const px = (fx + quiet) * cell, py = (fy + quiet) * cell, s = 7 * cell
+    finders += `<rect x="${px}" y="${py}" width="${s}" height="${s}" fill="none" stroke="#0B1F16" stroke-width="${cell}"/>`
+    finders += `<rect x="${px + cell * 2}" y="${py + cell * 2}" width="${cell * 3}" height="${cell * 3}" fill="#0B1F16"/>`
+  })
+  host.innerHTML = `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true"><rect width="${size}" height="${size}" fill="#fff"/><path d="${d}" fill="#0B1F16"/>${finders}</svg>`
+})()
+
+/* 滚动入场 */
+(function () {
+  const nodes = document.querySelectorAll('[data-reveal]')
+  if (!('IntersectionObserver' in window)) {
+    nodes.forEach(n => n.classList.add('in'))
+    return
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
+    })
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 })
+  nodes.forEach(n => io.observe(n))
+})()
+
+/* 数字入场：只播一次，尊重 prefers-reduced-motion */
+(function () {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const nums = document.querySelectorAll('[data-count]')
+  if (reduced || !('IntersectionObserver' in window)) return
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return
+      const el = e.target, target = Number(el.dataset.count)
+      io.unobserve(el)
+      if (!target) return
+      const t0 = performance.now(), dur = 900
+      const tick = (t) => {
+        const p = Math.min(1, (t - t0) / dur)
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)))
+        if (p < 1) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    })
+  }, { threshold: 0.5 })
+  nums.forEach(n => io.observe(n))
+})()
+</script>
+</body>
+</html>
+
