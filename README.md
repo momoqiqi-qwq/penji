@@ -1,3 +1,35 @@
+<div align="center">
+
+<img src="./assets/readme-hero.svg" alt="penji" width="1000" />
+
+**面向小农户的农产品溯源微信小程序**
+
+[![stars](https://img.shields.io/github/stars/momoqiqi-qwq/penji?style=for-the-badge&color=f5c518&labelColor=2b2b2b)](https://github.com/momoqiqi-qwq/penji/stargazers) ![license](https://img.shields.io/github/license/momoqiqi-qwq/penji?style=for-the-badge&color=3da639) ![JavaScript](https://img.shields.io/badge/JavaScript-E8B40C?style=for-the-badge&logo=javascript&logoColor=white) ![WeChat](https://img.shields.io/badge/WeChat%20Mini-07C160?style=for-the-badge&logo=wechat&logoColor=white)
+
+</div>
+
+<details>
+<summary><b>目录</b></summary>
+
+- [技术栈](#技术栈)
+- [快速开始](#快速开始)
+- [目录结构](#目录结构)
+- [数据层：只有一个入口](#数据层只有一个入口)
+- [传感器链路](#传感器链路)
+- [云函数](#云函数)
+- [登录链路](#登录链路)
+- [两套评价模型](#两套评价模型)
+- [进货验收时限](#进货验收时限)
+- [设计系统](#设计系统)
+- [自检](#自检)
+- [更新日志](#更新日志)
+- [已知问题与待办](#已知问题与待办)
+- [提交前](#提交前)
+
+</details>
+
+---
+
 # 棚迹 Pengji
 
 > 从地块到餐桌 · 看见每一寸土地的故事
