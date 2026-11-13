@@ -1,12 +1,14 @@
 <div align="center">
 
-<img src="./assets/readme-hero.svg" alt="penji" width="1000" />
+<img src="./assets/hero.svg" alt="penji" width="1000" />
 
 **面向小农户的农产品溯源微信小程序**
 
 [![stars](https://img.shields.io/github/stars/momoqiqi-qwq/penji?style=for-the-badge&color=f5c518&labelColor=2b2b2b)](https://github.com/momoqiqi-qwq/penji/stargazers) ![license](https://img.shields.io/github/license/momoqiqi-qwq/penji?style=for-the-badge&color=3da639) ![JavaScript](https://img.shields.io/badge/JavaScript-E8B40C?style=for-the-badge&logo=javascript&logoColor=white) ![WeChat](https://img.shields.io/badge/WeChat%20Mini-07C160?style=for-the-badge&logo=wechat&logoColor=white)
 
 </div>
+
+---
 
 <details open>
 <summary><b>目录</b></summary>
