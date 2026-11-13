@@ -8,7 +8,7 @@
 
 </div>
 
-<details>
+<details open>
 <summary><b>目录</b></summary>
 
 - [技术栈](#技术栈)
@@ -27,6 +27,8 @@
 - [提交前](#提交前)
 
 </details>
+
+---
 
 ---
 
